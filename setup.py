@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'wechat-sdk',
-    version = '0.1',
+    version = '0.1.1',
     keywords = ('wechat', 'sdk'),
     description = 'A Python SDK for WeChat.',
     license = 'BSD License',
