@@ -81,6 +81,17 @@ class WechatBasic(object):
         self.__message = message_type(result)
         self.__is_parse = True
 
+    def get_message(self):
+        """
+        获取解析好的 WechatMessage 对象
+        :return: 解析好的 WechatMessage 对象
+        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
+        """
+        if not self.__is_parse:
+            raise NeedParseError()
+
+        return self.__message
+
     def response_text(self, content):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
