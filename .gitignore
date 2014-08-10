@@ -3,9 +3,10 @@
 
 # Packaging files:
 *.egg*
+dist
 
 # Sphinx docs:
-build
+_build
 
 # SQLite3 database files:
 *.db
@@ -38,9 +39,4 @@ tramp
 Thumbs.db
 Desktop.ini
 
-citi/citi/settings/local.py
-citi/citi/settings/test.py
-citi/citi/settings/production.py
-
 .idea
-citi/assets
