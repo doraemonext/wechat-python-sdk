@@ -4,6 +4,7 @@
 # Packaging files:
 *.egg*
 dist
+build
 
 # Sphinx docs:
 _build
