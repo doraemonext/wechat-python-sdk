@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
+class NeedParamError(Exception):
+    """
+    构造参数提供不全异常
+    """
+    pass
+
+
 class ParseError(Exception):
     """
     解析微信服务器数据异常

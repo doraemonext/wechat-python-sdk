@@ -6,7 +6,7 @@ from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 
 from .messages import MESSAGE_TYPES, UnknownMessage
-from .exceptions import ParseError, NeedParseError
+from .exceptions import ParseError, NeedParseError, NeedParamError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
 
 
@@ -16,7 +16,7 @@ class WechatBasic(object):
 
     仅包含官方 API 中所包含的内容, 如需高级功能支持请移步 ext.py 中的 WechatExt 类
     """
-    def __init__(self, token, appid=None, appsecret=None, partnerid=None,
+    def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
                  partnerkey=None, paysignkey=None, debug=False):
         """
         :param token: 微信 Token
@@ -46,6 +46,8 @@ class WechatBasic(object):
         :param nonce: 随机数
         :return: 通过验证返回 True, 未通过验证返回 False
         """
+        self._check_token()
+
         tmp_list = [self.__token, timestamp, nonce]
         tmp_list.sort()
         tmp_str = ''.join(tmp_list)
@@ -85,10 +87,8 @@ class WechatBasic(object):
         """
         获取解析好的 WechatMessage 对象
         :return: 解析好的 WechatMessage 对象
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return self.__message
 
@@ -97,10 +97,8 @@ class WechatBasic(object):
         将文字信息 content 组装为符合微信服务器要求的响应数据
         :param content: 回复文字
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return TextReply(message=self.__message, content=content).render()
 
@@ -109,10 +107,8 @@ class WechatBasic(object):
         将 media_id 所代表的图片组装为符合微信服务器要求的响应数据
         :param media_id: 图片的 MediaID
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return ImageReply(message=self.__message, media_id=media_id).render()
 
@@ -121,10 +117,8 @@ class WechatBasic(object):
         将 media_id 所代表的语音组装为符合微信服务器要求的响应数据
         :param media_id: 语音的 MediaID
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return VoiceReply(message=self.__message, media_id=media_id).render()
 
@@ -135,10 +129,8 @@ class WechatBasic(object):
         :param title: 视频消息的标题
         :param description: 视频消息的描述
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return VideoReply(message=self.__message, media_id=media_id, title=title, description=description).render()
 
@@ -151,10 +143,8 @@ class WechatBasic(object):
         :param hq_music_url: 高质量音乐链接, WIFI环境优先使用该链接播放音乐
         :param thumb_media_id: 缩略图的 MediaID
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         return MusicReply(message=self.__message, title=title, description=description, music_url=music_url,
                           hq_music_url=hq_music_url, thumb_media_id=thumb_media_id).render()
@@ -164,13 +154,35 @@ class WechatBasic(object):
         将新闻信息组装为符合微信服务器要求的响应数据
         :param articles: list 对象, 每个元素为一个 dict 对象, key 包含 `title`, `description`, `picurl`, `url`
         :return: 符合微信服务器要求的 XML 响应数据
-        :raises NeedParseError: 没有解析数据就调用本函数, 调用错误
         """
-        if not self.__is_parse:
-            raise NeedParseError()
+        self._check_parse()
 
         news = ArticleReply(message=self.__message)
         for article in articles:
             article = Article(**article)
             news.add_article(article)
         return news.render()
+
+    def _check_token(self):
+        """
+        检查 Token 是否存在
+        :raises NeedParamError: Token 参数没有在初始化的时候提供
+        """
+        if not self.__token:
+            raise NeedParamError('Please provide Token parameter in the construction of class.')
+
+    def _check_appid_appsecret(self):
+        """
+        检查 AppID 和 AppSecret 是否存在
+        :raises NeedParamError: AppID 或 AppSecret 参数没有在初始化的时候完整提供
+        """
+        if not self.__appid or not self.__appsecret:
+            raise NeedParamError('Please provide app_id and app_secret parameters in the construction of class.')
+
+    def _check_parse(self):
+        """
+        检查是否成功解析微信服务器传来的数据
+        :raises NeedParseError: 需要解析微信服务器传来的数据
+        """
+        if not self.__is_parse:
+            raise NeedParseError()
