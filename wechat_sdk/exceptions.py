@@ -20,3 +20,10 @@ class NeedParseError(Exception):
     尚未解析微信服务器请求数据异常
     """
     pass
+
+
+class OfficialAPIError(Exception):
+    """
+    微信官方API请求出错异常
+    """
+    pass

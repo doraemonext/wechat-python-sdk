@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import requests
+import time
+import json
 
 from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 
 from .messages import MESSAGE_TYPES, UnknownMessage
-from .exceptions import ParseError, NeedParseError, NeedParamError
+from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
 
 
@@ -35,6 +38,8 @@ class WechatBasic(object):
         self.__paysignkey = paysignkey
         self.__debug = debug
 
+        self.__access_token = None
+        self.__access_token_expires_at = None
         self.__is_parse = False
         self.__message = None
 
@@ -163,6 +168,36 @@ class WechatBasic(object):
             news.add_article(article)
         return news.render()
 
+    def grant_token(self):
+        """
+        获取 Access Token
+        详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=通用接口文档
+        :return: 返回的 json 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._get(
+            url="https://api.weixin.qq.com/cgi-bin/token",
+            params={
+                "grant_type": "client_credential",
+                "appid": self.__appid,
+                "secret": self.__appsecret,
+            }
+        )
+
+    @property
+    def access_token(self):
+        self._check_appid_appsecret()
+
+        if self.__access_token:
+            now = time.time()
+            if self.__access_token_expires_at - now > 60:
+                return self.__access_token
+        response_json = self.grant_token()
+        self.__access_token = response_json['access_token']
+        self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
+        return self.__access_token
+
     def _check_token(self):
         """
         检查 Token 是否存在
@@ -186,3 +221,64 @@ class WechatBasic(object):
         """
         if not self.__is_parse:
             raise NeedParseError()
+
+    def _check_official_error(self, json_data):
+        """
+        检测微信公众平台返回值中是否包含错误的返回码
+        :raises OfficialAPIError: 如果返回码提示有错误，抛出异常；否则返回 True
+        """
+        if "errcode" in json_data and json_data["errcode"] != 0:
+            raise OfficialAPIError("{}: {}".format(json_data["errcode"], json_data["errmsg"]))
+
+    def _request(self, method, url, **kwargs):
+        """
+        向微信服务器发送请求
+        :param method: 请求方法
+        :param url: 请求地址
+        :param kwargs: 附加数据
+        :return: 微信服务器响应的 json 数据
+        """
+        if "params" not in kwargs:
+            kwargs["params"] = {
+                "access_token": self.access_token,
+            }
+        if isinstance(kwargs.get("data", ""), dict):
+            body = json.dumps(kwargs["data"], ensure_ascii=False)
+            body = body.encode('utf8')
+            kwargs["data"] = body
+
+        r = requests.request(
+            method=method,
+            url=url,
+            **kwargs
+        )
+        r.raise_for_status()
+        response_json = r.json()
+        self._check_official_error(response_json)
+        return response_json
+
+    def _get(self, url, **kwargs):
+        """
+        使用 GET 方法向微信服务器发出请求
+        :param url: 请求地址
+        :param kwargs: 附加数据
+        :return: 微信服务器响应的 json 数据
+        """
+        return self._request(
+            method="get",
+            url=url,
+            **kwargs
+        )
+
+    def _post(self, url, **kwargs):
+        """
+        使用 POST 方法向微信服务器发出请求
+        :param url: 请求地址
+        :param kwargs: 附加数据
+        :return: 微信服务器响应的 json 数据
+        """
+        return self._request(
+            method="post",
+            url=url,
+            **kwargs
+        )
