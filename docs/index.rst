@@ -1,10 +1,14 @@
-wechat-python-sdk 文档
+微信公众平台 Python 开发包文档
 ====================================
 
-Contents:
+目录：
 
 .. toctree::
    :maxdepth: 2
+
+   introduction
+   install
+   tutorial
 
 Indices and tables
 ==================
