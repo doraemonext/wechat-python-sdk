@@ -1,6 +1,7 @@
-# 微信公众平台 Python 开发包
+微信公众平台 Python 开发包
+===========================
 
-**当前进度正在开发中，功能尚未开发完成，仅供测试使用。**
+**当前进度正在开发中，功能尚未开发完成，文档也正在完善中，仅供测试使用。**
 
 非官方微信公众平台 Python 开发包，包括官方接口和非官方接口。
 
@@ -8,17 +9,23 @@
 
 * 非官方接口采用模拟登陆的方式，可以实现更多高级功能，但也存在相应风险。尤其注意，本开发包不提供群发功能，此功能被微信公众平台明令禁止。
 
-## 文档
+文档
+----------------------------
 
-[http://wechat-python-sdk.readthedocs.org/](http://wechat-python-sdk.readthedocs.org/)
+`http://wechat-python-sdk.readthedocs.org/ <http://wechat-python-sdk.readthedocs.org/>`_
 
-## 快速开始
+快速开始
+----------------------------
 
-### 安装
+安装
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     pip install wechat-sdk
     
-### 官方接口调用示例
+官方接口调用示例
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
 
     # -*- coding: utf-8 -*-
     
@@ -26,12 +33,14 @@
     
     
     # 初始化
-    wechat = WechatBasic(token='WECHAT_TOKEN',             # 微信 Token
+    wechat = WechatBasic(token='WECHAT_TOKEN',             # 微信 Token (可选)
                          appid='wechat_app_id',            # App ID (可选)
                          appsecret='wechat_app_secret',    # App Secret (可选)
                          partnerid='wechat_partner_id',    # 财付通商户身份标识, 支付权限专用 (可选)
                          partnerkey='wechat_partner_key',  # 财付通商户权限密钥 Key, 支付权限专用 (可选)
                          paysignkey='wechat_paysign_key')  # 商户签名密钥 Key, 支付权限专用 (可选)
+                         access_token='origin_access_token'), # 被缓存好的access_token, 直接初始化
+                         access_token_expires_at='origin_access_token_expires_at'), # 被缓存好的access_token过期时间, 直接初始化
     
     # 对签名进行校验                     
     if wechat.check_signature(signature='114f72fa8893172d9d68970c2b7621bb84acda84',
