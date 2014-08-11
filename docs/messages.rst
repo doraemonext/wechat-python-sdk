@@ -1,7 +1,7 @@
 微信消息类 WechatMessage
 ===========================
 
-目前此开发包提供以下几种消息类：``TextMessage`` (文本消息类), ``ImageMessage`` (图片消息类), ``LocationMessage`` (位置消息类), ``LinkMessage`` (链接消息类), ``EventMessage`` (事件消息类), ``VoiceMessage`` (语音消息类)，它们都继承自 ``WechatMessage`` (公共消息类)
+目前此开发包提供以下几种消息类：``TextMessage`` (文本消息类), ``ImageMessage`` (图片消息类), ``VideoMessage`` (视频消息类), ``LocationMessage`` (位置消息类), ``LinkMessage`` (链接消息类), ``EventMessage`` (事件消息类), ``VoiceMessage`` (语音消息类)，它们都继承自 ``WechatMessage`` (公共消息类)
 
 这些消息类都在 ``wechat_sdk.messages`` 中定义
 
@@ -37,8 +37,19 @@ content   信息的内容
 name     value
 ======= ==================================
 type     'image'
-img      图片网址，可以从这个网址访问到图片
+picurl   图片网址，可以从这个网址访问到图片
 ======= ==================================
+
+视频消息类 VideoMessage
+---------------------------
+
+================ ==================================
+name              value
+================ ==================================
+type              'video'
+media_id          视频消息媒体 ID
+thumb_media_id    视频消息缩略图的媒体 ID
+================ ==================================
 
 链接消息类 LinkMessage
 ---------------------------
@@ -84,7 +95,7 @@ Precision	 地理位置精度。当 type = 'location' 时存在。
 name          value
 ============ =====================================
 type          'voice'
-media_id      语音 MediaID
+media_id      语音消息媒体 ID
 format        声音格式
 recognition   语音识别结果
 ============ =====================================
