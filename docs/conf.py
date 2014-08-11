@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'wechat'
+project = u'wechat-python-sdk'
 copyright = u'2014, Ace Kwok'
 
 # The version info for the project you're documenting, acts as replacement for
