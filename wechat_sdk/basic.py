@@ -28,8 +28,8 @@ class WechatBasic(object):
         :param partnerid: 财付通商户身份标识, 支付权限专用
         :param partnerkey: 财付通商户权限密钥 Key, 支付权限专用
         :param paysignkey: 商户签名密钥 Key, 支付权限专用
-        :param access_token: 直接导入的 access_token 值 (详见文档)
-        :param access_token_expires_at: 直接导入的 access_token 的过期日期 (详见文档)
+        :param access_token: 直接导入的 access_token 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param access_token_expires_at: 直接导入的 access_token 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         """
         self.__token = token
         self.__appid = appid
@@ -96,6 +96,18 @@ class WechatBasic(object):
         self._check_parse()
 
         return self.__message
+
+    def get_access_token(self):
+        """
+        获取 Access Token 及 Access Token 过期日期
+        :return: dict 对象, key 包括 `access_token` 及 `access_token_expires_at`
+        """
+        self._check_appid_appsecret()
+
+        return {
+            'access_token': self.access_token,
+            'access_token_expires_at': self.__access_token_expires_at,
+        }
 
     def response_text(self, content):
         """

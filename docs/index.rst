@@ -20,6 +20,7 @@
 
    install
    tutorial
+   basic
 
 Indices and tables
 ==================
