@@ -20,7 +20,7 @@ class WechatBasic(object):
     仅包含官方 API 中所包含的内容, 如需高级功能支持请移步 ext.py 中的 WechatExt 类
     """
     def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
-                 partnerkey=None, paysignkey=None, debug=False):
+                 partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None):
         """
         :param token: 微信 Token
         :param appid: App ID
@@ -28,7 +28,8 @@ class WechatBasic(object):
         :param partnerid: 财付通商户身份标识, 支付权限专用
         :param partnerkey: 财付通商户权限密钥 Key, 支付权限专用
         :param paysignkey: 商户签名密钥 Key, 支付权限专用
-        :param debug: 是否进入 Debug 模式, 开启 Debug 模式将会向控制台输出所有运行记录
+        :param access_token: 直接导入的 access_token 值 (详见文档)
+        :param access_token_expires_at: 直接导入的 access_token 的过期日期 (详见文档)
         """
         self.__token = token
         self.__appid = appid
@@ -36,10 +37,9 @@ class WechatBasic(object):
         self.__partnerid = partnerid
         self.__partnerkey = partnerkey
         self.__paysignkey = paysignkey
-        self.__debug = debug
 
-        self.__access_token = None
-        self.__access_token_expires_at = None
+        self.__access_token = access_token
+        self.__access_token_expires_at = access_token_expires_at
         self.__is_parse = False
         self.__message = None
 
