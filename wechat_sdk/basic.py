@@ -99,7 +99,7 @@ class WechatBasic(object):
 
     def get_access_token(self):
         """
-        获取 Access Token 及 Access Token 过期日期
+        获取 Access Token 及 Access Token 过期日期, 仅供缓存使用, 如果希望得到原生的 Access Token 请求数据请使用 :func:`grant_token`
         :return: dict 对象, key 包括 `access_token` 及 `access_token_expires_at`
         """
         self._check_appid_appsecret()
@@ -184,7 +184,7 @@ class WechatBasic(object):
         """
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=通用接口文档
-        :return: 返回的 json 数据包
+        :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()
 
@@ -373,7 +373,7 @@ class WechatBasic(object):
         """
         移动用户分组
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID 。 就是你收到的 WechatMessage 的 source
         :param group_id: 分组 ID
         :return: 返回的 JSON 数据包
         """
@@ -391,7 +391,7 @@ class WechatBasic(object):
         """
         获取用户基本信息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=获取用户基本信息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param lang: 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
         :return: 返回的 JSON 数据包
         """
@@ -426,7 +426,7 @@ class WechatBasic(object):
         """
         发送文本消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param content: 消息正文
         :return: 返回的 JSON 数据包
         """
@@ -447,7 +447,7 @@ class WechatBasic(object):
         """
         发送图片消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 图片的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
         """
@@ -468,7 +468,7 @@ class WechatBasic(object):
         """
         发送语音消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 发送的语音的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
         """
@@ -489,7 +489,7 @@ class WechatBasic(object):
         """
         发送视频消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 发送的视频的媒体ID。 可以通过 :func:`upload_media` 上传。
         :param title: 视频消息的标题
         :param description: 视频消息的描述
@@ -518,7 +518,7 @@ class WechatBasic(object):
         """
         发送音乐消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param url: 音乐链接
         :param hq_url: 高品质音乐链接，wifi环境优先使用该链接播放音乐
         :param thumb_media_id: 缩略图的媒体ID。 可以通过 :func:`upload_media` 上传。
@@ -551,7 +551,7 @@ class WechatBasic(object):
         """
         发送图文消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
-        :param user_id: 用户 ID 。 就是你收到的 `Message` 的 source
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param articles: 一个包含至多10个 :class:`Article` 实例的数组
         :return: 返回的 JSON 数据包
         """
