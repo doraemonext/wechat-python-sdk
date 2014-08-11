@@ -228,6 +228,8 @@ class WechatBasic(object):
         :param menu_data: Python 字典
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/menu/create',
             data=menu_data
@@ -239,6 +241,8 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单查询接口
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._get('https://api.weixin.qq.com/cgi-bin/menu/get')
 
     def delete_menu(self):
@@ -247,6 +251,8 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单删除接口
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._get('https://api.weixin.qq.com/cgi-bin/menu/delete')
 
     def upload_media(self, media_type, media_file):
@@ -257,6 +263,8 @@ class WechatBasic(object):
         :param media_file:要上传的文件，一个 File-object
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='http://file.api.weixin.qq.com/cgi-bin/media/upload',
             params={
@@ -275,6 +283,8 @@ class WechatBasic(object):
         :param media_id: 媒体文件 ID
         :return: requests 的 Response 实例
         """
+        self._check_appid_appsecret()
+
         return requests.get(
             'http://file.api.weixin.qq.com/cgi-bin/media/get',
             params={
@@ -290,6 +300,8 @@ class WechatBasic(object):
         :param name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/groups/create',
             data={
@@ -305,6 +317,8 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._get('https://api.weixin.qq.com/cgi-bin/groups/get')
 
     def get_group_by_id(self, openid):
@@ -314,6 +328,8 @@ class WechatBasic(object):
         :param openid: 用户的OpenID
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/groups/getid',
             data={
@@ -329,6 +345,8 @@ class WechatBasic(object):
         :param name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/groups/update',
             data={
@@ -347,6 +365,8 @@ class WechatBasic(object):
         :param group_id: 分组 ID
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/groups/members/update',
             data={
@@ -363,6 +383,8 @@ class WechatBasic(object):
         :param lang: 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._get(
             url='https://api.weixin.qq.com/cgi-bin/user/info',
             params={
@@ -379,6 +401,8 @@ class WechatBasic(object):
         :param first_user_id: 可选。第一个拉取的OPENID，不填默认从头开始拉取
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         params = {
             'access_token': self.access_token,
         }
@@ -394,6 +418,8 @@ class WechatBasic(object):
         :param content: 消息正文
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
@@ -413,6 +439,8 @@ class WechatBasic(object):
         :param media_id: 图片的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
@@ -432,6 +460,8 @@ class WechatBasic(object):
         :param media_id: 发送的语音的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
@@ -453,6 +483,8 @@ class WechatBasic(object):
         :param description: 视频消息的描述
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         video_data = {
             'media_id': media_id,
         }
@@ -482,6 +514,8 @@ class WechatBasic(object):
         :param description: 音乐描述
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         music_data = {
             'musicurl': url,
             'hqmusicurl': hq_url,
@@ -509,6 +543,8 @@ class WechatBasic(object):
         :param articles: 一个包含至多10个 :class:`Article` 实例的数组
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         articles_data = []
         for article in articles:
             articles_data.append({
@@ -535,6 +571,8 @@ class WechatBasic(object):
         :param data: 你要发送的参数 dict
         :return: 返回的 JSON 数据包
         """
+        self._check_appid_appsecret()
+
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/qrcode/create',
             data=data
@@ -547,6 +585,8 @@ class WechatBasic(object):
         :param ticket: 二维码 ticket 。可以通过 :func:`create_qrcode` 获取到
         :return: 返回的 Request 对象
         """
+        self._check_appid_appsecret()
+
         return requests.get(
             url='https://mp.weixin.qq.com/cgi-bin/showqrcode',
             params={
