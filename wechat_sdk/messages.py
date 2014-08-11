@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # From: https://github.com/whtsky/WeRoBot/blob/develop/werobot/messages.py
 
+from .exceptions import ParseError
+
 MESSAGE_TYPES = {}
 
 
@@ -23,34 +25,40 @@ class WechatMessage(object):
 @handle_for_type("text")
 class TextMessage(WechatMessage):
     def __init__(self, message):
-        self.content = message.pop("Content")
+        self.content = message.pop("Content", "")
         super(TextMessage, self).__init__(message)
 
 
 @handle_for_type("image")
 class ImageMessage(WechatMessage):
     def __init__(self, message):
-        self.img = message.pop("PicUrl")
+        self.img = message.pop("PicUrl", "")
         super(ImageMessage, self).__init__(message)
 
 
 @handle_for_type("location")
 class LocationMessage(WechatMessage):
     def __init__(self, message):
-        location_x = message.pop('Location_X')
-        location_y = message.pop('Location_Y')
-        self.location = (float(location_x), float(location_y))
-        self.scale = int(message.pop('Scale'))
-        self.label = message.pop('Label')
+        try:
+            location_x = message.pop('Location_X')
+            location_y = message.pop('Location_Y')
+            self.location = (float(location_x), float(location_y))
+            self.scale = int(message.pop('Scale'))
+            self.label = message.pop('Label')
+        except KeyError:
+            raise ParseError()
         super(LocationMessage, self).__init__(message)
 
 
 @handle_for_type("link")
 class LinkMessage(WechatMessage):
     def __init__(self, message):
-        self.title = message.pop('Title')
-        self.description = message.pop('Description')
-        self.url = message.pop('Url')
+        try:
+            self.title = message.pop('Title')
+            self.description = message.pop('Description')
+            self.url = message.pop('Url')
+        except KeyError:
+            raise ParseError()
         super(LinkMessage, self).__init__(message)
 
 
@@ -58,22 +66,28 @@ class LinkMessage(WechatMessage):
 class EventMessage(WechatMessage):
     def __init__(self, message):
         message.pop("type")
-        self.type = message.pop("Event").lower()
-        if self.type == "click":
-            self.key = message.pop('EventKey')
-        elif self.type == "location":
-            self.latitude = float(message.pop("Latitude"))
-            self.longitude = float(message.pop("Longitude"))
-            self.precision = float(message.pop("Precision"))
+        try:
+            self.type = message.pop("Event").lower()
+            if self.type == "click":
+                self.key = message.pop('EventKey')
+            elif self.type == "location":
+                self.latitude = float(message.pop("Latitude"))
+                self.longitude = float(message.pop("Longitude"))
+                self.precision = float(message.pop("Precision"))
+        except KeyError:
+            raise ParseError()
         super(EventMessage, self).__init__(message)
 
 
 @handle_for_type("voice")
 class VoiceMessage(WechatMessage):
     def __init__(self, message):
-        self.media_id = message.pop('MediaId')
-        self.format = message.pop('Format')
-        self.recognition = message.pop('Recognition')
+        try:
+            self.media_id = message.pop('MediaId')
+            self.format = message.pop('Format')
+            self.recognition = message.pop('Recognition')
+        except KeyError:
+            raise ParseError()
         super(VoiceMessage, self).__init__(message)
 
 
