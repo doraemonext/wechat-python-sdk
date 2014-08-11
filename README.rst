@@ -20,6 +20,8 @@
 安装
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+::
+
     pip install wechat-sdk
     
 官方接口调用示例
@@ -32,40 +34,43 @@
     from wechat_sdk import WechatBasic
     
     
-    # 初始化
-    wechat = WechatBasic(token='WECHAT_TOKEN',             # 微信 Token (可选)
-                         appid='wechat_app_id',            # App ID (可选)
-                         appsecret='wechat_app_secret',    # App Secret (可选)
-                         partnerid='wechat_partner_id',    # 财付通商户身份标识, 支付权限专用 (可选)
-                         partnerkey='wechat_partner_key',  # 财付通商户权限密钥 Key, 支付权限专用 (可选)
-                         paysignkey='wechat_paysign_key')  # 商户签名密钥 Key, 支付权限专用 (可选)
-                         access_token='origin_access_token'), # 被缓存好的access_token, 直接初始化
-                         access_token_expires_at='origin_access_token_expires_at'), # 被缓存好的access_token过期时间, 直接初始化
+    # 下面这些变量均假设已由 Request 中提取完毕
+    token = 'WECHAT_TOKEN'  # 你的微信 Token
+    signature = 'f24649c76c3f3d81b23c033da95a7a30cb7629cc'  # Request 中 GET 参数 signature
+    timestamp = '1406799650'  # Request 中 GET 参数 timestamp
+    nonce = '1505845280'  # Request 中 GET 参数 nonce
+    # 用户的请求内容 (Request 中的 Body)
+    # 请更改 body_text 的内容来测试下面代码的执行情况
+    body_text = """
+    <xml>
+    <ToUserName><![CDATA[touser]]></ToUserName>
+    <FromUserName><![CDATA[fromuser]]></FromUserName>
+    <CreateTime>1405994593</CreateTime>
+    <MsgType><![CDATA[text]]></MsgType>
+    <Content><![CDATA[wechat]]></Content>
+    <MsgId>6038700799783131222</MsgId>
+    </xml>
+    """
     
-    # 对签名进行校验                     
-    if wechat.check_signature(signature='114f72fa8893172d9d68970c2b7621bb84acda84',
-                              timestamp='1406799649',
-                              nonce='1000166642'):
-        # 解析微信服务器的请求数据                      
-        wechat.parse_data("""
-        <xml>
-        <ToUserName><![CDATA[gh_6091f3b083e7]]></ToUserName>
-        <FromUserName><![CDATA[oPGltuJSbiK6HkOSOGyVSCy0hRoU]]></FromUserName>
-        <CreateTime>1405994594</CreateTime>
-        <MsgType><![CDATA[text]]></MsgType>
-        <Content><![CDATA[文字信息]]></Content>
-        <MsgId>6038700799783131746</MsgId>
-        </xml>
-        """)
-
-		# 得到可以响应微信服务器的文字回复信息的 XML
-        response_text = wechat.response_text('测试回复文字信息')
-        # 得到可以响应微信服务器的音乐回复信息的 XML
-        response_music = wechat.response_music(music_url='music_url',
-                                               title='music_title',             # (可选)
-                                               description='music_description', # (可选)
-                                               hq_music_url='hq_music_url')     # (可选)
-
-        # 接下来便可以将response_text或response_music直接作为HTTP Response响应微信服务器
-        # print response_text
-        # print response_music
+    # 实例化 wechat
+    wechat = WechatBasic(token=token)
+    # 对签名进行校验
+    if wechat.check_signature(signature=signature, timestamp=timestamp, nonce=nonce):
+        # 对 XML 数据进行解析 (必要, 否则不可执行 response_text, response_image 等操作)
+        wechat.parse_data(body_text)
+        # 获得解析结果, message 为 WechatMessage 对象 (wechat_sdk.messages中定义)
+        message = wechat.get_message()
+    
+        response = None
+        if message.type == 'text':
+            if message.content == 'wechat':
+                response = wechat.response_text('^_^')
+            else:
+                response = wechat.response_text('文字')
+        elif message.type == 'image':
+            response = wechat.response_text('图片')
+        else:
+            response = wechat.response_text('未知')
+    
+        # 现在直接将 response 变量内容直接作为 HTTP Response 响应微信服务器即可，此处为了演示返回内容，直接将响应进行输出
+        print response
