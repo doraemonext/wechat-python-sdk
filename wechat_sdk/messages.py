@@ -32,8 +32,23 @@ class TextMessage(WechatMessage):
 @handle_for_type("image")
 class ImageMessage(WechatMessage):
     def __init__(self, message):
-        self.img = message.pop("PicUrl", "")
+        try:
+            self.picurl = message.pop("PicUrl")
+            self.media_id = message.pop('MediaId')
+        except KeyError:
+            raise ParseError()
         super(ImageMessage, self).__init__(message)
+
+
+@handle_for_type("video")
+class VideoMessage(WechatMessage):
+    def __init__(self, message):
+        try:
+            self.media_id = message.pop('MediaId')
+            self.thumb_media_id = message.pop('ThumbMediaId')
+        except KeyError:
+            raise ParseError()
+        super(VideoMessage, self).__init__(message)
 
 
 @handle_for_type("location")

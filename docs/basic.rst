@@ -1,7 +1,7 @@
 微信官方接口操作 WechatBasic
-==========================
+=================================
 
-.. py:class:: WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None)
+.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None)
 
     微信基本功能类
 
@@ -58,7 +58,7 @@
 
     .. py:method:: get_message()
 
-        获取解析好的 WechatMessage 对象
+        获取解析好的 :class:`WechatMessage` 对象
 
         运行时检查：是否已调用 :func:`parse_data` 进行解析
 
