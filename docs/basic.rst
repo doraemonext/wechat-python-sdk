@@ -1,4 +1,4 @@
-微信官方接口操作
+微信官方接口操作 WechatBasic
 ==========================
 
 .. py:class:: WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None)
