@@ -1,7 +1,7 @@
 微信消息类 WechatMessage
 ===========================
 
-目前此开发包提供以下几种消息类：``TextMessage``(文本消息类), ``ImageMessage``(图片消息类), ``LocationMessage``(位置消息类), ``LinkMessage``(链接消息类), ``EventMessage``(事件消息类), ``VoiceMessage``(语音消息类)，它们都继承自 ``WechatMessage``(公共消息类)
+目前此开发包提供以下几种消息类：``TextMessage`` (文本消息类), ``ImageMessage`` (图片消息类), ``LocationMessage`` (位置消息类), ``LinkMessage`` (链接消息类), ``EventMessage`` (事件消息类), ``VoiceMessage`` (语音消息类)，它们都继承自 ``WechatMessage`` (公共消息类)
 
 这些消息类都在 ``wechat_sdk.messages`` 中定义
 
