@@ -164,35 +164,36 @@
 
         创建自定义菜单 ::
 
+            # -*- coding: utf-8 -*-
             wechat = WechatBasic(appid='appid', appsecret='appsecret')
             wechat.create_menu({
                 'button':[
                     {
                         'type':'click',
-                        'name':'今日歌曲',
+                        'name':u'今日歌曲',
                         'key':'V1001_TODAY_MUSIC'
                     },
                     {
                         'type':'click',
-                        'name':'歌手简介',
+                        'name':u'歌手简介',
                         'key':'V1001_TODAY_SINGER'
                     },
                     {
-                        'name':'菜单',
+                        'name':u'菜单',
                         'sub_button':[
                             {
                                 'type':'view',
-                                'name':'搜索',
+                                'name':u'搜索',
                                 'url':'http://www.soso.com/'
                             },
                             {
                                 'type':'view',
-                                'name':'视频',
+                                'name':u'视频',
                                 'url':'http://v.qq.com/'
                             },
                             {
                                 'type':'click',
-                                'name':'赞一下我们',
+                                'name':u'赞一下我们',
                                 'key':'V1001_GOOD'
                             }
                         ]
@@ -200,6 +201,8 @@
                 ]})
 
         详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单创建接口>`_
+
+        请注意中文请使用 unicode 形式, 如上面的示例
 
         运行时检查：``appid``, ``appsecret``
 
@@ -250,6 +253,14 @@
 
         下载多媒体文件
 
+        如果希望将返回的多媒体文件以文件的形式进行保存，提供一个代码示例::
+
+            wechat = WechatBasic(appid='appid', appsecret='appsecret')
+            response = wechat.download_media('your media id')
+            with open('yourfilename', 'wb') as fd:
+                for chunk in response.iter_content(1024):
+                    fd.write(chunk)
+
         详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=上传下载多媒体文件>`_
 
         运行时检查：``appid``, ``appsecret``
@@ -257,7 +268,7 @@
         可用公众号类型：认证服务号
 
         :param str media_id: 媒体文件 ID
-        :return: requests 的 Response 实例
+        :return: requests 的 Response 实例 (具体请参考 `<http://docs.python-requests.org/en/latest/>`_)
 
     .. py:method:: create_group(name)
 
@@ -307,7 +318,7 @@
 
         可用公众号类型：认证服务号
 
-        :param str group_id: 分组id，由微信分配
+        :param integer group_id: 分组id，由微信分配
         :param str name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
 

@@ -302,7 +302,8 @@ class WechatBasic(object):
             params={
                 'access_token': self.access_token,
                 'media_id': media_id,
-            }
+            },
+            stream=True,
         )
 
     def create_group(self, name):
