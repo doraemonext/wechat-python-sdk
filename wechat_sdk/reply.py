@@ -26,7 +26,7 @@ class TextReply(WechatReply):
     """
     回复文字消息
     """
-    TEMPLATE = """
+    TEMPLATE = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -51,7 +51,7 @@ class ImageReply(WechatReply):
     """
     回复图片消息
     """
-    TEMPLATE = """
+    TEMPLATE = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -78,7 +78,7 @@ class VoiceReply(WechatReply):
     """
     回复语音消息
     """
-    TEMPLATE = """
+    TEMPLATE = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -105,7 +105,7 @@ class VideoReply(WechatReply):
     """
     回复视频消息
     """
-    TEMPLATE = """
+    TEMPLATE = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -138,7 +138,7 @@ class MusicReply(WechatReply):
     """
     回复音乐消息
     """
-    TEMPLATE_THUMB = """
+    TEMPLATE_THUMB = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -154,7 +154,7 @@ class MusicReply(WechatReply):
     </xml>
     """
 
-    TEMPLATE_NOTHUMB = """
+    TEMPLATE_NOTHUMB = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -193,7 +193,7 @@ class Article(object):
 
 
 class ArticleReply(WechatReply):
-    TEMPLATE = """
+    TEMPLATE = u"""
     <xml>
     <ToUserName><![CDATA[{target}]]></ToUserName>
     <FromUserName><![CDATA[{source}]]></FromUserName>
@@ -204,7 +204,7 @@ class ArticleReply(WechatReply):
     </xml>
     """
 
-    ITEM_TEMPLATE = """
+    ITEM_TEMPLATE = u"""
     <item>
     <Title><![CDATA[{title}]]></Title>
     <Description><![CDATA[{description}]]></Description>
