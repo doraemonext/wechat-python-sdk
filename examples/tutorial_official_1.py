@@ -33,13 +33,13 @@ if wechat.check_signature(signature=signature, timestamp=timestamp, nonce=nonce)
     response = None
     if message.type == 'text':
         if message.content == 'wechat':
-            response = wechat.response_text('^_^')
+            response = wechat.response_text(u'^_^')
         else:
-            response = wechat.response_text('文字')
+            response = wechat.response_text(u'文字')
     elif message.type == 'image':
-        response = wechat.response_text('图片')
+        response = wechat.response_text(u'图片')
     else:
-        response = wechat.response_text('未知')
+        response = wechat.response_text(u'未知')
 
     # 现在直接将 response 变量内容直接作为 HTTP Response 响应微信服务器即可，此处为了演示返回内容，直接将响应进行输出
     print response
