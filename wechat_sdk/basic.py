@@ -68,6 +68,12 @@ class WechatBasic(object):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
+        if type(data) == unicode:
+            data = data.encode('utf-8')
+        elif type(data) == str:
+            pass
+        else:
+            raise ParseError()
 
         try:
             doc = minidom.parseString(data)
