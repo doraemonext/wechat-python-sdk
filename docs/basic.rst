@@ -450,7 +450,7 @@
         可用公众号类型：认证服务号
 
         :param str user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
-        :param Article articles: 一个包含至多10个 Article 实例的数组
+        :param list articles: list 对象, 每个元素为一个 dict 对象, key 包含 ``title``, ``description``, ``picurl``, ``url``
         :return: 返回的 JSON 数据包
 
     .. py:method:: create_qrcode(**data)

@@ -553,13 +553,14 @@ class WechatBasic(object):
         发送图文消息
         详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
-        :param articles: 一个包含至多10个 :class:`Article` 实例的数组
+        :param articles: list 对象, 每个元素为一个 dict 对象, key 包含 `title`, `description`, `picurl`, `url`
         :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()
 
         articles_data = []
         for article in articles:
+            article = Article(**article)
             articles_data.append({
                 'title': article.title,
                 'description': article.description,
