@@ -173,7 +173,7 @@ class MusicReply(WechatReply):
         title = title or ''
         description = description or ''
         music_url = music_url or ''
-        hq_music_url = hq_music_url or ''
+        hq_music_url = hq_music_url or music_url
         super(MusicReply, self).__init__(message=message, title=title, description=description,
                                          music_url=music_url, hq_music_url=hq_music_url, thumb_media_id=thumb_media_id)
 
