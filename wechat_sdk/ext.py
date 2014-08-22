@@ -4,6 +4,7 @@ import hashlib
 import re
 import requests
 import json
+import random
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError
 
@@ -72,6 +73,7 @@ class WechatExt(object):
         :param fakeid: 用户的 UID (即 fakeid )
         :param content: 发送的内容
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 具体内容有 ``fake id not exist``
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response'
         payload = {
@@ -93,12 +95,15 @@ class WechatExt(object):
 
         try:
             message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] == -21:
+                raise ValueError('fake id not exist')
             if message['base_resp']['ret'] != 0:
                 raise NeedLoginError(r.text)
-        except (KeyError, ValueError):
+        except KeyError:
             raise NeedLoginError(r.text)
-
-        return message
 
     def get_user_list(self, page=0, pagesize=10, groupid=0):
         """
@@ -201,6 +206,264 @@ class WechatExt(object):
 
         return message
 
+    def get_news_list(self, page, pagesize=10):
+        """
+        获取图文信息列表
+
+        返回JSON示例::
+
+            [
+                {
+                    "multi_item": [
+                        {
+                            "seq": 0,
+                            "title": "98路公交线路",
+                            "show_cover_pic": 1,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3GQgcgkDSoEm668gClFVDt3BR8GGQ5eB8HoL4vDezzKtSblIjckOf7A/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204884970&idx=1&sn=bf25c51f07260d4ed38305a1cbc0ce0f#rd",
+                            "source_url": "",
+                            "file_id": 204884939,
+                            "digest": "98路线路1.农大- 2.金阳小区- 3.市客运司- 4.市制药厂- 5.新农大- 6.独山子酒店- 7.三"
+                        }
+                    ],
+                    "seq": 0,
+                    "title": "98路公交线路",
+                    "show_cover_pic": 1,
+                    "author": "",
+                    "app_id": 204884970,
+                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204884970&idx=1&sn=bf25c51f07260d4ed38305a1cbc0ce0f#rd",
+                    "create_time": "1405237966",
+                    "file_id": 204884939,
+                    "img_url": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3GQgcgkDSoEm668gClFVDt3BR8GGQ5eB8HoL4vDezzKtSblIjckOf7A/0",
+                    "digest": "98路线路1.农大- 2.金阳小区- 3.市客运司- 4.市制药厂- 5.新农大- 6.独山子酒店- 7.三"
+                },
+                {
+                    "multi_item": [
+                        {
+                            "seq": 0,
+                            "title": "2013年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3icvFgkxZRyIrkLbic9I5ZKLa3XB8UqNlkT8CYibByHuraSvVoeSzdTRLQ/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=1&sn=68d62215052d29ece3f2664e9c4e8cab#rd",
+                            "source_url": "",
+                            "file_id": 204883412,
+                            "digest": "1月1．新疆软件园展厅设计方案汇报会2013年1月15日在维泰大厦4楼9号会议室召开新疆软件园展厅设计工作完"
+                        },
+                        {
+                            "seq": 1,
+                            "title": "2012年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3oErGEhSicRQc82icibxZOZ2YAGNgiaGYfOFYppmPzOOS0v1xfZ1nvyT58g/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=2&sn=e7db9b30d770c85c61008d2f523b8610#rd",
+                            "source_url": "",
+                            "file_id": 204883398,
+                            "digest": "1月1．新疆软件园环评顺利通过专家会评审2012年1月30日，新疆软件园环境影响评价顺利通过专家会评审，与会"
+                        },
+                        {
+                            "seq": 2,
+                            "title": "2011年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3qA7tEN8GvkgDwnOfKsGsicJeQ6PxQSgWuJXfQaXkpM4VNlQicOWJM4Tg/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=3&sn=4cb1c6d25cbe6dfeff37f52a62532bd0#rd",
+                            "source_url": "",
+                            "file_id": 204883393,
+                            "digest": "6月1．软件园召开第一次建设领导小组会议2011年6月7日，第一次软件园建设领导小组会议召开，会议认为，新疆"
+                        },
+                        {
+                            "seq": 3,
+                            "title": "2010年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3YG4sSuf9X9ecMPjDRju842IbIvpFWK7tuZs0Po4kZCz4URzOBj5rnQ/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=4&sn=4319f7f051f36ed972e2f05a221738ec#rd",
+                            "source_url": "",
+                            "file_id": 204884043,
+                            "digest": "5月1．新疆软件园与开发区（头屯河区）管委会、经信委签署《新疆软件园建设战略合作协议》2010年5月12日，"
+                        }
+                    ],
+                    "seq": 1,
+                    "title": "2013年新疆软件园大事记",
+                    "show_cover_pic": 0,
+                    "author": "",
+                    "app_id": 204883415,
+                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=1&sn=68d62215052d29ece3f2664e9c4e8cab#rd",
+                    "create_time": "1405232974",
+                    "file_id": 204883412,
+                    "img_url": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3icvFgkxZRyIrkLbic9I5ZKLa3XB8UqNlkT8CYibByHuraSvVoeSzdTRLQ/0",
+                    "digest": "1月1．新疆软件园展厅设计方案汇报会2013年1月15日在维泰大厦4楼9号会议室召开新疆软件园展厅设计工作完"
+                }
+            ]
+
+        :param page: 页码 (从 0 开始)
+        :param pagesize: 每页数目
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        begin = page * pagesize
+        url = "https://mp.weixin.qq.com/cgi-bin/appmsg?token={token}&lang=zh_CN&type=10&action=list&begin={begin}&count={pagesize}&f=json&random={random}".format(
+            token=self.__token,
+            begin=begin,
+            pagesize=pagesize,
+            random=round(random.random(), 3),
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['app_msg_info']['item'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
+    def get_dialog_message(self, fakeid):
+        """
+        获取与指定用户的对话内容
+
+        返回JSON示例::
+
+            {
+                "to_nick_name": "Doraemonext",
+                "msg_items": {
+                    "msg_item": [
+                        {
+                            "date_time": 1408671873,
+                            "has_reply": 0,
+                            "multi_item": [ ],
+                            "msg_status": 4,
+                            "nick_name": "Doraemonext",
+                            "to_uin": 2391068708,
+                            "content": "你呢",
+                            "source": "",
+                            "fakeid": "844735403",
+                            "send_stat": {
+                                "fail": 0,
+                                "succ": 0,
+                                "total": 0
+                            },
+                            "refuse_reason": "",
+                            "type": 1,
+                            "id": 206439567
+                        },
+                        {
+                            "date_time": 1408529750,
+                            "send_stat": {
+                                "fail": 0,
+                                "succ": 0,
+                                "total": 0
+                            },
+                            "app_sub_type": 3,
+                            "multi_item": [
+                                {
+                                    "seq": 0,
+                                    "title": "软件企业有望拎包入住新疆软件园",
+                                    "show_cover_pic": 1,
+                                    "author": "",
+                                    "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3oErGEhSicRQc82icibxZOZ2YAGNgiaGYfOFYppmPzOOS0v1xfZ1nvyT58g/0",
+                                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204885255&idx=1&sn=40e07d236a497e36d2d3e9711dfe090a#rd",
+                                    "source_url": "",
+                                    "content": "",
+                                    "file_id": 204885252,
+                                    "vote_id": [ ],
+                                    "digest": "12月8日，国家软件公共服务平台新疆分平台在乌鲁木齐经济技术开发区（头屯河区）揭牌。这意味着，软件企业有"
+                                }
+                            ],
+                            "msg_status": 2,
+                            "title": "软件企业有望拎包入住新疆软件园",
+                            "nick_name": "Doraemonext",
+                            "to_uin": 844735403,
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204885255&idx=1&sn=40e07d236a497e36d2d3e9711dfe090a#rd",
+                            "show_type": 1,
+                            "content": "",
+                            "source": "biz",
+                            "fakeid": "2391068708",
+                            "file_id": 204885252,
+                            "has_reply": 0,
+                            "refuse_reason": "",
+                            "type": 6,
+                            "id": 206379033,
+                            "desc": "12月8日，国家软件公共服务平台新疆分平台在乌鲁木齐经济技术开发区（头屯河区）揭牌。这意味着，软件企业有"
+                        }
+                    ]
+                }
+            }
+
+        :param fakeid: 用户 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?t=message/send&action=index&tofakeid={fakeid}&token={token}&lang=zh_CN&f=json&random={random}'.format(
+            fakeid=fakeid,
+            token=self.__token,
+            random=round(random.random(), 3),
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['page_info'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
+    def send_news(self, fakeid, msgid):
+        """
+        向指定用户发送图文消息 （必须从图文库里选取消息ID传入)
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param msgid: 图文消息 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response'
+        payload = {
+            'tofakeid': fakeid,
+            'type': 10,
+            'token': self.__token,
+            'fid': msgid,
+            'appmsgid': msgid,
+            'error': 'false',
+            'ajax': 1,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/singlemsgpage?fromfakeid={fakeid}&msgid=&source=&count=20&t=wxm-singlechat&lang=zh_CN'.format(
+                fakeid=fakeid,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.post(url, data=payload, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] == 10700 or message['base_resp']['ret'] == -21:
+                raise ValueError('fake id not exist')
+            if message['base_resp']['ret'] == 10705:
+                raise ValueError('message id not exist')
+            if message['base_resp']['ret'] != 0:
+                raise NeedLoginError(r.text)
+        except KeyError:
+            raise NeedLoginError(r.text)
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
@@ -285,17 +548,3 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
-
-    # def get_news_list(self):
-    #     url = 'https://mp.weixin.qq.com/cgi-bin/appmsg?token=%s&lang=zh_CN&type=10&action=list&begin=0&count=10&f=json&random=0.122' % self.token
-    #     payload = {
-    #         't': 'mass/send',
-    #         'token': self.token,
-    #     }
-    #     headers = {v
-    #         'x-requested-with': 'XMLHttpRequest',
-    #         'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token=%s&lang=zh_CN' % self.token,
-    #         'cookie': self.wx_cookies,
-    #     }
-    #
-    #     r = requests.get(url, data=payload, headers=headers)
