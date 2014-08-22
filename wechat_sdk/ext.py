@@ -99,8 +99,6 @@ class WechatExt(object):
         except (KeyError, ValueError):
             raise NeedLoginError(r.text)
 
-        return message
-
     def get_user_list(self, page=0, pagesize=10, groupid=0):
         """
         获取用户列表
@@ -419,6 +417,47 @@ class WechatExt(object):
 
         return message
 
+    def send_news(self, fakeid, msgid):
+        """
+        向指定用户发送图文消息 （必须从图文库里选取消息ID传入)
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param msgid: 图文消息 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response'
+        payload = {
+            'tofakeid': fakeid,
+            'type': 10,
+            'token': self.__token,
+            'fid': msgid,
+            'appmsgid': msgid,
+            'error': 'false',
+            'ajax': 1,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/singlemsgpage?fromfakeid={fakeid}&msgid=&source=&count=20&t=wxm-singlechat&lang=zh_CN'.format(
+                fakeid=fakeid,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.post(url, data=payload, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] == 10700 or message['base_resp']['ret'] == -21:
+                raise ValueError('fake id not exist')
+            if message['base_resp']['ret'] == 10705:
+                raise ValueError('message id not exist')
+            if message['base_resp']['ret'] != 0:
+                raise NeedLoginError(r.text)
+        except KeyError:
+            raise NeedLoginError(r.text)
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
@@ -503,17 +542,3 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
-
-    # def get_news_list(self):
-    #     url = 'https://mp.weixin.qq.com/cgi-bin/appmsg?token=%s&lang=zh_CN&type=10&action=list&begin=0&count=10&f=json&random=0.122' % self.token
-    #     payload = {
-    #         't': 'mass/send',
-    #         'token': self.token,
-    #     }
-    #     headers = {v
-    #         'x-requested-with': 'XMLHttpRequest',
-    #         'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token=%s&lang=zh_CN' % self.token,
-    #         'cookie': self.wx_cookies,
-    #     }
-    #
-    #     r = requests.get(url, data=payload, headers=headers)
