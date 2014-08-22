@@ -179,10 +179,86 @@
                 }
             ]
 
-        :param page: 页码 (从 0 开始)
-        :param pagesize: 每页数目
+        :param integer page: 页码 (从 0 开始)
+        :param integer pagesize: 每页数目
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
+    .. py:method:: get_dialog_message(fakeid)
+
+        获取与指定用户的对话内容
+
+        返回JSON示例::
+
+            {
+                "to_nick_name": "Doraemonext",
+                "msg_items": {
+                    "msg_item": [
+                        {
+                            "date_time": 1408671873,
+                            "has_reply": 0,
+                            "multi_item": [ ],
+                            "msg_status": 4,
+                            "nick_name": "Doraemonext",
+                            "to_uin": 2391068708,
+                            "content": "你呢",
+                            "source": "",
+                            "fakeid": "844735403",
+                            "send_stat": {
+                                "fail": 0,
+                                "succ": 0,
+                                "total": 0
+                            },
+                            "refuse_reason": "",
+                            "type": 1,
+                            "id": 206439567
+                        },
+                        {
+                            "date_time": 1408529750,
+                            "send_stat": {
+                                "fail": 0,
+                                "succ": 0,
+                                "total": 0
+                            },
+                            "app_sub_type": 3,
+                            "multi_item": [
+                                {
+                                    "seq": 0,
+                                    "title": "软件企业有望拎包入住新疆软件园",
+                                    "show_cover_pic": 1,
+                                    "author": "",
+                                    "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3oErGEhSicRQc82icibxZOZ2YAGNgiaGYfOFYppmPzOOS0v1xfZ1nvyT58g/0",
+                                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204885255&idx=1&sn=40e07d236a497e36d2d3e9711dfe090a#rd",
+                                    "source_url": "",
+                                    "content": "",
+                                    "file_id": 204885252,
+                                    "vote_id": [ ],
+                                    "digest": "12月8日，国家软件公共服务平台新疆分平台在乌鲁木齐经济技术开发区（头屯河区）揭牌。这意味着，软件企业有"
+                                }
+                            ],
+                            "msg_status": 2,
+                            "title": "软件企业有望拎包入住新疆软件园",
+                            "nick_name": "Doraemonext",
+                            "to_uin": 844735403,
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204885255&idx=1&sn=40e07d236a497e36d2d3e9711dfe090a#rd",
+                            "show_type": 1,
+                            "content": "",
+                            "source": "biz",
+                            "fakeid": "2391068708",
+                            "file_id": 204885252,
+                            "has_reply": 0,
+                            "refuse_reason": "",
+                            "type": 6,
+                            "id": 206379033,
+                            "desc": "12月8日，国家软件公共服务平台新疆分平台在乌鲁木齐经济技术开发区（头屯河区）揭牌。这意味着，软件企业有"
+                        }
+                    ]
+                }
+            }
+
+        :param str fakeid: 用户 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
