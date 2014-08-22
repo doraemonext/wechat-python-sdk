@@ -509,6 +509,50 @@ class WechatExt(object):
 
         return message['content']
 
+    def send_file(self, fakeid, fid, type):
+        """
+        向特定用户发送媒体文件
+        :param fakeid: 用户 UID (即 fakeid)
+        :param fid: 文件 ID
+        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json&token={token}&lang=zh_CN'.format(
+            token=self.__token,
+        )
+        payloads = {
+            'token': self.__token,
+            'lang': 'zh_CN',
+            'f': 'json',
+            'ajax': 1,
+            'random': random.random(),
+            'type': type,
+            'file_id': fid,
+            'tofakeid': fakeid,
+            'fileid': fid,
+            'imgcode': '',
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={fakeid}&t=message/send&action=index&token={token}&lang=zh_CN'.format(
+                fakeid=fakeid,
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+            'x-requested-with': 'XMLHttpRequest',
+        }
+        r = requests.post(url, data=payloads, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] != 0:
+                raise ValueError(message['base_resp']['err_msg'])
+        except KeyError:
+            raise NeedLoginError(r.text)
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表

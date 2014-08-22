@@ -259,7 +259,7 @@
 
         :param str fakeid: 用户 UID (即 fakeid)
         :return: 返回的 JSON 数据
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
     .. py:method:: send_news(fakeid, msgid)
 
@@ -267,17 +267,27 @@
 
         :param str fakeid: 用户的 UID (即 fakeid)
         :param str msgid: 图文消息 ID
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
-        :raises ValueError: 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
 
     .. py:method:: upload_file(filepath)
 
         上传素材 (图片/音频/视频)
 
-        :param filepath: 本地文件路径
+        :param str filepath: 本地文件路径
         :return: 直接返回上传后的文件 ID (fid)
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
-        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
+
+    .. py:method:: send_file(fakeid, fid, type)
+
+        向特定用户发送媒体文件
+
+        :param str fakeid: 用户 UID (即 fakeid)
+        :param str fid: 文件 ID
+        :param integer type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
