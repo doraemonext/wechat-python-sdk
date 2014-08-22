@@ -32,6 +32,8 @@ class WechatExt(object):
         self.__cookies = cookies
         self.__lastmsgid = 0
         self.__token = token
+        self.__ticket = None
+        self.__ticket_id = None
 
         if not self.__token or not self.__cookies:
             self.__token = ''
@@ -464,6 +466,49 @@ class WechatExt(object):
         except KeyError:
             raise NeedLoginError(r.text)
 
+    def upload_file(self, filepath):
+        """
+        上传素材 (图片/音频/视频)
+        :param filepath: 本地文件路径
+        :return: 直接返回上传后的文件 ID (fid)
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
+        """
+        if not self.__ticket:
+            self._init_ticket()
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/filetransfer?action=upload_material&f=json&ticket_id={ticket_id}&ticket={ticket}&token={token}&lang=zh_CN'.format(
+            ticket_id=self.__ticket_id,
+            ticket=self.__ticket,
+            token=self.__token,
+        )
+        try:
+            files = {'file': open(filepath, 'rb')}
+        except IOError:
+            raise ValueError('file not exist')
+        payloads = {
+            'Filename': filepath,
+            'folder': '/cgi-bin/uploads',
+            'Upload': 'Submit Query',
+        }
+        headers = {
+            'referer': 'http://mp.weixin.qq.com/cgi-bin/indexpage?t=wxm-upload&lang=zh_CN&type=2&formId=1',
+            'cookie': self.__cookies,
+        }
+        r = requests.post(url, files=files, data=payloads, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] != 0:
+                raise ValueError(message['base_resp']['err_msg'])
+        except KeyError:
+            raise NeedLoginError(r.text)
+
+        return message['content']
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
@@ -548,3 +593,25 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
+
+    def _init_ticket(self):
+        """
+        初始化 Ticket 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN&token={token}'.format(token=self.__token)
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com',
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        ticket_id = re.search(r'user_name:\"(.*)\"', r.text)
+        if not ticket_id:
+            raise NeedLoginError(r.text)
+        self.__ticket_id = ticket_id.group(1)
+        ticket = re.search(r'ticket:\"(.*)\"', r.text)
+        if not ticket:
+            raise NeedLoginError(r.text)
+        self.__ticket = ticket.group(1)

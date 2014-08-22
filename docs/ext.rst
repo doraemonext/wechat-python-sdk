@@ -270,6 +270,15 @@
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
 
+    .. py:method:: upload_file(filepath)
+
+        上传素材 (图片/音频/视频)
+
+        :param filepath: 本地文件路径
+        :return: 直接返回上传后的文件 ID (fid)
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
