@@ -29,6 +29,35 @@
         :param str content: 发送的内容
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
+    .. py:method:: get_user_list(page=0, pagesize=10, groupid=0)
+
+        获取用户列表
+
+        返回JSON示例 ::
+
+            {
+                "contacts": [
+                    {
+                        "id": 2431798261,
+                        "nick_name": "Doraemonext",
+                        "remark_name": "",
+                        "group_id": 0
+                    },
+                    {
+                        "id": 896229760,
+                        "nick_name": "微信昵称",
+                        "remark_name": "",
+                        "group_id": 0
+                    }
+                ]
+            }
+
+        :param page: 页码 (从 0 开始)
+        :param pagesize: 每页大小
+        :param groupid: 分组 ID
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_group_list()
 
         获取分组列表
@@ -56,7 +85,7 @@
             }
 
         :return: 返回的 JSON 数据
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 

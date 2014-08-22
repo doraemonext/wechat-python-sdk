@@ -100,6 +100,59 @@ class WechatExt(object):
 
         return message
 
+    def get_user_list(self, page=0, pagesize=10, groupid=0):
+        """
+        获取用户列表
+
+        返回JSON示例 ::
+
+            {
+                "contacts": [
+                    {
+                        "id": 2431798261,
+                        "nick_name": "Doraemonext",
+                        "remark_name": "",
+                        "group_id": 0
+                    },
+                    {
+                        "id": 896229760,
+                        "nick_name": "微信昵称",
+                        "remark_name": "",
+                        "group_id": 0
+                    }
+                ]
+            }
+
+        :param page: 页码 (从 0 开始)
+        :param pagesize: 每页大小
+        :param groupid: 分组 ID
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/contactmanage?t=user/index&pagesize={pagesize}&pageidx={page}&type=0&groupid={groupid}&lang=zh_CN&f=json&token={token}'.format(
+            pagesize=pagesize,
+            page=page,
+            groupid=groupid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/contactmanage?t=user/index&pagesize={pagesize}&pageidx={page}&type=0&groupid=0&lang=zh_CN&token={token}'.format(
+                pagesize=pagesize,
+                page=page,
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.loads(r.text)['contact_list']
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
     def get_group_list(self):
         """
         获取分组列表
