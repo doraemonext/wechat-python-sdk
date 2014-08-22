@@ -28,6 +28,7 @@
         :param str fakeid: 用户的 UID (即 fakeid )
         :param str content: 发送的内容
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 具体内容有 ``fake id not exist``
 
     .. py:method:: get_user_list(page=0, pagesize=10, groupid=0)
 
