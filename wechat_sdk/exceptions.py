@@ -27,3 +27,24 @@ class OfficialAPIError(Exception):
     微信官方API请求出错异常
     """
     pass
+
+
+class UnOfficialAPIError(Exception):
+    """
+    微信非官方API请求出错异常
+    """
+    pass
+
+
+class NeedLoginError(UnOfficialAPIError):
+    """
+    微信非官方API请求出错异常 - 需要登录
+    """
+    pass
+
+
+class LoginError(UnOfficialAPIError):
+    """
+    微信非官方API请求出错异常 - 登录出错
+    """
+    pass
