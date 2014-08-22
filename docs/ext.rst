@@ -87,6 +87,103 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
+    .. py:method:: get_news_list(page, pagesize=10)
+
+        获取图文信息列表
+
+        返回JSON示例::
+
+            [
+                {
+                    "multi_item": [
+                        {
+                            "seq": 0,
+                            "title": "98路公交线路",
+                            "show_cover_pic": 1,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3GQgcgkDSoEm668gClFVDt3BR8GGQ5eB8HoL4vDezzKtSblIjckOf7A/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204884970&idx=1&sn=bf25c51f07260d4ed38305a1cbc0ce0f#rd",
+                            "source_url": "",
+                            "file_id": 204884939,
+                            "digest": "98路线路1.农大- 2.金阳小区- 3.市客运司- 4.市制药厂- 5.新农大- 6.独山子酒店- 7.三"
+                        }
+                    ],
+                    "seq": 0,
+                    "title": "98路公交线路",
+                    "show_cover_pic": 1,
+                    "author": "",
+                    "app_id": 204884970,
+                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204884970&idx=1&sn=bf25c51f07260d4ed38305a1cbc0ce0f#rd",
+                    "create_time": "1405237966",
+                    "file_id": 204884939,
+                    "img_url": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3GQgcgkDSoEm668gClFVDt3BR8GGQ5eB8HoL4vDezzKtSblIjckOf7A/0",
+                    "digest": "98路线路1.农大- 2.金阳小区- 3.市客运司- 4.市制药厂- 5.新农大- 6.独山子酒店- 7.三"
+                },
+                {
+                    "multi_item": [
+                        {
+                            "seq": 0,
+                            "title": "2013年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3icvFgkxZRyIrkLbic9I5ZKLa3XB8UqNlkT8CYibByHuraSvVoeSzdTRLQ/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=1&sn=68d62215052d29ece3f2664e9c4e8cab#rd",
+                            "source_url": "",
+                            "file_id": 204883412,
+                            "digest": "1月1．新疆软件园展厅设计方案汇报会2013年1月15日在维泰大厦4楼9号会议室召开新疆软件园展厅设计工作完"
+                        },
+                        {
+                            "seq": 1,
+                            "title": "2012年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3oErGEhSicRQc82icibxZOZ2YAGNgiaGYfOFYppmPzOOS0v1xfZ1nvyT58g/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=2&sn=e7db9b30d770c85c61008d2f523b8610#rd",
+                            "source_url": "",
+                            "file_id": 204883398,
+                            "digest": "1月1．新疆软件园环评顺利通过专家会评审2012年1月30日，新疆软件园环境影响评价顺利通过专家会评审，与会"
+                        },
+                        {
+                            "seq": 2,
+                            "title": "2011年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3qA7tEN8GvkgDwnOfKsGsicJeQ6PxQSgWuJXfQaXkpM4VNlQicOWJM4Tg/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=3&sn=4cb1c6d25cbe6dfeff37f52a62532bd0#rd",
+                            "source_url": "",
+                            "file_id": 204883393,
+                            "digest": "6月1．软件园召开第一次建设领导小组会议2011年6月7日，第一次软件园建设领导小组会议召开，会议认为，新疆"
+                        },
+                        {
+                            "seq": 3,
+                            "title": "2010年新疆软件园大事记",
+                            "show_cover_pic": 0,
+                            "author": "",
+                            "cover": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3YG4sSuf9X9ecMPjDRju842IbIvpFWK7tuZs0Po4kZCz4URzOBj5rnQ/0",
+                            "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=4&sn=4319f7f051f36ed972e2f05a221738ec#rd",
+                            "source_url": "",
+                            "file_id": 204884043,
+                            "digest": "5月1．新疆软件园与开发区（头屯河区）管委会、经信委签署《新疆软件园建设战略合作协议》2010年5月12日，"
+                        }
+                    ],
+                    "seq": 1,
+                    "title": "2013年新疆软件园大事记",
+                    "show_cover_pic": 0,
+                    "author": "",
+                    "app_id": 204883415,
+                    "content_url": "http://mp.weixin.qq.com/s?__biz=MjM5MTA2ODcwOA==&mid=204883415&idx=1&sn=68d62215052d29ece3f2664e9c4e8cab#rd",
+                    "create_time": "1405232974",
+                    "file_id": 204883412,
+                    "img_url": "https://mmbiz.qlogo.cn/mmbiz/D2pflbZwStFibz2Sb1kWOuHrxtDMPKJic3icvFgkxZRyIrkLbic9I5ZKLa3XB8UqNlkT8CYibByHuraSvVoeSzdTRLQ/0",
+                    "digest": "1月1．新疆软件园展厅设计方案汇报会2013年1月15日在维泰大厦4楼9号会议室召开新疆软件园展厅设计工作完"
+                }
+            ]
+
+        :param page: 页码 (从 0 开始)
+        :param pagesize: 每页数目
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
