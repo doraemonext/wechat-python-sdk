@@ -553,6 +553,72 @@ class WechatExt(object):
         except KeyError:
             raise NeedLoginError(r.text)
 
+    def get_file_list(self, type, page, count=10):
+        """
+        获取素材库文件列表
+
+        返回JSON示例::
+
+            {
+                "type": 2,
+                "file_item": [
+                    {
+                        "update_time": 1408723089,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206471048,
+                        "type": 2,
+                        "size": "53.7	K"
+                    },
+                    {
+                        "update_time": 1408722328,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206470809,
+                        "type": 2,
+                        "size": "53.7	K"
+                    }
+                ],
+                "file_cnt": {
+                    "voice_cnt": 1,
+                    "app_msg_cnt": 10,
+                    "commondity_msg_cnt": 0,
+                    "video_cnt": 0,
+                    "img_cnt": 29,
+                    "video_msg_cnt": 0,
+                    "total": 40
+                }
+            }
+
+        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :param page: 页码 (从 0 开始)
+        :param count: 每页大小
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/filepage?token={token}&lang=zh_CN&type={type}&random={random}&begin={begin}&count={count}&f=json'.format(
+            token=self.__token,
+            type=type,
+            random=round(random.random(), 3),
+            begin=page*count,
+            count=count,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['page_info'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError()
+
+        return message
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表

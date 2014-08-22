@@ -289,6 +289,49 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
+    .. py:method:: get_file_list(type, page [, count=10])
+
+        获取素材库文件列表
+
+        返回JSON示例::
+
+            {
+                "type": 2,
+                "file_item": [
+                    {
+                        "update_time": 1408723089,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206471048,
+                        "type": 2,
+                        "size": "53.7	K"
+                    },
+                    {
+                        "update_time": 1408722328,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206470809,
+                        "type": 2,
+                        "size": "53.7	K"
+                    }
+                ],
+                "file_cnt": {
+                    "voice_cnt": 1,
+                    "app_msg_cnt": 10,
+                    "commondity_msg_cnt": 0,
+                    "video_cnt": 0,
+                    "img_cnt": 29,
+                    "video_msg_cnt": 0,
+                    "total": 40
+                }
+            }
+
+        :param integer type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :param integer page: 页码 (从 0 开始)
+        :param integer count: 每页大小
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
