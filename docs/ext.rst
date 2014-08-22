@@ -29,6 +29,35 @@
         :param str content: 发送的内容
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
+    .. py:method:: get_group_list()
+
+        获取分组列表
+
+        返回JSON示例::
+
+            {
+                "groups": [
+                    {
+                        "cnt": 8,
+                        "id": 0,
+                        "name": "未分组"
+                    },
+                    {
+                        "cnt": 0,
+                        "id": 1,
+                        "name": "黑名单"
+                    },
+                    {
+                        "cnt": 0,
+                        "id": 2,
+                        "name": "星标组"
+                    }
+                ]
+            }
+
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表

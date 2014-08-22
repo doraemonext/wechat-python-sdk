@@ -100,6 +100,54 @@ class WechatExt(object):
 
         return message
 
+    def get_group_list(self):
+        """
+        获取分组列表
+
+        返回JSON示例::
+
+            {
+                "groups": [
+                    {
+                        "cnt": 8,
+                        "id": 0,
+                        "name": "未分组"
+                    },
+                    {
+                        "cnt": 0,
+                        "id": 1,
+                        "name": "黑名单"
+                    },
+                    {
+                        "cnt": 0,
+                        "id": 2,
+                        "name": "星标组"
+                    }
+                ]
+            }
+
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/contactmanage?t=user/index&pagesize=10&pageidx=0&type=0&groupid=0&lang=zh_CN&f=json&token={token}'.format(
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/contactmanage?t=user/index&pagesize=10&pageidx=0&type=0&groupid=0&lang=zh_CN&token='.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.loads(r.text)['group_list']
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
