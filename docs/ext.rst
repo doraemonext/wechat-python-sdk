@@ -11,6 +11,18 @@
     :param str cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
     :param str ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
 
+    **实例化说明：**
+
+    1. 当实例化 WechatExt 时，你必须传入 ``username`` 和 ``password`` ，对于 ``token`` 和 ``cookies`` 参数，如果传入，将会自动省略登录过程，但请保证你的代码中会捕获 ``NeedLoginError`` 异常，一旦发生此异常，你需要重新调用 :func:`login` 方法登录来获取新的 ``token`` 及 ``cookies``。
+
+    2. **详细说明一下 token 及 cookies 参数的传入问题：**
+
+     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatExt`` ，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatExt`` 中 ``token`` 及 ``cookies`` 参数，并在下一次的实例化的过程中传入，以此来保证不会频繁登录。
+
+     获取 ``token`` 及 ``cookies`` 的方式为调用 :func:`get_token_cookies` 方法
+
+     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``token`` 及 ``cookies`` 保存起来，不管是文件，缓存还是数据库都可以，只要在实例化后，你可以在任何时间调用 :func:`get_token_cookes` 方法。
+
     .. py:method:: login()
 
         登录微信公众平台
