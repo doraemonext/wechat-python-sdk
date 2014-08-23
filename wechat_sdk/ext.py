@@ -69,6 +69,24 @@ class WechatExt(object):
         for cookie in r.cookies:
             self.__cookies += cookie.name + '=' + cookie.value + ';'
 
+    def get_token_cookies(self):
+        """
+        获取当前 token 及 cookies, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'cookies': 'bizuin=3086177907;data_bizuin=3086177907;data_ticket=AgWTXTpLL+FV+bnc9yLbb3V8;slave_sid=TERlMEJ1bWFCbTlmVnRLX0lLdUpRV0pyN2k1eVkzbWhiY0NfTHVjNFRZQk1DRDRfal82UzZKWTczR3I5TFpUYjRXUDBtN1h1cmJMRTkzS3hianBHOGpHaFM0eXJiNGp6cDFWUGpqbFNyMFlyQ05GWGpseVg2T2s2Sk5DRWpnRlE=;slave_user=gh_1b2959761a7d;',
+                'token': 373179898
+            }
+
+        :return: 一个 dict 对象, key 为 ``token`` 和 ``cookies``
+        """
+        return {
+            'token': self.__token,
+            'cookies': self.__cookies,
+        }
+
     def send_message(self, fakeid, content):
         """
         主动发送文本消息
@@ -509,6 +527,281 @@ class WechatExt(object):
 
         return message['content']
 
+    def send_file(self, fakeid, fid, type):
+        """
+        向特定用户发送媒体文件
+        :param fakeid: 用户 UID (即 fakeid)
+        :param fid: 文件 ID
+        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json&token={token}&lang=zh_CN'.format(
+            token=self.__token,
+        )
+        payloads = {
+            'token': self.__token,
+            'lang': 'zh_CN',
+            'f': 'json',
+            'ajax': 1,
+            'random': random.random(),
+            'type': type,
+            'file_id': fid,
+            'tofakeid': fakeid,
+            'fileid': fid,
+            'imgcode': '',
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={fakeid}&t=message/send&action=index&token={token}&lang=zh_CN'.format(
+                fakeid=fakeid,
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+            'x-requested-with': 'XMLHttpRequest',
+        }
+        r = requests.post(url, data=payloads, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['base_resp']['ret'] != 0:
+                raise ValueError(message['base_resp']['err_msg'])
+        except KeyError:
+            raise NeedLoginError(r.text)
+
+    def get_file_list(self, type, page, count=10):
+        """
+        获取素材库文件列表
+
+        返回JSON示例::
+
+            {
+                "type": 2,
+                "file_item": [
+                    {
+                        "update_time": 1408723089,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206471048,
+                        "type": 2,
+                        "size": "53.7	K"
+                    },
+                    {
+                        "update_time": 1408722328,
+                        "name": "Doraemonext.png",
+                        "play_length": 0,
+                        "file_id": 206470809,
+                        "type": 2,
+                        "size": "53.7	K"
+                    }
+                ],
+                "file_cnt": {
+                    "voice_cnt": 1,
+                    "app_msg_cnt": 10,
+                    "commondity_msg_cnt": 0,
+                    "video_cnt": 0,
+                    "img_cnt": 29,
+                    "video_msg_cnt": 0,
+                    "total": 40
+                }
+            }
+
+        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :param page: 页码 (从 0 开始)
+        :param count: 每页大小
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/filepage?token={token}&lang=zh_CN&type={type}&random={random}&begin={begin}&count={count}&f=json'.format(
+            token=self.__token,
+            type=type,
+            random=round(random.random(), 3),
+            begin=page*count,
+            count=count,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['page_info'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
+    def send_image(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送图片信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 2)
+
+    def send_audio(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送语音信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 3)
+
+    def send_video(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送视频消息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 4)
+
+    def get_user_info(self, fakeid):
+        """
+        获取指定用户的个人信息
+
+        返回JSON示例::
+
+            {
+                "province": "湖北",
+                "city": "武汉",
+                "gender": 1,
+                "nick_name": "Doraemonext",
+                "country": "中国",
+                "remark_name": "",
+                "fake_id": 844735403,
+                "signature": "",
+                "group_id": 0,
+                "user_name": ""
+            }
+
+        :param fakeid: 用户的 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getcontactinfo'
+        payloads = {
+            'ajax': 1,
+            'lang': 'zh_CN',
+            'random': round(random.random(), 3),
+            'token': self.__token,
+            't': 'ajax-getcontactinfo',
+            'fakeid': fakeid,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/getmessage?t=wxm-message&lang=zh_CN&count=50&token={token}'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.post(url, data=payloads, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['contact_info'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
+    def get_avatar(self, fakeid):
+        """
+        获取用户头像信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :return: 二进制 JPG 数据字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/misc/getheadimg?fakeid={fakeid}&token={token}&lang=zh_CN'.format(
+            fakeid=fakeid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/getmessage?t=wxm-message&lang=zh_CN&count=50&token={token}'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        return r.raw.data
+
+    def get_new_message_num(self, lastid=0):
+        """
+        获取新消息的数目
+        :param lastid: 最近获取的消息 ID, 为 0 时获取总消息数目
+        :return: 消息数目
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getnewmsgnum?f=json&t=ajax-getmsgnum&lastmsgid={lastid}&token={token}&lang=zh_CN'.format(
+            lastid=lastid,
+            token=self.__token,
+        )
+        payloads = {
+            'ajax': 1,
+            'f': 'json',
+            'random': random.random(),
+            'lang': 'zh_CN',
+            'token': self.__token,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, data=payloads, headers=headers)
+
+        try:
+            return int(json.loads(r.text)['newTotalMsgCount'])
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+    def get_top_message(self):
+        """
+        获取最新一条消息
+
+        返回JSON示例::
+
+            {
+                "msg_item": [
+                    {
+                        "id": 206448489,
+                        "type": 2,
+                        "fakeid": "844735403",
+                        "nick_name": "Doraemonext",
+                        "date_time": 1408696938,
+                        "source": "",
+                        "msg_status": 4,
+                        "has_reply": 0,
+                        "refuse_reason": "",
+                        "multi_item": [ ],
+                        "to_uin": 2391068708,
+                        "send_stat": {
+                            "total": 0,
+                            "succ": 0,
+                            "fail": 0
+                        }
+                    }
+                ]
+            }
+
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        return self.get_message_list(count=1)
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
@@ -593,6 +886,101 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
+
+    def get_message_image(self, msgid, mode='large'):
+        """
+        根据消息 ID 获取图片消息内容
+        :param msgid: 消息 ID
+        :param mode: 图片尺寸 ('large'或'small')
+        :return: 二进制 JPG 图片字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``image message not exist``: msg参数无效, ``mode error``: mode参数无效
+        """
+        if mode != 'large' and mode != 'small':
+            raise ValueError('mode error')
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/getimgdata?token={token}&msgid={msgid}&mode={mode}&source=&fileId=0'.format(
+            msgid=msgid,
+            token=self.__token,
+            mode=mode,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测图片是否存在
+        if not r.raw.data:
+            raise ValueError('image message not exist')
+
+        return r.raw.data
+
+    def get_message_voice(self, msgid):
+        """
+        根据消息 ID 获取语音消息内容
+        :param msgid: 消息 ID
+        :return: 二进制 MP3 音频字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``voice message not exist``: msg参数无效
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getvoicedata?msgid={msgid}&fileid=&token={token}&lang=zh_CN'.format(
+            msgid=msgid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测语音是否存在
+        if not r.raw.data:
+            raise ValueError('voice message not exist')
+
+        return r.raw.data
+
+    def get_message_video(self, msgid):
+        """
+        根据消息 ID 获取视频消息内容
+        :param msgid: 消息 ID
+        :return: 二进制 MP4 视频字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``video message not exist``: msg参数无效
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getvideodata?msgid={msgid}&fileid=&token={token}'.format(
+            msgid=msgid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测视频是否存在
+        if not r.raw.data:
+            raise ValueError('video message not exist')
+
+        return r.raw.data
 
     def _init_ticket(self):
         """
