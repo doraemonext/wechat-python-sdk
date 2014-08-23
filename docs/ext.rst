@@ -390,6 +390,14 @@
         :return: 二进制 JPG 数据字符串, 可直接作为 File Object 中 write 的参数
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
+    .. py:method:: get_new_message_num(lastid=0)
+
+        获取新消息的数目
+
+        :param lastid: 最近获取的消息 ID, 为 0 时获取总消息数目
+        :return: 消息数目
+        :rtype: int
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表

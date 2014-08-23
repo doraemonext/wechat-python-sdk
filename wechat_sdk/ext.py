@@ -719,6 +719,37 @@ class WechatExt(object):
 
         return r.raw.data
 
+    def get_new_message_num(self, lastid=0):
+        """
+        获取新消息的数目
+        :param lastid: 最近获取的消息 ID, 为 0 时获取总消息数目
+        :return: 消息数目
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getnewmsgnum?f=json&t=ajax-getmsgnum&lastmsgid={lastid}&token={token}&lang=zh_CN'.format(
+            lastid=lastid,
+            token=self.__token,
+        )
+        payloads = {
+            'ajax': 1,
+            'f': 'json',
+            'random': random.random(),
+            'lang': 'zh_CN',
+            'token': self.__token,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, data=payloads, headers=headers)
+
+        try:
+            return int(json.loads(r.text)['newTotalMsgCount'])
+        except (KeyError, ValueError):
+            raise NeedLoginError()
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
