@@ -69,6 +69,24 @@ class WechatExt(object):
         for cookie in r.cookies:
             self.__cookies += cookie.name + '=' + cookie.value + ';'
 
+    def get_token_cookies(self):
+        """
+        获取当前 token 及 cookies, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'cookies': 'bizuin=3086177907;data_bizuin=3086177907;data_ticket=AgWTXTpLL+FV+bnc9yLbb3V8;slave_sid=TERlMEJ1bWFCbTlmVnRLX0lLdUpRV0pyN2k1eVkzbWhiY0NfTHVjNFRZQk1DRDRfal82UzZKWTczR3I5TFpUYjRXUDBtN1h1cmJMRTkzS3hianBHOGpHaFM0eXJiNGp6cDFWUGpqbFNyMFlyQ05GWGpseVg2T2s2Sk5DRWpnRlE=;slave_user=gh_1b2959761a7d;',
+                'token': 373179898
+            }
+
+        :return: 一个 dict 对象, key 为 ``token`` 和 ``cookies``
+        """
+        return {
+            'token': self.__token,
+            'cookies': self.__cookies,
+        }
+
     def send_message(self, fakeid, content):
         """
         主动发送文本消息
