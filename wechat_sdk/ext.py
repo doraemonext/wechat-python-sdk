@@ -697,6 +697,28 @@ class WechatExt(object):
 
         return message
 
+    def get_avatar(self, fakeid):
+        """
+        获取用户头像信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :return: 二进制 JPG 数据字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/misc/getheadimg?fakeid={fakeid}&token={token}&lang=zh_CN'.format(
+            fakeid=fakeid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/getmessage?t=wxm-message&lang=zh_CN&count=50&token={token}'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        return r.raw.data
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
