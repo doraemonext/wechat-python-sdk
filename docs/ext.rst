@@ -486,3 +486,12 @@
         :param boolean star: 是否只获取星标消息
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
+    .. py:method:: get_message_video(msgid)
+
+        根据消息 ID 获取视频消息内容
+
+        :param str msgid: 消息 ID
+        :return: 二进制 MP4 视频字符串, 可直接作为 File Object 中 write 的参数
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``video message not exist``: msg参数无效

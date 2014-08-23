@@ -615,7 +615,7 @@ class WechatExt(object):
         try:
             message = json.dumps(json.loads(r.text)['page_info'], ensure_ascii=False)
         except (KeyError, ValueError):
-            raise NeedLoginError()
+            raise NeedLoginError(r.text)
 
         return message
 
@@ -693,7 +693,7 @@ class WechatExt(object):
         try:
             message = json.dumps(json.loads(r.text)['contact_info'], ensure_ascii=False)
         except (KeyError, ValueError):
-            raise NeedLoginError()
+            raise NeedLoginError(r.text)
 
         return message
 
@@ -748,7 +748,7 @@ class WechatExt(object):
         try:
             return int(json.loads(r.text)['newTotalMsgCount'])
         except (KeyError, ValueError):
-            raise NeedLoginError()
+            raise NeedLoginError(r.text)
 
     def get_top_message(self):
         """
@@ -868,6 +868,36 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
+
+    def get_message_video(self, msgid):
+        """
+        根据消息 ID 获取视频消息内容
+        :param msgid: 消息 ID
+        :return: 二进制 MP4 视频字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``video message not exist``: msg参数无效
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getvideodata?msgid={msgid}&fileid=&token={token}'.format(
+            msgid=msgid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测视频是否存在
+        if not r.raw.data:
+            raise ValueError('video message not exist')
+
+        return r.raw.data
 
     def _init_ticket(self):
         """
