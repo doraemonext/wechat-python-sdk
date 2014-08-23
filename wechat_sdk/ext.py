@@ -898,9 +898,39 @@ class WechatExt(object):
         # 检测会话是否超时
         if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
             raise NeedLoginError(r.text)
-        # 检测视频是否存在
+        # 检测图片是否存在
         if not r.raw.data:
             raise ValueError('image message not exist')
+
+        return r.raw.data
+
+    def get_message_voice(self, msgid):
+        """
+        根据消息 ID 获取语音消息内容
+        :param msgid: 消息 ID
+        :return: 二进制 MP3 音频字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``voice message not exist``: msg参数无效
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getvoicedata?msgid={msgid}&fileid=&token={token}&lang=zh_CN'.format(
+            msgid=msgid,
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测语音是否存在
+        if not r.raw.data:
+            raise ValueError('voice message not exist')
 
         return r.raw.data
 
