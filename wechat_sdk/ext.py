@@ -619,6 +619,36 @@ class WechatExt(object):
 
         return message
 
+    def send_image(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送图片信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 2)
+
+    def send_audio(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送语音信息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 3)
+
+    def send_video(self, fakeid, fid):
+        """
+        给指定用户 fakeid 发送视频消息
+        :param fakeid: 用户的 UID (即 fakeid)
+        :param fid: 文件 ID
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
+        """
+        return self.send_file(fakeid, fid, 4)
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表
