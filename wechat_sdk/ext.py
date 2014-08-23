@@ -869,6 +869,41 @@ class WechatExt(object):
 
         return message
 
+    def get_message_image(self, msgid, mode='large'):
+        """
+        根据消息 ID 获取图片消息内容
+        :param msgid: 消息 ID
+        :param mode: 图片尺寸 ('large'或'small')
+        :return: 二进制 JPG 图片字符串, 可直接作为 File Object 中 write 的参数
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises ValueError: 参数出错, 错误原因直接打印异常即可, 错误内容: ``image message not exist``: msg参数无效, ``mode error``: mode参数无效
+        """
+        if mode != 'large' and mode != 'small':
+            raise ValueError('mode error')
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/getimgdata?token={token}&msgid={msgid}&mode={mode}&source=&fileId=0'.format(
+            msgid=msgid,
+            token=self.__token,
+            mode=mode,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&token={token}&count=20&day=7'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers, stream=True)
+
+        # 检测会话是否超时
+        if r.headers.get('content-type', None) == 'text/html; charset=UTF-8':
+            raise NeedLoginError(r.text)
+        # 检测视频是否存在
+        if not r.raw.data:
+            raise ValueError('image message not exist')
+
+        return r.raw.data
+
     def get_message_video(self, msgid):
         """
         根据消息 ID 获取视频消息内容
