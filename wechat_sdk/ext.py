@@ -649,6 +649,54 @@ class WechatExt(object):
         """
         return self.send_file(fakeid, fid, 4)
 
+    def get_user_info(self, fakeid):
+        """
+        获取指定用户的个人信息
+
+        返回JSON示例::
+
+            {
+                "province": "湖北",
+                "city": "武汉",
+                "gender": 1,
+                "nick_name": "Doraemonext",
+                "country": "中国",
+                "remark_name": "",
+                "fake_id": 844735403,
+                "signature": "",
+                "group_id": 0,
+                "user_name": ""
+            }
+
+        :param fakeid: 用户的 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/getcontactinfo'
+        payloads = {
+            'ajax': 1,
+            'lang': 'zh_CN',
+            'random': round(random.random(), 3),
+            'token': self.__token,
+            't': 'ajax-getcontactinfo',
+            'fakeid': fakeid,
+        }
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/getmessage?t=wxm-message&lang=zh_CN&count=50&token={token}'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.post(url, data=payloads, headers=headers)
+
+        try:
+            message = json.dumps(json.loads(r.text)['contact_info'], ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError()
+
+        return message
+
     def get_message_list(self, lastid=0, offset=0, count=20, day=7, star=False):
         """
         获取消息列表

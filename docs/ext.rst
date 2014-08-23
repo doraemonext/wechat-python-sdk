@@ -359,6 +359,29 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
+    .. py:method:: get_user_info(fakeid)
+
+        获取指定用户的个人信息
+
+        返回JSON示例::
+
+            {
+                "province": "湖北",
+                "city": "武汉",
+                "gender": 1,
+                "nick_name": "Doraemonext",
+                "country": "中国",
+                "remark_name": "",
+                "fake_id": 844735403,
+                "signature": "",
+                "group_id": 0,
+                "user_name": ""
+            }
+
+        :param str fakeid: 用户的 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
