@@ -398,6 +398,38 @@
         :return: 消息数目
         :rtype: int
 
+    .. py:method:: get_top_message()
+
+        获取最新一条消息
+
+        返回JSON示例::
+
+            {
+                "msg_item": [
+                    {
+                        "id": 206448489,
+                        "type": 2,
+                        "fakeid": "844735403",
+                        "nick_name": "Doraemonext",
+                        "date_time": 1408696938,
+                        "source": "",
+                        "msg_status": 4,
+                        "has_reply": 0,
+                        "refuse_reason": "",
+                        "multi_item": [ ],
+                        "to_uin": 2391068708,
+                        "send_stat": {
+                            "total": 0,
+                            "succ": 0,
+                            "fail": 0
+                        }
+                    }
+                ]
+            }
+
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
