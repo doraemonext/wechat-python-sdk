@@ -11,6 +11,18 @@
     :param str cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
     :param str ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
 
+    **实例化说明：**
+
+    1. 当实例化 WechatExt 时，你必须传入 ``username`` 和 ``password`` ，对于 ``token`` 和 ``cookies`` 参数，如果传入，将会自动省略登录过程，但请保证你的代码中会捕获 ``NeedLoginError`` 异常，一旦发生此异常，你需要重新调用 :func:`login` 方法登录来获取新的 ``token`` 及 ``cookies``。
+
+    2. **详细说明一下 token 及 cookies 参数的传入问题：**
+
+     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatExt`` ，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatExt`` 中 ``token`` 及 ``cookies`` 参数，并在下一次的实例化的过程中传入，以此来保证不会频繁登录。
+
+     获取 ``token`` 及 ``cookies`` 的方式为调用 :func:`get_token_cookies` 方法
+
+     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``token`` 及 ``cookies`` 保存起来，不管是文件，缓存还是数据库都可以，只要在实例化后，你可以在任何时间调用 :func:`get_token_cookes` 方法。
+
     .. py:method:: login()
 
         登录微信公众平台
@@ -20,6 +32,19 @@
         当且仅当捕获到 ``NeedLoginError`` 异常时才需要调用此方法进行登录重试
 
         :raises: LoginError 登录出错异常，异常内容为微信服务器响应的内容，可作为日志记录下来
+
+    .. py:method:: get_token_cookies()
+
+        获取当前 token 及 cookies, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'cookies': 'bizuin=3086177907;data_bizuin=3086177907;data_ticket=AgWTXTpLL+FV+bnc9yLbb3V8;slave_sid=TERlMEJ1bWFCbTlmVnRLX0lLdUpRV0pyN2k1eVkzbWhiY0NfTHVjNFRZQk1DRDRfal82UzZKWTczR3I5TFpUYjRXUDBtN1h1cmJMRTkzS3hianBHOGpHaFM0eXJiNGp6cDFWUGpqbFNyMFlyQ05GWGpseVg2T2s2Sk5DRWpnRlE=;slave_user=gh_1b2959761a7d;',
+                'token': 373179898
+            }
+
+        :return: 一个 dict 对象, key 为 ``token`` 和 ``cookies``
 
     .. py:method:: send_message(fakeid, content)
 
@@ -359,6 +384,77 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
+    .. py:method:: get_user_info(fakeid)
+
+        获取指定用户的个人信息
+
+        返回JSON示例::
+
+            {
+                "province": "湖北",
+                "city": "武汉",
+                "gender": 1,
+                "nick_name": "Doraemonext",
+                "country": "中国",
+                "remark_name": "",
+                "fake_id": 844735403,
+                "signature": "",
+                "group_id": 0,
+                "user_name": ""
+            }
+
+        :param str fakeid: 用户的 UID (即 fakeid)
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
+    .. py:method:: get_avatar(fakeid)
+
+        获取用户头像信息
+
+        :param str fakeid: 用户的 UID (即 fakeid)
+        :return: 二进制 JPG 数据字符串, 可直接作为 File Object 中 write 的参数
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
+    .. py:method:: get_new_message_num(lastid=0)
+
+        获取新消息的数目
+
+        :param lastid: 最近获取的消息 ID, 为 0 时获取总消息数目
+        :return: 消息数目
+        :rtype: int
+
+    .. py:method:: get_top_message()
+
+        获取最新一条消息
+
+        返回JSON示例::
+
+            {
+                "msg_item": [
+                    {
+                        "id": 206448489,
+                        "type": 2,
+                        "fakeid": "844735403",
+                        "nick_name": "Doraemonext",
+                        "date_time": 1408696938,
+                        "source": "",
+                        "msg_status": 4,
+                        "has_reply": 0,
+                        "refuse_reason": "",
+                        "multi_item": [ ],
+                        "to_uin": 2391068708,
+                        "send_stat": {
+                            "total": 0,
+                            "succ": 0,
+                            "fail": 0
+                        }
+                    }
+                ]
+            }
+
+        :return: 返回的 JSON 数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
@@ -415,3 +511,31 @@
         :param boolean star: 是否只获取星标消息
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
+    .. py:method:: get_message_image(msgid, mode='large')
+
+        根据消息 ID 获取图片消息内容
+
+        :param str msgid: 消息 ID
+        :param str mode: 图片尺寸 ('large'或'small')
+        :return: 二进制 JPG 图片字符串, 可直接作为 File Object 中 write 的参数
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``image message not exist``: msg参数无效, ``mode error``: mode参数无效
+
+    .. py:method:: get_message_voice(msgid)
+
+        根据消息 ID 获取语音消息内容
+
+        :param str msgid: 消息 ID
+        :return: 二进制 MP3 音频字符串, 可直接作为 File Object 中 write 的参数
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``voice message not exist``: msg参数无效
+
+    .. py:method:: get_message_video(msgid)
+
+        根据消息 ID 获取视频消息内容
+
+        :param str msgid: 消息 ID
+        :return: 二进制 MP4 视频字符串, 可直接作为 File Object 中 write 的参数
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``video message not exist``: msg参数无效

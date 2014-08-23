@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from basic import WechatBasic
-from ext import WechatExt
+__all__ = ['WechatBasic', 'WechatExt']
+
+try:
+    from wechat_sdk.basic import WechatBasic
+    from wechat_sdk.ext import WechatExt
+except ImportError:
+    pass
