@@ -6,7 +6,6 @@ import time
 import json
 
 from xml.dom import minidom
-from xml.parsers.expat import ExpatError
 
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
@@ -77,7 +76,7 @@ class WechatBasic(object):
 
         try:
             doc = minidom.parseString(data)
-        except ExpatError:
+        except Exception:
             raise ParseError()
 
         params = [ele for ele in doc.childNodes[0].childNodes
