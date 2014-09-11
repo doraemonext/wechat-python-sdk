@@ -346,9 +346,19 @@ class WechatExt(object):
 
         return message
 
-    def get_dialog_message(self, fakeid):
+    def get_dialog_message(self, toFakeId, fromFakeId=0, lastMsgId =0, createTime=0):
         """
-        获取与指定用户的对话内容
+        获取与指定用户的对话内容, 获取的内容由lastMsgId 和 createTime(消息时间戳)进行过滤
+
+        消息过滤规则:
+        1. 首先按照lastMsgId 过滤
+            a. toFakeId 必须为用户的fakeDd,  fromFakeId 必须为本账户公众号的fakeId
+            b. 通过 toFakeId + fromFakeId + lastMsgId 去匹配发送过的某一条消息
+            c. 如果匹配成功, 返回这条消息之后与这个用户相关的所有消息内容(包括发送的消息和接受的)
+            d. 如果匹配失败(没有找到)， 则返回与这个用户相关的所有消息(包括发送的消息和接受的)
+
+        2. 第一条规则返回的消息内容接着按照createTime 进行过滤, 返回createTime表示的时间戳之时以及之后的消息
+
 
         返回JSON示例::
 
@@ -418,45 +428,17 @@ class WechatExt(object):
                 }
             }
 
-        :param fakeid: 用户 UID (即 fakeid)
-        :return: 返回的 JSON 数据
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
-        """
-        url = 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?t=message/send&action=index&tofakeid={fakeid}&token={token}&lang=zh_CN&f=json&random={random}'.format(
-            fakeid=fakeid,
-            token=self.__token,
-            random=round(random.random(), 3),
-        )
-        headers = {
-            'x-requested-with': 'XMLHttpRequest',
-            'referer': 'https://mp.weixin.qq.com/cgi-bin/masssendpage?t=mass/send&token={token}&lang=zh_CN'.format(
-                token=self.__token,
-            ),
-            'cookie': self.__cookies,
-        }
-        r = requests.get(url, headers=headers)
-
-        try:
-            message = json.dumps(json.loads(r.text)['page_info'], ensure_ascii=False)
-        except (KeyError, ValueError):
-            raise NeedLoginError(r.text)
-
-        return message
-
-    def get_dialog_message_after_timestamp(self, toFakeId, fromFakeId, createTime=0):
-        """
-        获取与指定用户的对话内容, createTime(消息时间戳)用来过滤消息
-        经测试，lastmsgid不起作用
-
-        :param toFakeId: 用户 UID (即 fakeid)
-        :param fromFakeId: 自己的 UID (即 fakeid)
+        :param toFakeId: 用户 UID (即 用户的fakeid)
+        :param fromFakeId: 自己的 UID (即 公众号的fakeid)
+        :param lastMsgId: 公众号之前发送给用户(toFakeId)的消息Id
         :createTime: 获取这个时间戳之后的消息，为0则表示全部消息
         :return: 返回的 JSON 数据
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
-        url =  'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={toFakeId}&action=sync&lastmsgfromfakeid={fromFakeId}&lastmsgid=0&createtime={time}&token={token}&lang=zh_CN&f=json&ajax=1'.format(
+        url =  'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={toFakeId}&action=sync&lastmsgfromfakeid={fromFakeId}&lastmsgid={lastMsgId}&createtime={time}&token={token}&lang=zh_CN&f=json&ajax=1'.format(
             toFakeId=toFakeId,
             fromFakeId=fromFakeId,
+            lastMsgId=lastMsgId,
             time=createTime,
             token=self.__token,
             )
