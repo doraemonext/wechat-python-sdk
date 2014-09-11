@@ -350,18 +350,18 @@ class WechatExt(object):
 
     def get_dialog_message(self, fakeid, last_msgid=0, create_time=0):
         """
-        获取与指定用户的对话内容, 获取的内容由 `last_msgid` (需要获取的对话中时间最早的 **公众号发送给用户** 的消息ID) 和 `create_time` (需要获取的对话中时间最早的消息时间戳) 进行过滤
+        获取与指定用户的对话内容, 获取的内容由 ``last_msgid`` (需要获取的对话中时间最早的 **公众号发送给用户** 的消息ID) 和 ``create_time`` (需要获取的对话中时间最早的消息时间戳) 进行过滤
 
         消息过滤规则:
 
-        1. 首先按照 `last_msgid` 过滤 (不需要按照 `last_msgid` 过滤则不需要传入此参数)
+        1. 首先按照 ``last_msgid`` 过滤 (不需要按照 ``last_msgid`` 过滤则不需要传入此参数)
 
-            a. `fakeid` 为用户 UID
-            b. 通过 `last_msgid` 去匹配公众号过去发送给用户的某一条消息
+            a. ``fakeid`` 为用户 UID
+            b. 通过 ``last_msgid`` 去匹配公众号过去发送给用户的某一条消息
             c. 如果匹配成功, 则返回这条消息之后与这个用户相关的所有消息内容 (包括发送的消息和接收的)
-            d. 如果匹配失败 (没有找到), 则返回与这个用户相关的所有消息 (包括发送的消息和接受的)
+            d. 如果匹配失败 (没有找到), 则返回与这个用户相关的所有消息 (包括发送的消息和接收的)
 
-        2. 第一条规则返回的消息内容接着按照 `create_time` 进行过滤, 返回 `create_time` 时间戳之时及之后的所有消息 (不需要按照 `create_time` 过滤则不需要传入此参数)
+        2. 第一条规则返回的消息内容接着按照 ``create_time`` 进行过滤, 返回 ``create_time`` 时间戳之时及之后的所有消息 (不需要按照 ``create_time`` 过滤则不需要传入此参数)
 
         返回JSON示例::
 
@@ -1001,7 +1001,7 @@ class WechatExt(object):
 
     def _init_fakeid(self):
         """
-        初始化公众号自身的 `fakeid` 值
+        初始化公众号自身的 ``fakeid`` 值
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
         if not self.__fakeid:
@@ -1009,7 +1009,7 @@ class WechatExt(object):
 
     def _init_ticket(self):
         """
-        初始化公众号自身的 `ticket` 及 `ticket_id` 值
+        初始化公众号自身的 ``ticket`` 及 ``ticket_id`` 值
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
         if not self.__ticket:
@@ -1017,7 +1017,7 @@ class WechatExt(object):
 
     def _init_self_information(self):
         """
-        初始化公众号自身的属性值 (目前包括 `Ticket` 值 及 公众号自身的 `fakeid` 值)
+        初始化公众号自身的属性值 (目前包括 ``Ticket`` 值 及 公众号自身的 ``fakeid`` 值)
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN&token={token}'.format(token=self.__token)
