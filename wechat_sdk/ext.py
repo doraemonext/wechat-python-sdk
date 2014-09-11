@@ -32,8 +32,10 @@ class WechatExt(object):
         self.__cookies = cookies
         self.__lastmsgid = 0
         self.__token = token
+
         self.__ticket = None
         self.__ticket_id = None
+        self.__fakeid = None
 
         if not self.__token or not self.__cookies:
             self.__token = ''
@@ -346,19 +348,20 @@ class WechatExt(object):
 
         return message
 
-    def get_dialog_message(self, toFakeId, fromFakeId=0, lastMsgId =0, createTime=0):
+    def get_dialog_message(self, fakeid, last_msgid=0, create_time=0):
         """
-        获取与指定用户的对话内容, 获取的内容由lastMsgId 和 createTime(消息时间戳)进行过滤
+        获取与指定用户的对话内容, 获取的内容由 `last_msgid` (需要获取的对话中时间最早的 **公众号发送给用户** 的消息ID) 和 `create_time` (需要获取的对话中时间最早的消息时间戳) 进行过滤
 
         消息过滤规则:
-        1. 首先按照lastMsgId 过滤
-            a. toFakeId 必须为用户的fakeDd,  fromFakeId 必须为本账户公众号的fakeId
-            b. 通过 toFakeId + fromFakeId + lastMsgId 去匹配发送过的某一条消息
-            c. 如果匹配成功, 返回这条消息之后与这个用户相关的所有消息内容(包括发送的消息和接受的)
-            d. 如果匹配失败(没有找到)， 则返回与这个用户相关的所有消息(包括发送的消息和接受的)
 
-        2. 第一条规则返回的消息内容接着按照createTime 进行过滤, 返回createTime表示的时间戳之时以及之后的消息
+        1. 首先按照 `last_msgid` 过滤 (不需要按照 `last_msgid` 过滤则不需要传入此参数)
 
+            a. `fakeid` 为用户 UID
+            b. 通过 `last_msgid` 去匹配公众号过去发送给用户的某一条消息
+            c. 如果匹配成功, 则返回这条消息之后与这个用户相关的所有消息内容 (包括发送的消息和接收的)
+            d. 如果匹配失败 (没有找到), 则返回与这个用户相关的所有消息 (包括发送的消息和接受的)
+
+        2. 第一条规则返回的消息内容接着按照 `create_time` 进行过滤, 返回 `create_time` 时间戳之时及之后的所有消息 (不需要按照 `create_time` 过滤则不需要传入此参数)
 
         返回JSON示例::
 
@@ -428,26 +431,27 @@ class WechatExt(object):
                 }
             }
 
-        :param toFakeId: 用户 UID (即 用户的fakeid)
-        :param fromFakeId: 自己的 UID (即 公众号的fakeid)
-        :param lastMsgId: 公众号之前发送给用户(toFakeId)的消息Id
-        :createTime: 获取这个时间戳之后的消息，为0则表示全部消息
+        :param fakeid: 用户 UID (即 fakeid )
+        :param last_msgid: 公众号之前发送给用户(fakeid)的消息 ID, 为 0 则表示全部消息
+        :param create_time: 获取这个时间戳之时及之后的消息，为 0 则表示全部消息
         :return: 返回的 JSON 数据
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
-        url =  'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={toFakeId}&action=sync&lastmsgfromfakeid={fromFakeId}&lastmsgid={lastMsgId}&createtime={time}&token={token}&lang=zh_CN&f=json&ajax=1'.format(
-            toFakeId=toFakeId,
-            fromFakeId=fromFakeId,
-            lastMsgId=lastMsgId,
-            time=createTime,
+        self._init_fakeid()
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={fakeid}&action=sync&lastmsgfromfakeid={fromfakeid}&lastmsgid={last_msgid}&createtime={create_time}&token={token}&lang=zh_CN&f=json&ajax=1'.format(
+            fakeid=fakeid,
+            fromfakeid=self.__fakeid,
+            last_msgid=last_msgid,
+            create_time=create_time,
             token=self.__token,
-            )
+        )
 
         headers = {
             'x-requested-with': 'XMLHttpRequest',
             'referer': 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token={token}&lang=zh_CN'.format(token=self.__token),
             'cookie': self.__cookies,
-            }
+        }
 
         r = requests.get(url, headers=headers)
         try:
@@ -506,8 +510,7 @@ class WechatExt(object):
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
         """
-        if not self.__ticket:
-            self._init_ticket()
+        self._init_ticket()
 
         url = 'https://mp.weixin.qq.com/cgi-bin/filetransfer?action=upload_material&f=json&ticket_id={ticket_id}&ticket={ticket}&token={token}&lang=zh_CN'.format(
             ticket_id=self.__ticket_id,
@@ -996,9 +999,25 @@ class WechatExt(object):
 
         return r.raw.data
 
+    def _init_fakeid(self):
+        """
+        初始化公众号自身的 `fakeid` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__fakeid:
+            self._init_self_information()
+
     def _init_ticket(self):
         """
-        初始化 Ticket 值
+        初始化公众号自身的 `ticket` 及 `ticket_id` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__ticket:
+            self._init_self_information()
+
+    def _init_self_information(self):
+        """
+        初始化公众号自身的属性值 (目前包括 `Ticket` 值 及 公众号自身的 `fakeid` 值)
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN&token={token}'.format(token=self.__token)
@@ -1009,11 +1028,20 @@ class WechatExt(object):
         }
         r = requests.get(url, headers=headers)
 
+        # 获取 Ticket ID 值
         ticket_id = re.search(r'user_name:\"(.*)\"', r.text)
         if not ticket_id:
             raise NeedLoginError(r.text)
         self.__ticket_id = ticket_id.group(1)
+
+        # 获取 Ticket 值
         ticket = re.search(r'ticket:\"(.*)\"', r.text)
         if not ticket:
             raise NeedLoginError(r.text)
         self.__ticket = ticket.group(1)
+
+        # 获取公众号自身的 fakeid 值
+        fakeid = re.search(r'uin:\"(.*)\"', r.text)
+        if not fakeid:
+            raise NeedLoginError(r.text)
+        self.__fakeid = fakeid.group(1)
