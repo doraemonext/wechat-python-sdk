@@ -1,0 +1,1 @@
+default_app_config = 'wechat_sdk.context.framework.django.apps.ContextConfig'
