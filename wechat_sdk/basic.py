@@ -52,6 +52,9 @@ class WechatBasic(object):
         """
         self._check_token()
 
+        if not signature or not timestamp or not nonce:
+            return False
+
         tmp_list = [self.__token, timestamp, nonce]
         tmp_list.sort()
         tmp_str = ''.join(tmp_list)
