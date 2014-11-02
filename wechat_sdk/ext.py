@@ -6,7 +6,7 @@ import requests
 import json
 import random
 
-from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError
+from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
 
 
 class WechatExt(object):
@@ -15,7 +15,7 @@ class WechatExt(object):
 
     通过模拟登陆的方式实现更多的高级功能, 请注意使用本类有风险, 请自行承担
     """
-    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False):
+    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False, login=True):
         """
         :param username: 你的微信公众平台账户用户名
         :param password: 你的微信公众平台账户密码
@@ -40,36 +40,70 @@ class WechatExt(object):
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
-            self.login()
+            if login:
+                self.login()
 
-    def login(self):
+    def login(self, verify_code=''):
         """
         登录微信公众平台
         注意在实例化 ``WechatExt`` 的时候，如果没有传入 ``token`` 及 ``cookies`` ，将会自动调用该方法，无需手动调用
         当且仅当捕获到 ``NeedLoginError`` 异常时才需要调用此方法进行登录重试
+        :param verify_code: 验证码, 不传入则为无验证码
         :raises LoginError: 登录出错异常，异常内容为微信服务器响应的内容，可作为日志记录下来
         """
-        url = 'https://mp.weixin.qq.com/cgi-bin/login?lang=zh_CN'
+        url = 'https://mp.weixin.qq.com/cgi-bin/login'
         payload = {
             'username': self.__username,
-            'imgcode': '',
-            'f': 'json',
             'pwd': self.__password,
+            'imgcode': verify_code,
+            'f': 'json',
         }
         headers = {
             'x-requested-with': 'XMLHttpRequest',
             'referer': 'https://mp.weixin.qq.com/cgi-bin/loginpage?t=wxm2-login&lang=zh_CN',
+            'Cookie': self.__cookies,
         }
         r = requests.post(url, data=payload, headers=headers)
 
         s = re.search(r'token=(\d+)', r.text)
         if not s:
-            raise LoginError(r.text)
+            try:
+                error_code = json.loads(r.text)['base_resp']['ret']
+            except (KeyError, ValueError):
+                raise LoginError(r.text)
+
+            if error_code in [-8, 27]:
+                raise LoginVerifyCodeError(r.text)
+            else:
+                raise LoginError(r.text)
         self.__token = int(s.group(1))
 
         self.__cookies = ''
         for cookie in r.cookies:
             self.__cookies += cookie.name + '=' + cookie.value + ';'
+
+    def get_verify_code(self, file_path):
+        """
+        获取登录验证码并存储
+        :param file_path: 将验证码图片保存的文件路径
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/verifycode'
+        payload = {
+            'username': self.__username,
+            'r': int(random.random() * 10000000000000),
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/',
+        }
+        r = requests.get(url, data=payload, headers=headers, stream=True)
+
+        self.__cookies = ''
+        for cookie in r.cookies:
+            self.__cookies += cookie.name + '=' + cookie.value + ';'
+
+        with open(file_path, 'wb') as fd:
+            for chunk in r.iter_content(1024):
+                fd.write(chunk)
 
     def get_token_cookies(self):
         """

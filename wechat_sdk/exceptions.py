@@ -43,6 +43,13 @@ class NeedLoginError(UnOfficialAPIError):
     pass
 
 
+class LoginVerifyCodeError(UnOfficialAPIError):
+    """
+    微信非官方API请求出错异常 - 验证码错误
+    """
+    pass
+
+
 class LoginError(UnOfficialAPIError):
     """
     微信非官方API请求出错异常 - 登录出错
