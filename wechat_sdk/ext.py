@@ -73,7 +73,7 @@ class WechatExt(object):
             except (KeyError, ValueError):
                 raise LoginError(r.text)
 
-            if error_code in [-8, 27]:
+            if error_code in [-8, -27]:
                 raise LoginVerifyCodeError(r.text)
             else:
                 raise LoginError(r.text)
