@@ -40,6 +40,7 @@ class ContextStore(ContextBase):
             context_data=self.encode(self._get_context(no_load=must_create)),
             expire_date=self.get_expiry_date()
         )
+        self.clear_expired()
         using = router.db_for_write(Context, instance=obj)
         try:
             with transaction.atomic(using=using):
