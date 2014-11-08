@@ -308,6 +308,33 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
 
+    .. py:method:: add_news(news)
+
+        在素材库中创建图文消息
+
+        :param list news: list 对象, 其中的每个元素为一个 dict 对象, 代表一条图文, key 值分别为 ``title``, ``author``, ``summary``, ``content``, ``picture_id``, ``from_url``, 对应内容为标题, 作者, 摘要, 内容, 素材库里的图片ID(可通过 ``upload_file`` 函数上传获取), 来源链接。
+
+                          其中必须提供的 key 值为 ``title`` 和 ``content``
+
+                          示例::
+
+                              [
+                                  {
+                                      'title': '图文标题',
+                                      'author': '图文作者',
+                                      'summary': '图文摘要',
+                                      'content': '图文内容',
+                                      'picture_id': '23412341',
+                                      'from_url': 'http://www.baidu.com',
+                                  },
+                                  {
+                                      'title': '最少图文标题',
+                                      'content': '图文内容',
+                                  }
+                              ]
+        :raises ValueError: 参数提供错误时抛出
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+
     .. py:method:: upload_file(filepath)
 
         上传素材 (图片/音频/视频)

@@ -537,6 +537,81 @@ class WechatExt(object):
         except KeyError:
             raise NeedLoginError(r.text)
 
+    def add_news(self, news):
+        """
+        在素材库中创建图文消息
+
+        :param news: list 对象, 其中的每个元素为一个 dict 对象, 代表一条图文, key 值分别为 ``title``, ``author``, ``summary``,
+                     ``content``, ``picture_id``, ``from_url``, 对应内容为标题, 作者, 摘要, 内容, 素材库里的
+                     图片ID(可通过 ``upload_file`` 函数上传获取), 来源链接。
+
+                     其中必须提供的 key 值为 ``title`` 和 ``content``
+
+                     示例::
+
+                         [
+                             {
+                                 'title': '图文标题',
+                                 'author': '图文作者',
+                                 'summary': '图文摘要',
+                                 'content': '图文内容',
+                                 'picture_id': '23412341',
+                                 'from_url': 'http://www.baidu.com',
+                             },
+                             {
+                                 'title': '最少图文标题',
+                                 'content': '图文内容',
+                             }
+                         ]
+        :raises ValueError: 参数提供错误时抛出
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not news:
+            raise ValueError('The news cannot be empty')
+        for item in news:
+            if 'title' not in item or 'content' not in item:
+                raise ValueError('The news item needs to provide at least two arguments: title, content')
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/operate_appmsg?lang=zh_CN&t=ajax-response&sub=create&token={token}'.format(
+            token=self.__token,
+        )
+        payload = {
+            'token': self.__token,
+            'type': 10,
+            'lang': 'zh_CN',
+            'sub': 'create',
+            'ajax': 1,
+            'AppMsgId': '',
+            'error': 'false',
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/operate_appmsg?lang=zh_CN&sub=edit&t=wxm-appmsgs-edit-new&type=10&subtype=3&token={token}'.format(
+                token=self.__token
+            ),
+            'cookie': self.__cookies,
+        }
+        i = 0
+        for item in news:
+            payload['title'+str(i)] = item.get('title')
+            payload['author'+str(i)] = item.get('author')
+            payload['digest'+str(i)] = item.get('summary')
+            payload['content'+str(i)] = item.get('content')
+            payload['fileid'+str(i)] = item.get('picture_id')
+            payload['sourceurl'+str(i)] = item.get('from_url')
+            i += 1
+        payload['count'] = i
+        r = requests.post(url, data=payload, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['ret'] != '0':
+                raise ValueError(r.text)
+        except KeyError:
+            raise NeedLoginError(r.text)
+
     def upload_file(self, filepath):
         """
         上传素材 (图片/音频/视频)
