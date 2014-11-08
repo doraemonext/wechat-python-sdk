@@ -332,8 +332,8 @@
                                       'content': '图文内容',
                                   }
                               ]
-        :raises ValueError: 参数提供错误时抛出
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: ValueError 参数提供错误时抛出
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
     .. py:method:: upload_file(filepath)
 
