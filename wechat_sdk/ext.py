@@ -509,10 +509,11 @@ class WechatExt(object):
             'tofakeid': fakeid,
             'type': 10,
             'token': self.__token,
-            'fid': msgid,
             'appmsgid': msgid,
             'error': 'false',
             'ajax': 1,
+            'app_id': msgid
+            'imgcode': '',
         }
         headers = {
             'x-requested-with': 'XMLHttpRequest',
@@ -659,7 +660,7 @@ class WechatExt(object):
         向特定用户发送媒体文件
         :param fakeid: 用户 UID (即 fakeid)
         :param fid: 文件 ID
-        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :param type: 文件类型 (2: 图片, 3: 音频, 15: 视频)
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
         """
@@ -673,9 +674,9 @@ class WechatExt(object):
             'ajax': 1,
             'random': random.random(),
             'type': type,
-            'file_id': fid,
             'tofakeid': fakeid,
-            'fileid': fid,
+            'app_id': fid,
+            'appmsgid': fid,
             'imgcode': '',
         }
         headers = {
@@ -792,7 +793,7 @@ class WechatExt(object):
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
         """
-        return self.send_file(fakeid, fid, 4)
+        return self.send_file(fakeid, fid, 15)
 
     def get_user_info(self, fakeid):
         """
