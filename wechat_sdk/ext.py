@@ -506,14 +506,16 @@ class WechatExt(object):
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response'
         payload = {
+            'lang': 'zh_CN',
+            'f': 'json',
             'tofakeid': fakeid,
             'type': 10,
             'token': self.__token,
             'appmsgid': msgid,
+            'app_id': msgid,
             'error': 'false',
             'ajax': 1,
-            'app_id': msgid,
-            'imgcode': '',
+            'random': random.random(),
         }
         headers = {
             'x-requested-with': 'XMLHttpRequest',
@@ -664,21 +666,39 @@ class WechatExt(object):
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
         """
+        if type == 4:  # 此处判断为兼容历史版本, 微信官方已经将视频类型修改为 15
+            type = 15
+
         url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json&token={token}&lang=zh_CN'.format(
             token=self.__token,
         )
-        payloads = {
-            'token': self.__token,
-            'lang': 'zh_CN',
-            'f': 'json',
-            'ajax': 1,
-            'random': random.random(),
-            'type': type,
-            'tofakeid': fakeid,
-            'app_id': fid,
-            'appmsgid': fid,
-            'imgcode': '',
-        }
+        payloads = {}
+        if type == 2 or type == 3:  # 如果文件类型是图片或者音频
+            payloads = {
+                'token': self.__token,
+                'lang': 'zh_CN',
+                'f': 'json',
+                'ajax': 1,
+                'random': random.random(),
+                'type': type,
+                'file_id': fid,
+                'tofakeid': fakeid,
+                'fileid': fid,
+                'imgcode': '',
+            }
+        elif type == 15:  # 如果文件类型是视频
+            payloads = {
+                'token': self.__token,
+                'lang': 'zh_CN',
+                'f': 'json',
+                'ajax': 1,
+                'random': random.random(),
+                'type': type,
+                'app_id': fid,
+                'tofakeid': fakeid,
+                'appmsgid': fid,
+                'imgcode': '',
+            }
         headers = {
             'referer': 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={fakeid}&t=message/send&action=index&token={token}&lang=zh_CN'.format(
                 fakeid=fakeid,
