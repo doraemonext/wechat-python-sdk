@@ -512,7 +512,7 @@ class WechatExt(object):
             'appmsgid': msgid,
             'error': 'false',
             'ajax': 1,
-            'app_id': msgid
+            'app_id': msgid,
             'imgcode': '',
         }
         headers = {
