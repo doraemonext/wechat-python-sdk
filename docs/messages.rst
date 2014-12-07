@@ -83,9 +83,9 @@ name         value
 =========== ======================================================
 type         'subscribe' 'unsubscribe' 'click' 或 'location'
 key          事件 key 值。当 type = 'click' 时存在。
-Latitude	 地理位置纬度。当 type = 'location' 时存在。
-Longitude	 地理位置经度。当 type = 'location' 时存在。
-Precision	 地理位置精度。当 type = 'location' 时存在。
+latitude	 地理位置纬度。当 type = 'location' 时存在。
+longitude	 地理位置经度。当 type = 'location' 时存在。
+precision	 地理位置精度。当 type = 'location' 时存在。
 =========== ======================================================
 
 语音消息类 VoiceMessage

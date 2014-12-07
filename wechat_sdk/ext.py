@@ -50,6 +50,7 @@ class WechatExt(object):
         注意在实例化 ``WechatExt`` 的时候，如果没有传入 ``token`` 及 ``cookies`` ，将会自动调用该方法，无需手动调用
         当且仅当捕获到 ``NeedLoginError`` 异常时才需要调用此方法进行登录重试
         :param verify_code: 验证码, 不传入则为无验证码
+        :raises LoginVerifyCodeError: 需要验证码或验证码出错，该异常为 ``LoginError`` 的子类
         :raises LoginError: 登录出错异常，异常内容为微信服务器响应的内容，可作为日志记录下来
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/login'

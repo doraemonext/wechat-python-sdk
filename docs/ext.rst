@@ -1,7 +1,8 @@
-微信非官方接口操作 WechatExt
-============================
+==============================
+ 微信非官方接口操作 WechatExt
+==============================
 
-.. py:class:: wechat_sdk.ext.WechatExt(username, password [, token=None, cookies=None, ifencodepwd=False])
+.. py:class:: wechat_sdk.ext.WechatExt(username, password [, token=None, cookies=None, ifencodepwd=False, login=True])
 
     微信扩展功能类
 
@@ -10,30 +11,48 @@
     :param str token: 直接导入的 ``token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
     :param str cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
     :param str ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
+    :param login: **是否在初始化过程中尝试登录 (推荐此处设置为 False, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 True 为兼容历史版本**
 
     **实例化说明：**
 
-    1. 当实例化 WechatExt 时，你必须传入 ``username`` 和 ``password`` ，对于 ``token`` 和 ``cookies`` 参数，如果传入，将会自动省略登录过程，但请保证你的代码中会捕获 ``NeedLoginError`` 异常，一旦发生此异常，你需要重新调用 :func:`login` 方法登录来获取新的 ``token`` 及 ``cookies``。
+    1. 请注意初始化时的 ``login`` 参数，它的默认值为 ``True`` ，但这仅仅是为了兼容历史版本（v0.4.2及以前），在新版本中，强烈推荐将该参数设置为 ``False`` ，然后手动执行 :func:`login` 以有效应对可能出现的验证码问题。
 
-    2. **详细说明一下 token 及 cookies 参数的传入问题：**
+    2. 当实例化 WechatExt 时，你必须传入 ``username`` 和 ``password`` ，对于 ``token`` 和 ``cookies`` 参数，如果传入了它们，将会自动省略登录过程（无论 ``login`` 参数被设置为了 ``True`` 还是 ``False``），但请保证你的代码中会捕获 ``NeedLoginError`` 异常，一旦发生此异常，你需要重新调用 :func:`login` 方法登录来获取新的 ``token`` 及 ``cookies`` 。
+
+    3. **详细说明一下 token 及 cookies 参数的传入问题：**
 
      因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatExt`` ，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatExt`` 中 ``token`` 及 ``cookies`` 参数，并在下一次的实例化的过程中传入，以此来保证不会频繁登录。
 
      获取 ``token`` 及 ``cookies`` 的方式为调用 :func:`get_token_cookies` 方法
 
-     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``token`` 及 ``cookies`` 保存起来，不管是文件，缓存还是数据库都可以，只要在实例化后，你可以在任何时间调用 :func:`get_token_cookes` 方法。
+     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``token`` 及 ``cookies`` 保存起来，不管是文件，缓存还是数据库都可以，只要在实例化后，你可以在任何时间调用 :func:`get_token_cookies` 方法。
 
-    .. py:method:: login()
+.. py:method:: login(verify_code='')
 
         登录微信公众平台
 
-        注意在实例化 ``WechatExt`` 的时候，如果没有传入 ``token`` 及 ``cookies`` ，将会自动调用该方法，无需手动调用
-
         当且仅当捕获到 ``NeedLoginError`` 异常时才需要调用此方法进行登录重试
 
-        :raises: LoginError 登录出错异常，异常内容为微信服务器响应的内容，可作为日志记录下来
+        **如何应对登录时的验证码：**
 
-    .. py:method:: get_token_cookies()
+        默认情况下，如果微信服务器认为你的账号正常，那么直接调用一次 :func:`login` 就可以完成登录操作，但如果不幸出现了验证码，本方法会抛出 ``LoginVerifyCodeError`` 异常，这时你需要通过下面的 :func:`get_verify_code` 方法来获取验证码图片，然后通过你自己的方式识别这张图片并得出结果，并将验证码识别结果作为本方法的 ``verify_code`` 参数值来重新调用本方法，可多次尝试。
+
+        **如何识别验证码：**
+
+        鉴于腾讯的验证码基本无法通过机器进行识别，所以推荐网络上的人工识别验证码服务。因为 ``token`` 和 ``cookies`` 都有一定时间的有效期，所以一次验证码识别可以使用不短的时间，响应时间和价格完全可以承受。
+
+        :param verify_code: 验证码, 不传入则为无验证码
+        :raises: LoginVerifyCodeError 需要验证码或验证码出错，该异常为 ``LoginError`` 的子类
+        :raises: LoginError 登录出错，异常内容为微信服务器响应的内容，可作为日志记录下来
+
+
+.. py:method:: get_verify_code(file_path)
+
+        获取登录验证码并存储到本地路径
+
+        :param file_path: 将验证码图片保存的文件路径
+
+.. py:method:: get_token_cookies()
 
         获取当前 token 及 cookies, 供手动缓存使用
 
