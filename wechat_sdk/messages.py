@@ -100,7 +100,7 @@ class VoiceMessage(WechatMessage):
         try:
             self.media_id = message.pop('MediaId')
             self.format = message.pop('Format')
-            self.recognition = message.pop('Recognition')
+            self.recognition = message.pop('Recognition', '')
         except KeyError:
             raise ParseError()
         super(VoiceMessage, self).__init__(message)
