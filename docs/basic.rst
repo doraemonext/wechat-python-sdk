@@ -156,7 +156,7 @@
 
         可用公众号类型：认证订阅号, 认证/未认证服务号
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=通用接口文档>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html>`_
 
         :return: 返回的 JSON 数据包
 
@@ -200,7 +200,7 @@
                     }
                 ]})
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单创建接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html>`_
 
         请注意中文请使用 unicode 形式, 如上面的示例
 
@@ -215,7 +215,7 @@
 
         查询自定义菜单
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单查询接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/16/ff9b7b85220e1396ffa16794a9d95adc.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -227,7 +227,7 @@
 
         删除自定义菜单
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=自定义菜单删除接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/16/8ed41ba931e4845844ad6d1eeb8060c8.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -239,7 +239,7 @@
 
         上传多媒体文件
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=上传下载多媒体文件>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/10/78b15308b053286e2a66b33f0f0f5fb6.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -261,7 +261,7 @@
                 for chunk in response.iter_content(1024):
                     fd.write(chunk)
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=上传下载多媒体文件>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/10/78b15308b053286e2a66b33f0f0f5fb6.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -274,7 +274,7 @@
 
         创建分组
 
-        详情请参考 http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -287,7 +287,7 @@
 
         查询所有分组
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -299,7 +299,7 @@
 
         查询用户所在分组
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -312,7 +312,7 @@
 
         修改分组名
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -326,7 +326,7 @@
 
         移动用户分组
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=分组管理接口>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -340,7 +340,7 @@
 
         获取用户基本信息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=获取用户基本信息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/14/bb5031008f1494a59c6f71fa0f319c66.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -354,7 +354,7 @@
 
         获取关注者列表
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=获取关注者列表>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/3/17e6919a39c1c53555185907acf70093.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -367,7 +367,7 @@
 
         发送文本消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -381,7 +381,7 @@
 
         发送图片消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -395,7 +395,7 @@
 
         发送语音消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -409,7 +409,7 @@
 
         发送视频消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -425,7 +425,7 @@
 
         发送音乐消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -443,7 +443,7 @@
 
         发送图文消息
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=发送客服消息>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -457,7 +457,7 @@
 
         创建二维码
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=生成带参数的二维码>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
@@ -470,7 +470,7 @@
 
         通过ticket换取二维码
 
-        详情请参考 `<http://mp.weixin.qq.com/wiki/index.php?title=生成带参数的二维码>`_
+        详情请参考 `<http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html>`_
 
         运行时检查：``appid``, ``appsecret``
 
