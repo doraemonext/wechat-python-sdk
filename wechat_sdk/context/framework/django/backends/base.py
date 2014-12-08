@@ -8,7 +8,11 @@ from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import salted_hmac
 from django.utils.encoding import force_bytes
-from django.utils.module_loading import import_string
+
+try:
+    from django.utils.module_loading import import_string as import_by_string   # For Django 1.7+
+except ImportError:
+    from django.utils.module_loading import import_by_path as import_by_string  # For Django 1.6
 
 from wechat_sdk.context.framework.django.exceptions import SuspiciousOpenID
 
@@ -30,9 +34,9 @@ class ContextBase(object):
         self.accessed = False
         self.modified = False
         try:
-            self.serializer = import_string(settings.WECHAT_CONTEXT_SERIALIZER)
+            self.serializer = import_by_string(settings.WECHAT_CONTEXT_SERIALIZER)
         except AttributeError:
-            self.serializer = import_string(DEFAULT_WECHAT_CONTEXT_SERIALIZER)
+            self.serializer = import_by_string(DEFAULT_WECHAT_CONTEXT_SERIALIZER)
 
     def __contains__(self, openid):
         return openid in self._context

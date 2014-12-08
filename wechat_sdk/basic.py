@@ -124,6 +124,7 @@ class WechatBasic(object):
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
+        content = self._transcoding(content)
 
         return TextReply(message=self.__message, content=content).render()
 
@@ -156,6 +157,8 @@ class WechatBasic(object):
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
+        title = self._transcoding(title)
+        description = self._transcoding(description)
 
         return VideoReply(message=self.__message, media_id=media_id, title=title, description=description).render()
 
@@ -170,6 +173,10 @@ class WechatBasic(object):
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
+        music_url = self._transcoding(music_url)
+        title = self._transcoding(title)
+        description = self._transcoding(description)
+        hq_music_url = self._transcoding(hq_music_url)
 
         return MusicReply(message=self.__message, title=title, description=description, music_url=music_url,
                           hq_music_url=hq_music_url, thumb_media_id=thumb_media_id).render()
@@ -181,6 +188,15 @@ class WechatBasic(object):
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
+        for article in articles:
+            if article.get('title'):
+                article['title'] = self._transcoding(article['title'])
+            if article.get('description'):
+                article['description'] = self._transcoding(article['description'])
+            if article.get('picurl'):
+                article['picurl'] = self._transcoding(article['picurl'])
+            if article.get('url'):
+                article['url'] = self._transcoding(article['url'])
 
         news = ArticleReply(message=self.__message)
         for article in articles:
@@ -713,3 +729,18 @@ class WechatBasic(object):
             url=url,
             **kwargs
         )
+
+    def _transcoding(self, data):
+        """
+        编码转换
+        :param data: 需要转换的数据
+        :return: 转换好的数据
+        """
+        result = None
+        if type(data) == unicode:
+            result = data
+        elif type(data) == str:
+            result = data.decode('utf-8')
+        else:
+            raise ParseError()
+        return result

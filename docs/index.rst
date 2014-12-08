@@ -45,7 +45,9 @@
    basic
    ext
    messages
+   context
    exceptions
+   faq
 
 感谢 `WeRoBot <https://github.com/whtsky/WeRoBot>`_ 项目，本项目中官方接口的许多代码均借鉴于此。
 
