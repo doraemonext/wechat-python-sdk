@@ -54,3 +54,16 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `http://wechat-python-sdk.readthedocs.org/zh_CN/master/tutorial.html <http://wechat-python-sdk.readthedocs.org/zh_CN/master/tutorial.html>`_
+
+ChangeLog
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+v0.5.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* 新增了针对 Django 的上下文对话支持
+* 新增了非官方接口下的验证码登录及获取验证码功能
+* 新增了在素材库中创建图文消息功能
+* 修正了编码转换问题
+* 更正了 WechatBasic 中的解释说明链接
+* 更新文档，增加了一个快速上手示例
+* 增加了FAQ文档
