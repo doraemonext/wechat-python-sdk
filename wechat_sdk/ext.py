@@ -6,7 +6,7 @@ import requests
 import json
 import random
 
-from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError
+from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
 
 
 class WechatExt(object):
@@ -15,13 +15,14 @@ class WechatExt(object):
 
     通过模拟登陆的方式实现更多的高级功能, 请注意使用本类有风险, 请自行承担
     """
-    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False):
+    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False, login=True):
         """
         :param username: 你的微信公众平台账户用户名
         :param password: 你的微信公众平台账户密码
         :param token: 直接导入的 ``token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
         :param cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
         :param ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
+        :param login: 是否在初始化过程中尝试登录 (推荐此处设置为 ``False``, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 ``True`` 为兼容历史版本
         :return:
         """
         self.__username = username
@@ -40,36 +41,71 @@ class WechatExt(object):
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
-            self.login()
+            if login:
+                self.login()
 
-    def login(self):
+    def login(self, verify_code=''):
         """
         登录微信公众平台
         注意在实例化 ``WechatExt`` 的时候，如果没有传入 ``token`` 及 ``cookies`` ，将会自动调用该方法，无需手动调用
         当且仅当捕获到 ``NeedLoginError`` 异常时才需要调用此方法进行登录重试
+        :param verify_code: 验证码, 不传入则为无验证码
+        :raises LoginVerifyCodeError: 需要验证码或验证码出错，该异常为 ``LoginError`` 的子类
         :raises LoginError: 登录出错异常，异常内容为微信服务器响应的内容，可作为日志记录下来
         """
-        url = 'https://mp.weixin.qq.com/cgi-bin/login?lang=zh_CN'
+        url = 'https://mp.weixin.qq.com/cgi-bin/login'
         payload = {
             'username': self.__username,
-            'imgcode': '',
-            'f': 'json',
             'pwd': self.__password,
+            'imgcode': verify_code,
+            'f': 'json',
         }
         headers = {
             'x-requested-with': 'XMLHttpRequest',
             'referer': 'https://mp.weixin.qq.com/cgi-bin/loginpage?t=wxm2-login&lang=zh_CN',
+            'Cookie': self.__cookies,
         }
         r = requests.post(url, data=payload, headers=headers)
 
         s = re.search(r'token=(\d+)', r.text)
         if not s:
-            raise LoginError(r.text)
+            try:
+                error_code = json.loads(r.text)['base_resp']['ret']
+            except (KeyError, ValueError):
+                raise LoginError(r.text)
+
+            if error_code in [-8, -27]:
+                raise LoginVerifyCodeError(r.text)
+            else:
+                raise LoginError(r.text)
         self.__token = int(s.group(1))
 
         self.__cookies = ''
         for cookie in r.cookies:
             self.__cookies += cookie.name + '=' + cookie.value + ';'
+
+    def get_verify_code(self, file_path):
+        """
+        获取登录验证码并存储
+        :param file_path: 将验证码图片保存的文件路径
+        """
+        url = 'https://mp.weixin.qq.com/cgi-bin/verifycode'
+        payload = {
+            'username': self.__username,
+            'r': int(random.random() * 10000000000000),
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/',
+        }
+        r = requests.get(url, data=payload, headers=headers, stream=True)
+
+        self.__cookies = ''
+        for cookie in r.cookies:
+            self.__cookies += cookie.name + '=' + cookie.value + ';'
+
+        with open(file_path, 'wb') as fd:
+            for chunk in r.iter_content(1024):
+                fd.write(chunk)
 
     def get_token_cookies(self):
         """
@@ -471,13 +507,16 @@ class WechatExt(object):
         """
         url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response'
         payload = {
+            'lang': 'zh_CN',
+            'f': 'json',
             'tofakeid': fakeid,
             'type': 10,
             'token': self.__token,
-            'fid': msgid,
             'appmsgid': msgid,
+            'app_id': msgid,
             'error': 'false',
             'ajax': 1,
+            'random': random.random(),
         }
         headers = {
             'x-requested-with': 'XMLHttpRequest',
@@ -499,6 +538,81 @@ class WechatExt(object):
                 raise ValueError('message id not exist')
             if message['base_resp']['ret'] != 0:
                 raise NeedLoginError(r.text)
+        except KeyError:
+            raise NeedLoginError(r.text)
+
+    def add_news(self, news):
+        """
+        在素材库中创建图文消息
+
+        :param news: list 对象, 其中的每个元素为一个 dict 对象, 代表一条图文, key 值分别为 ``title``, ``author``, ``summary``,
+                     ``content``, ``picture_id``, ``from_url``, 对应内容为标题, 作者, 摘要, 内容, 素材库里的
+                     图片ID(可通过 ``upload_file`` 函数上传获取), 来源链接。
+
+                     其中必须提供的 key 值为 ``title`` 和 ``content``
+
+                     示例::
+
+                         [
+                             {
+                                 'title': '图文标题',
+                                 'author': '图文作者',
+                                 'summary': '图文摘要',
+                                 'content': '图文内容',
+                                 'picture_id': '23412341',
+                                 'from_url': 'http://www.baidu.com',
+                             },
+                             {
+                                 'title': '最少图文标题',
+                                 'content': '图文内容',
+                             }
+                         ]
+        :raises ValueError: 参数提供错误时抛出
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not news:
+            raise ValueError('The news cannot be empty')
+        for item in news:
+            if 'title' not in item or 'content' not in item:
+                raise ValueError('The news item needs to provide at least two arguments: title, content')
+
+        url = 'https://mp.weixin.qq.com/cgi-bin/operate_appmsg?lang=zh_CN&t=ajax-response&sub=create&token={token}'.format(
+            token=self.__token,
+        )
+        payload = {
+            'token': self.__token,
+            'type': 10,
+            'lang': 'zh_CN',
+            'sub': 'create',
+            'ajax': 1,
+            'AppMsgId': '',
+            'error': 'false',
+        }
+        headers = {
+            'referer': 'https://mp.weixin.qq.com/cgi-bin/operate_appmsg?lang=zh_CN&sub=edit&t=wxm-appmsgs-edit-new&type=10&subtype=3&token={token}'.format(
+                token=self.__token
+            ),
+            'cookie': self.__cookies,
+        }
+        i = 0
+        for item in news:
+            payload['title'+str(i)] = item.get('title')
+            payload['author'+str(i)] = item.get('author')
+            payload['digest'+str(i)] = item.get('summary')
+            payload['content'+str(i)] = item.get('content')
+            payload['fileid'+str(i)] = item.get('picture_id')
+            payload['sourceurl'+str(i)] = item.get('from_url')
+            i += 1
+        payload['count'] = i
+        r = requests.post(url, data=payload, headers=headers)
+
+        try:
+            message = json.loads(r.text)
+        except ValueError:
+            raise NeedLoginError(r.text)
+        try:
+            if message['ret'] != '0':
+                raise ValueError(r.text)
         except KeyError:
             raise NeedLoginError(r.text)
 
@@ -549,25 +663,43 @@ class WechatExt(object):
         向特定用户发送媒体文件
         :param fakeid: 用户 UID (即 fakeid)
         :param fid: 文件 ID
-        :param type: 文件类型 (2: 图片, 3: 音频, 4: 视频)
+        :param type: 文件类型 (2: 图片, 3: 音频, 15: 视频)
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
         """
+        if type == 4:  # 此处判断为兼容历史版本, 微信官方已经将视频类型修改为 15
+            type = 15
+
         url = 'https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json&token={token}&lang=zh_CN'.format(
             token=self.__token,
         )
-        payloads = {
-            'token': self.__token,
-            'lang': 'zh_CN',
-            'f': 'json',
-            'ajax': 1,
-            'random': random.random(),
-            'type': type,
-            'file_id': fid,
-            'tofakeid': fakeid,
-            'fileid': fid,
-            'imgcode': '',
-        }
+        payloads = {}
+        if type == 2 or type == 3:  # 如果文件类型是图片或者音频
+            payloads = {
+                'token': self.__token,
+                'lang': 'zh_CN',
+                'f': 'json',
+                'ajax': 1,
+                'random': random.random(),
+                'type': type,
+                'file_id': fid,
+                'tofakeid': fakeid,
+                'fileid': fid,
+                'imgcode': '',
+            }
+        elif type == 15:  # 如果文件类型是视频
+            payloads = {
+                'token': self.__token,
+                'lang': 'zh_CN',
+                'f': 'json',
+                'ajax': 1,
+                'random': random.random(),
+                'type': type,
+                'app_id': fid,
+                'tofakeid': fakeid,
+                'appmsgid': fid,
+                'imgcode': '',
+            }
         headers = {
             'referer': 'https://mp.weixin.qq.com/cgi-bin/singlesendpage?tofakeid={fakeid}&t=message/send&action=index&token={token}&lang=zh_CN'.format(
                 fakeid=fakeid,
@@ -682,7 +814,7 @@ class WechatExt(object):
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises ValueError: 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
         """
-        return self.send_file(fakeid, fid, 4)
+        return self.send_file(fakeid, fid, 15)
 
     def get_user_info(self, fakeid):
         """

@@ -15,32 +15,32 @@ def handle_for_type(type):
 
 class WechatMessage(object):
     def __init__(self, message):
-        self.id = int(message.pop("MsgId", 0))
-        self.target = message.pop("ToUserName", None)
+        self.id = int(message.pop('MsgId', 0))
+        self.target = message.pop('ToUserName', None)
         self.source = message.pop('FromUserName', None)
         self.time = int(message.pop('CreateTime', 0))
         self.__dict__.update(message)
 
 
-@handle_for_type("text")
+@handle_for_type('text')
 class TextMessage(WechatMessage):
     def __init__(self, message):
-        self.content = message.pop("Content", "")
+        self.content = message.pop('Content', '')
         super(TextMessage, self).__init__(message)
 
 
-@handle_for_type("image")
+@handle_for_type('image')
 class ImageMessage(WechatMessage):
     def __init__(self, message):
         try:
-            self.picurl = message.pop("PicUrl")
+            self.picurl = message.pop('PicUrl')
             self.media_id = message.pop('MediaId')
         except KeyError:
             raise ParseError()
         super(ImageMessage, self).__init__(message)
 
 
-@handle_for_type("video")
+@handle_for_type('video')
 class VideoMessage(WechatMessage):
     def __init__(self, message):
         try:
@@ -51,7 +51,7 @@ class VideoMessage(WechatMessage):
         super(VideoMessage, self).__init__(message)
 
 
-@handle_for_type("location")
+@handle_for_type('location')
 class LocationMessage(WechatMessage):
     def __init__(self, message):
         try:
@@ -65,7 +65,7 @@ class LocationMessage(WechatMessage):
         super(LocationMessage, self).__init__(message)
 
 
-@handle_for_type("link")
+@handle_for_type('link')
 class LinkMessage(WechatMessage):
     def __init__(self, message):
         try:
@@ -77,30 +77,33 @@ class LinkMessage(WechatMessage):
         super(LinkMessage, self).__init__(message)
 
 
-@handle_for_type("event")
+@handle_for_type('event')
 class EventMessage(WechatMessage):
     def __init__(self, message):
-        message.pop("type")
+        message.pop('type')
         try:
-            self.type = message.pop("Event").lower()
-            if self.type == "click":
+            self.type = message.pop('Event').lower()
+            if self.type == 'subscribe' or self.type == 'scan':
+                self.key = message.pop('EventKey', None)
+                self.ticket = message.pop('Ticket', None)
+            elif self.type == 'click' or self.type == 'view':
                 self.key = message.pop('EventKey')
-            elif self.type == "location":
-                self.latitude = float(message.pop("Latitude"))
-                self.longitude = float(message.pop("Longitude"))
-                self.precision = float(message.pop("Precision"))
+            elif self.type == 'location':
+                self.latitude = float(message.pop('Latitude'))
+                self.longitude = float(message.pop('Longitude'))
+                self.precision = float(message.pop('Precision'))
         except KeyError:
             raise ParseError()
         super(EventMessage, self).__init__(message)
 
 
-@handle_for_type("voice")
+@handle_for_type('voice')
 class VoiceMessage(WechatMessage):
     def __init__(self, message):
         try:
             self.media_id = message.pop('MediaId')
             self.format = message.pop('Format')
-            self.recognition = message.pop('Recognition')
+            self.recognition = message.pop('Recognition', None)
         except KeyError:
             raise ParseError()
         super(VoiceMessage, self).__init__(message)
