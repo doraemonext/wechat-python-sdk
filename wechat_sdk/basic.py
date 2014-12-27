@@ -209,6 +209,7 @@ class WechatBasic(object):
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -263,6 +264,7 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html
         :param menu_data: Python 字典
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -276,6 +278,7 @@ class WechatBasic(object):
         查询自定义菜单
         详情请参考 http://mp.weixin.qq.com/wiki/16/ff9b7b85220e1396ffa16794a9d95adc.html
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -286,6 +289,7 @@ class WechatBasic(object):
         删除自定义菜单
         详情请参考 http://mp.weixin.qq.com/wiki/16/8ed41ba931e4845844ad6d1eeb8060c8.html
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -298,6 +302,7 @@ class WechatBasic(object):
         :param media_type: 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
         :param media_file:要上传的文件，一个 File-object
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -336,6 +341,7 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html
         :param name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -353,6 +359,7 @@ class WechatBasic(object):
         查询所有分组
         详情请参考 http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -364,6 +371,7 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html
         :param openid: 用户的OpenID
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -381,6 +389,7 @@ class WechatBasic(object):
         :param group_id: 分组id，由微信分配
         :param name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -401,6 +410,7 @@ class WechatBasic(object):
         :param user_id: 用户 ID 。 就是你收到的 WechatMessage 的 source
         :param group_id: 分组 ID
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -419,6 +429,7 @@ class WechatBasic(object):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param lang: 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -437,6 +448,7 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/3/17e6919a39c1c53555185907acf70093.html
         :param first_user_id: 可选。第一个拉取的OPENID，不填默认从头开始拉取
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -454,6 +466,7 @@ class WechatBasic(object):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param content: 消息正文
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -475,6 +488,7 @@ class WechatBasic(object):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 图片的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -496,6 +510,7 @@ class WechatBasic(object):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 发送的语音的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -519,6 +534,7 @@ class WechatBasic(object):
         :param title: 视频消息的标题
         :param description: 视频消息的描述
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -550,6 +566,7 @@ class WechatBasic(object):
         :param title: 音乐标题
         :param description: 音乐描述
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -608,6 +625,7 @@ class WechatBasic(object):
         详情请参考 http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html
         :param data: 你要发送的参数 dict
         :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
@@ -684,6 +702,7 @@ class WechatBasic(object):
         :param url: 请求地址
         :param kwargs: 附加数据
         :return: 微信服务器响应的 json 数据
+        :raise HTTPError: 微信api http 请求失败
         """
         if "params" not in kwargs:
             kwargs["params"] = {
@@ -710,6 +729,7 @@ class WechatBasic(object):
         :param url: 请求地址
         :param kwargs: 附加数据
         :return: 微信服务器响应的 json 数据
+        :raise HTTPError: 微信api http 请求失败
         """
         return self._request(
             method="get",
@@ -723,6 +743,7 @@ class WechatBasic(object):
         :param url: 请求地址
         :param kwargs: 附加数据
         :return: 微信服务器响应的 json 数据
+        :raise HTTPError: 微信api http 请求失败
         """
         return self._request(
             method="post",
