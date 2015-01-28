@@ -19,7 +19,8 @@ class WechatBasic(object):
     仅包含官方 API 中所包含的内容, 如需高级功能支持请移步 ext.py 中的 WechatExt 类
     """
     def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
-                 partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None):
+                 partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None,
+                 jsapi_ticket=None, jsapi_ticket_expires_at=None):
         """
         :param token: 微信 Token
         :param appid: App ID
@@ -39,6 +40,8 @@ class WechatBasic(object):
 
         self.__access_token = access_token
         self.__access_token_expires_at = access_token_expires_at
+        self.__jsapi_ticket = jsapi_ticket
+        self.__jsapi_ticket_expires_at = jsapi_ticket_expires_at
         self.__is_parse = False
         self.__message = None
 
@@ -115,6 +118,18 @@ class WechatBasic(object):
         return {
             'access_token': self.access_token,
             'access_token_expires_at': self.__access_token_expires_at,
+        }
+
+    def get_jsapi_ticket(self):
+        """
+        获取 Jsapi Ticket 及 Jsapi Ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 Jsapi Ticket 请求数据请使用 :func:`grant_jsapi_ticket`
+        :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
+        """
+        self._check_appid_appsecret()
+
+        return {
+            'jsapi_ticket': self.jsapi_ticket,
+            'jsapi_ticket_expires_at': self.__jsapi_ticket_expires_at,
         }
 
     def response_text(self, content):
@@ -219,6 +234,23 @@ class WechatBasic(object):
                 "grant_type": "client_credential",
                 "appid": self.__appid,
                 "secret": self.__appsecret,
+            }
+        )
+
+    def grant_jsapi_ticket(self):
+        """
+        获取 Jsapi Ticket
+        详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
+        :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
+        """
+        self._check_appid_appsecret()
+
+        return self._get(
+            url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
+            params={
+                "access_token": self.access_token,
+                "type": "jsapi",
             }
         )
 
@@ -662,6 +694,19 @@ class WechatBasic(object):
         self.__access_token = response_json['access_token']
         self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
         return self.__access_token
+
+    @property
+    def jsapi_ticket(self):
+        self._check_appid_appsecret()
+
+        if self.__jsapi_ticket:
+            now = time.time()
+            if self.__jsapi_ticket_expires_at - now > 60:
+                return self.__jsapi_ticket
+        response_json = self.grant_jsapi_ticket()
+        self.__jsapi_ticket = response_json['ticket']
+        self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        return self.__jsapi_ticket
 
     def _check_token(self):
         """
