@@ -66,16 +66,19 @@ class WechatBasic(object):
         else:
             return False
 
-    def generate_jsapi_signature(self, timestamp, noncestr, url):
+    def generate_jsapi_signature(self, timestamp, noncestr, url, jsapi_ticket=None):
         """
         使用 jsapi_ticket 对url进行签名
         :param timestamp: 时间戳
         :param nonce: 随机数
         :param url: 要签名的url，不包含#及其后面部分
+        :param jsapi_ticket: 可选参数
         :return: 返回sha1签名的hexdigest值
         """
+        if not jsapi_ticket:
+            jsapi_ticket = self.jsapi_ticket
         data = {
-                "jsapi_ticket": self.jsapi_ticket,
+                "jsapi_ticket": jsapi_ticket,
                 "noncestr": noncestr,
                 "timestamp": timestamp,
                 "url": url,
