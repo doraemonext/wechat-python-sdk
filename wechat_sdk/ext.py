@@ -843,7 +843,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206471048,
                         "type": 2,
-                        "size": "53.7   K"
+                        "size": "53.7 K"
                     },
                     {
                         "update_time": 1408722328,
@@ -851,7 +851,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206470809,
                         "type": 2,
-                        "size": "53.7   K"
+                        "size": "53.7 K"
                     }
                 ],
                 "file_cnt": {
