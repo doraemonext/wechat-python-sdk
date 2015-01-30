@@ -10,7 +10,6 @@ from datetime import timedelta, date
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
 
-
 class WechatExt(object):
     """
     微信扩展功能类
@@ -48,7 +47,6 @@ class WechatExt(object):
             if login:
                 self.login()
                 self.get_wechat_token()
-
 
     def login(self, verify_code=''):
         """
@@ -89,7 +87,6 @@ class WechatExt(object):
         self.__cookies = ''
         for cookie in r.cookies:
             self.__cookies += cookie.name + '=' + cookie.value + ';'
-
 
     def get_verify_code(self, file_path):
         """
@@ -169,9 +166,6 @@ class WechatExt(object):
                 raise NeedLoginError(r.text)
         except KeyError:
             raise NeedLoginError(r.text)
-
-
-
 
     def get_user_list(self, page=0, pagesize=10, groupid=0):
         """
@@ -289,8 +283,8 @@ class WechatExt(object):
                 }]
             }
         :param page: 页码 (从 1 开始，默认3条数据为1页，腾讯接口是这样。)
-        :param start_date: 统计开始时间，默认是今天-30天。
-        :param start_date: 统计结束时间，默认是今天。
+        :param start_date: 开始时间，默认是今天-30天。
+        :param start_date: 结束时间，默认是今天。
         :return: 返回的 JSON 数据，hasMore说明可以增加page页码获取数据。
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
@@ -850,7 +844,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206471048,
                         "type": 2,
-                        "size": "53.7   K"
+                        "size": "53.7 K"
                     },
                     {
                         "update_time": 1408722328,
@@ -858,7 +852,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206470809,
                         "type": 2,
-                        "size": "53.7   K"
+                        "size": "53.7 K"
                     }
                 ],
                 "file_cnt": {
