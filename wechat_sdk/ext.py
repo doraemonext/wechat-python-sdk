@@ -5,9 +5,10 @@ import re
 import requests
 import json
 import random
+import time
+from datetime import timedelta, date
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
-
 
 class WechatExt(object):
     """
@@ -41,8 +42,11 @@ class WechatExt(object):
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
+            self.__wechat_token =''
+            self.__appid = ''
             if login:
                 self.login()
+                self.get_wechat_token()
 
     def login(self, verify_code=''):
         """
@@ -215,6 +219,110 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
+
+    def get_wechat_token(self):
+        url = 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+            token=self.__token,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        wechat_token = re.search(r"pluginToken : '(\S+)',", r.text)
+        appid = re.search(r"appid : '(\S+)',", r.text)
+        self.__wechat_token=wechat_token.group(1) 
+        self.__appid=appid.group(1)
+
+
+    def get_article_detail(self,page=0,start_date=str(date.today()+timedelta(days = -30)),end_date=str(date.today())):
+        """
+        获取图文分析数据
+        返回JSON示例 ::
+            {
+                "hasMore": false,
+                "data": [{
+                    "id": "206732451_1",
+                    "title": "新政出台 财政部或将不再给医院拨款？",
+                    "time": "2015-01-21",
+                    "index": [
+                        "1",
+                        "1",
+                        "1",
+                        "100%",
+                        "0",
+                        "0",
+                        "0%",
+                        "0",
+                        "0",
+                        "0"
+                    ],
+                    "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"206732451_1\",\"Title\":\"\\u65b0\\u653f\\u51fa\\u53f0 \\u8d22\\u653f\\u90e8\\u6216\\u5c06\\u4e0d\\u518d\\u7ed9\\u533b\\u9662\\u62e8\\u6b3e\\uff1f\",\"RefDate\":\"20150121\",\"TargetUser\":\"1\",\"IntPageReadUser\":\"1\",\"IntPageReadCount\":\"1\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"0\",\"ShareCount\":\"0\",\"AddToFavUser\":\"0\",\"Conversion\":\"0%\",\"PageConversion\":\"100%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}"
+                }, {
+                    "id": "206732451_2",
+                    "title": "多点执业：各方都在担忧什么？",
+                    "time": "2015-01-21",
+                    "index": [
+                        "1",
+                        "1",
+                        "1",
+                        "100%",
+                        "0",
+                        "0",
+                        "0%",
+                        "0",
+                        "0",
+                        "0"
+                    ],
+                    "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"206732451_2\",\"Title\":\"\\u591a\\u70b9\\u6267\\u4e1a\\uff1a\\u5404\\u65b9\\u90fd\\u5728\\u62c5\\u5fe7\\u4ec0\\u4e48\\uff1f\",\"RefDate\":\"20150121\",\"TargetUser\":\"1\",\"IntPageReadUser\":\"1\",\"IntPageReadCount\":\"1\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"0\",\"ShareCount\":\"0\",\"AddToFavUser\":\"0\",\"Conversion\":\"0%\",\"PageConversion\":\"100%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}"
+                }]
+            }
+        :param page: 页码 (从 1 开始，默认3条数据为1页，腾讯接口是这样。)
+        :param start_date: 开始时间，默认是今天-30天。
+        :param start_date: 结束时间，默认是今天。
+        :return: 返回的 JSON 数据，hasMore说明可以增加page页码获取数据。
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+
+        url = 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
+            page=page,
+            appid=self.__appid,
+            token=self.__wechat_token,
+            rnd=int(time.time()),
+            start_date=start_date,
+            end_date=end_date,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
+            page=page,
+            appid=self.__appid,
+            token=self.__wechat_token,
+            rnd=int(time.time()),
+            start_date=start_date,
+            end_date=end_date,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        if not re.search(r"wechat_token", self.__cookies):
+            for cookie in r.cookies:
+                self.__cookies += cookie.name + '=' + cookie.value + ';'
+        else:
+            None
+
+        try:
+            message = json.dumps(json.loads(r.text),ensure_ascii=False)
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
 
     def get_group_list(self):
         """
@@ -735,7 +843,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206471048,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     },
                     {
                         "update_time": 1408722328,
@@ -743,7 +851,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206470809,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     }
                 ],
                 "file_cnt": {
