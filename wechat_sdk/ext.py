@@ -17,12 +17,14 @@ class WechatExt(object):
 
     通过模拟登陆的方式实现更多的高级功能, 请注意使用本类有风险, 请自行承担
     """
-    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False, login=True):
+    def __init__(self, username, password, token=None, cookies=None, appid=None, plugin_token=None, ifencodepwd=False, login=True):
         """
         :param username: 你的微信公众平台账户用户名
         :param password: 你的微信公众平台账户密码
         :param token: 直接导入的 ``token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
         :param cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
+        :param appid: 直接导入的 ``appid`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
+        :param plugin_token: 直接导入的 ``plugin_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
         :param ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
         :param login: 是否在初始化过程中尝试登录 (推荐此处设置为 ``False``, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 ``True`` 为兼容历史版本
         :return:
@@ -40,12 +42,14 @@ class WechatExt(object):
         self.__ticket_id = None
         self.__fakeid = None
 
-        self.__appid = ''
-        self.__plugin_token = ''
+        self.__appid = appid
+        self.__plugin_token = plugin_token
 
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
+            self.__appid = ''
+            self.__plugin_token = ''
             if login:
                 self.login()
 
@@ -130,6 +134,26 @@ class WechatExt(object):
         return {
             'token': self.__token,
             'cookies': self.__cookies,
+        }
+
+    def get_plugin_token_appid(self):
+        """
+        获取当前 plugin_token 及 appid, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'plugin_token': 'll1D85fGDCTr4AAxC_RrFIsfaM1eajMksOjZN_eXodroIeT77QkrMfckyYdG0qj8CnvWGUPp7-mpBOs07dbuG-iwULOcyjoEvlTsghm1K34C0oj3AI8egAxGqixxhRs8',
+                'appid': 'wxd0c09648a48b3798'
+            }
+
+        :return: 一个 dict 对象, key 为 ``plugin_token`` 和 ``appid``
+        """
+        self._init_plugin_token_appid()
+
+        return {
+            'plugin_token': self.__plugin_token,
+            'appid': self.__appid,
         }
 
     def send_message(self, fakeid, content):
@@ -324,7 +348,10 @@ class WechatExt(object):
                 self.__cookies += cookie.name + '=' + cookie.value + ';'
 
         try:
-            message = json.dumps(json.loads(r.text), ensure_ascii=False)
+            data = json.loads(r.text)
+            if data.get('is_session_expire'):
+                raise NeedLoginError(r.text)
+            message = json.dumps(data, ensure_ascii=False)
         except (KeyError, ValueError):
             raise NeedLoginError(r.text)
 
