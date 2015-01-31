@@ -66,6 +66,29 @@ class WechatBasic(object):
         else:
             return False
 
+    def generate_jsapi_signature(self, timestamp, noncestr, url, jsapi_ticket=None):
+        """
+        使用 jsapi_ticket 对url进行签名
+        :param timestamp: 时间戳
+        :param nonce: 随机数
+        :param url: 要签名的url，不包含#及其后面部分
+        :param jsapi_ticket: 可选参数
+        :return: 返回sha1签名的hexdigest值
+        """
+        if not jsapi_ticket:
+            jsapi_ticket = self.jsapi_ticket
+        data = {
+                "jsapi_ticket": jsapi_ticket,
+                "noncestr": noncestr,
+                "timestamp": timestamp,
+                "url": url,
+        }
+        keys = data.keys()
+        keys.sort()
+        data_str = '&'.join(['%s=%s' % (key, data[key]) for key in keys])
+        signature = hashlib.sha1(data_str).hexdigest()
+        return signature
+
     def parse_data(self, data):
         """
         解析微信服务器发送过来的数据并保存类中
