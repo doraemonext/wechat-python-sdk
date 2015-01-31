@@ -10,6 +10,7 @@ from datetime import timedelta, date
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
 
+
 class WechatExt(object):
     """
     微信扩展功能类
@@ -39,14 +40,14 @@ class WechatExt(object):
         self.__ticket_id = None
         self.__fakeid = None
 
+        self.__wechat_token = ''
+        self.__appid = ''
+
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
-            self.__wechat_token =''
-            self.__appid = ''
             if login:
                 self.login()
-                self.get_wechat_token()
 
     def login(self, verify_code=''):
         """
@@ -80,6 +81,8 @@ class WechatExt(object):
 
             if error_code in [-8, -27]:
                 raise LoginVerifyCodeError(r.text)
+            elif re.search(r'readtemplate', r.text):
+                raise LoginError('You need to turn off the safety protection of wechat.')
             else:
                 raise LoginError(r.text)
         self.__token = int(s.group(1))
@@ -235,9 +238,8 @@ class WechatExt(object):
 
         wechat_token = re.search(r"pluginToken : '(\S+)',", r.text)
         appid = re.search(r"appid : '(\S+)',", r.text)
-        self.__wechat_token=wechat_token.group(1) 
-        self.__appid=appid.group(1)
-
+        self.__wechat_token = wechat_token.group(1)
+        self.__appid = appid.group(1)
 
     def get_article_detail(self,page=0,start_date=str(date.today()+timedelta(days = -30)),end_date=str(date.today())):
         """
@@ -322,7 +324,6 @@ class WechatExt(object):
             raise NeedLoginError(r.text)
 
         return message
-
 
     def get_group_list(self):
         """
