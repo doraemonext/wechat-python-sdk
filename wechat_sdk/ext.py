@@ -40,8 +40,8 @@ class WechatExt(object):
         self.__ticket_id = None
         self.__fakeid = None
 
-        self.__wechat_token = ''
         self.__appid = ''
+        self.__plugin_token = ''
 
         if not self.__token or not self.__cookies:
             self.__token = ''
@@ -223,24 +223,6 @@ class WechatExt(object):
 
         return message
 
-    def get_wechat_token(self):
-        url = 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
-            token=self.__token,
-        )
-        headers = {
-            'x-requested-with': 'XMLHttpRequest',
-            'referer': 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
-                token=self.__token,
-            ),
-            'cookie': self.__cookies,
-        }
-        r = requests.get(url, headers=headers)
-
-        wechat_token = re.search(r"pluginToken : '(\S+)',", r.text)
-        appid = re.search(r"appid : '(\S+)',", r.text)
-        self.__wechat_token = wechat_token.group(1)
-        self.__appid = appid.group(1)
-
     def stat_article_detail_list(self, page=1, start_date=str(date.today()+timedelta(days=-30)), end_date=str(date.today())):
         """
         获取图文分析数据
@@ -308,16 +290,17 @@ class WechatExt(object):
             }
 
         :param page: 页码 (由于腾讯接口限制，page 从 1 开始，3 条数据为 1 页)
-        :param start_date: 开始时间，默认是今天-30天
-        :param end_date: 结束时间，默认是今天
+        :param start_date: 开始时间，默认是今天-30天 (类型: str 格式示例: "2015-01-15")
+        :param end_date: 结束时间，默认是今天 (类型: str 格式示例: "2015-02-01")
         :return: 返回的 JSON 数据，具体的各项内容解释参见上面的 JSON 返回示例
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
+        self._init_plugin_token_appid()
 
         url = 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
             page=page,
             appid=self.__appid,
-            token=self.__wechat_token,
+            token=self.__plugin_token,
             rnd=int(time.time()),
             start_date=start_date,
             end_date=end_date,
@@ -327,7 +310,7 @@ class WechatExt(object):
             'referer': 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
                 page=page,
                 appid=self.__appid,
-                token=self.__wechat_token,
+                token=self.__plugin_token,
                 rnd=int(time.time()),
                 start_date=start_date,
                 end_date=end_date,
@@ -1308,3 +1291,47 @@ class WechatExt(object):
         if not fakeid:
             raise NeedLoginError(r.text)
         self.__fakeid = fakeid.group(1)
+
+    def _init_appid(self):
+        """
+        初始化公众号自身的 ``appid`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__appid:
+            self._init_plugin_token_appid()
+
+    def _init_plugin_token(self):
+        """
+        初始化公众号自身的 ``PluginToken`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__plugin_token:
+            self._init_plugin_token_appid()
+
+    def _init_plugin_token_appid(self):
+        """
+        初始化公众号的 ``PluginToken`` 值及公众号自身的 ``appid`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__plugin_token or not self.__appid:
+            url = 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            )
+            headers = {
+                'x-requested-with': 'XMLHttpRequest',
+                'referer': 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+                    token=self.__token,
+                ),
+                'cookie': self.__cookies,
+            }
+            r = requests.get(url, headers=headers)
+
+            plugin_token = re.search(r"pluginToken : '(\S+)',", r.text)
+            if not plugin_token:
+                raise NeedLoginError(r.text)
+            self.__plugin_token = plugin_token.group(1)
+
+            appid = re.search(r"appid : '(\S+)',", r.text)
+            if not appid:
+                raise NeedLoginError(r.text)
+            self.__appid = appid.group(1)
