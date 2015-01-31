@@ -241,52 +241,76 @@ class WechatExt(object):
         self.__wechat_token = wechat_token.group(1)
         self.__appid = appid.group(1)
 
-    def get_article_detail(self,page=0,start_date=str(date.today()+timedelta(days = -30)),end_date=str(date.today())):
+    def stat_article_detail_list(self, page=1, start_date=str(date.today()+timedelta(days=-30)), end_date=str(date.today())):
         """
         获取图文分析数据
+
         返回JSON示例 ::
+
             {
-                "hasMore": false,
-                "data": [{
-                    "id": "206732451_1",
-                    "title": "新政出台 财政部或将不再给医院拨款？",
-                    "time": "2015-01-21",
-                    "index": [
-                        "1",
-                        "1",
-                        "1",
-                        "100%",
-                        "0",
-                        "0",
-                        "0%",
-                        "0",
-                        "0",
-                        "0"
-                    ],
-                    "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"206732451_1\",\"Title\":\"\\u65b0\\u653f\\u51fa\\u53f0 \\u8d22\\u653f\\u90e8\\u6216\\u5c06\\u4e0d\\u518d\\u7ed9\\u533b\\u9662\\u62e8\\u6b3e\\uff1f\",\"RefDate\":\"20150121\",\"TargetUser\":\"1\",\"IntPageReadUser\":\"1\",\"IntPageReadCount\":\"1\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"0\",\"ShareCount\":\"0\",\"AddToFavUser\":\"0\",\"Conversion\":\"0%\",\"PageConversion\":\"100%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}"
-                }, {
-                    "id": "206732451_2",
-                    "title": "多点执业：各方都在担忧什么？",
-                    "time": "2015-01-21",
-                    "index": [
-                        "1",
-                        "1",
-                        "1",
-                        "100%",
-                        "0",
-                        "0",
-                        "0%",
-                        "0",
-                        "0",
-                        "0"
-                    ],
-                    "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"206732451_2\",\"Title\":\"\\u591a\\u70b9\\u6267\\u4e1a\\uff1a\\u5404\\u65b9\\u90fd\\u5728\\u62c5\\u5fe7\\u4ec0\\u4e48\\uff1f\",\"RefDate\":\"20150121\",\"TargetUser\":\"1\",\"IntPageReadUser\":\"1\",\"IntPageReadCount\":\"1\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"0\",\"ShareCount\":\"0\",\"AddToFavUser\":\"0\",\"Conversion\":\"0%\",\"PageConversion\":\"100%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}"
-                }]
+                "hasMore": true,  // 说明是否可以增加 page 页码来获取数据
+                "data": [
+                    {
+                        "index": [
+                            "20,816",  // 送达人数
+                            "1,944",  // 图文页阅读人数
+                            "2,554",  // 图文页阅读次数
+                            "9.34%",  // (图文页阅读人数 / 送达人数)
+                            "0",  // 原文页阅读人数
+                            "0",  // 原文页阅读次数
+                            "0%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "47",  // 分享转发人数
+                            "61",  // 分享转发次数
+                            "1"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-21",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205104027_1\",\"Title\":\"\\u56de\\u5bb6\\u5927\\u4f5c\\u6218 | \\u5feb\\u6765\\u5e26\\u6211\\u56de\\u5bb6\",\"RefDate\":\"20150121\",\"TargetUser\":\"20,816\",\"IntPageReadUser\":\"1,944\",\"IntPageReadCount\":\"2,554\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"47\",\"ShareCount\":\"61\",\"AddToFavUser\":\"1\",\"Conversion\":\"0%\",\"PageConversion\":\"9.34%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205104027_1",
+                        "title": "回家大作战 | 快来带我回家"
+                    },
+                    {
+                        "index": [
+                            "20,786",  // 送达人数
+                            "2,598",  // 图文页阅读人数
+                            "3,368",  // 图文页阅读次数
+                            "12.5%",  // (图文页阅读人数 / 送达人数)
+                            "0",  // 原文页阅读人数
+                            "0",  // 原文页阅读次数
+                            "0%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "73",  // 分享转发人数
+                            "98",  // 分享转发次数
+                            "1"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-20",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205066833_1\",\"Title\":\"\\u56de\\u5bb6\\u5927\\u4f5c\\u6218 | \\u5982\\u4f55\\u4f18\\u96c5\\u5730\\u53bb\\u5f80\\u8f66\\u7ad9\\u548c\\u673a\\u573a\",\"RefDate\":\"20150120\",\"TargetUser\":\"20,786\",\"IntPageReadUser\":\"2,598\",\"IntPageReadCount\":\"3,368\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"73\",\"ShareCount\":\"98\",\"AddToFavUser\":\"1\",\"Conversion\":\"0%\",\"PageConversion\":\"12.5%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205066833_1",
+                        "title": "回家大作战 | 如何优雅地去往车站和机场"
+                    },
+                    {
+                        "index": [
+                            "20,745",  // 送达人数
+                            "1,355",  // 图文页阅读人数
+                            "1,839",  // 图文页阅读次数
+                            "6.53%",  // (图文页阅读人数 / 送达人数)
+                            "145",  // 原文页阅读人数
+                            "184",  // 原文页阅读次数
+                            "10.7%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "48",  // 分享转发人数
+                            "64",  // 分享转发次数
+                            "5"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-19",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205028693_1\",\"Title\":\"\\u5145\\u7535\\u65f6\\u95f4 | \\u542c\\u542c\\u7535\\u53f0\\uff0c\\u4f18\\u96c5\\u5730\\u63d0\\u5347\\u5b66\\u4e60\\u6548\\u7387\",\"RefDate\":\"20150119\",\"TargetUser\":\"20,745\",\"IntPageReadUser\":\"1,355\",\"IntPageReadCount\":\"1,839\",\"OriPageReadUser\":\"145\",\"OriPageReadCount\":\"184\",\"ShareUser\":\"48\",\"ShareCount\":\"64\",\"AddToFavUser\":\"5\",\"Conversion\":\"10.7%\",\"PageConversion\":\"6.53%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205028693_1",
+                        "title": "充电时间 | 听听电台，优雅地提升学习效率"
+                    }
+                ]
             }
-        :param page: 页码 (从 1 开始，默认3条数据为1页，腾讯接口是这样。)
-        :param start_date: 开始时间，默认是今天-30天。
-        :param start_date: 结束时间，默认是今天。
-        :return: 返回的 JSON 数据，hasMore说明可以增加page页码获取数据。
+
+        :param page: 页码 (由于腾讯接口限制，page 从 1 开始，3 条数据为 1 页)
+        :param start_date: 开始时间，默认是今天-30天
+        :param end_date: 结束时间，默认是今天
+        :return: 返回的 JSON 数据，具体的各项内容解释参见上面的 JSON 返回示例
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
 
@@ -301,25 +325,23 @@ class WechatExt(object):
         headers = {
             'x-requested-with': 'XMLHttpRequest',
             'referer': 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
-            page=page,
-            appid=self.__appid,
-            token=self.__wechat_token,
-            rnd=int(time.time()),
-            start_date=start_date,
-            end_date=end_date,
+                page=page,
+                appid=self.__appid,
+                token=self.__wechat_token,
+                rnd=int(time.time()),
+                start_date=start_date,
+                end_date=end_date,
             ),
             'cookie': self.__cookies,
         }
         r = requests.get(url, headers=headers)
 
-        if not re.search(r"wechat_token", self.__cookies):
+        if not re.search(r'wechat_token', self.__cookies):
             for cookie in r.cookies:
                 self.__cookies += cookie.name + '=' + cookie.value + ';'
-        else:
-            None
 
         try:
-            message = json.dumps(json.loads(r.text),ensure_ascii=False)
+            message = json.dumps(json.loads(r.text), ensure_ascii=False)
         except (KeyError, ValueError):
             raise NeedLoginError(r.text)
 
