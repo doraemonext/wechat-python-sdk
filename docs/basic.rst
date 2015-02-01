@@ -1,7 +1,7 @@
 微信官方接口操作 WechatBasic
 =================================
 
-.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None)
+.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None, jsapi_ticket=None, jsapi_ticket_expires_at=None)
 
     微信基本功能类
 
@@ -13,24 +13,28 @@
     :param str paysignkey: 商户签名密钥 Key, 支付权限专用
     :param str access_token: 直接导入的 ``access_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
     :param str access_token_expires_at: 直接导入的 ``access_token`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param str jsapi_ticket: 直接导入的 ``jsapi_ticket`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param str jsapi_ticket_expires_at: 直接导入的 ``jsapi_ticket`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
 
     **实例化说明：**
 
     1. 当实例化 WechatBasic 时，你可以传递上述参数说明中任意多个参数进去，但是传递参数不足将会在使用部分功能时引发对应的异常，下面列举使用场景和应该传递哪些参数：
 
-     - **订阅号(未认证)** ：仅传入 ``token`` 参数
+     - **订阅号(未认证)** ：传入 ``token``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数，其中 ``jsapi_ticket`` 和 ``jsapi_ticket_expires_at`` 可选
 
-     - **其他(认证订阅号, 未认证服务号, 认证服务号)** ：传入 ``token``, ``appid``, ``appsecret``, ``access_token``, ``access_token_expires_at`` 参数，如果已经开通支付权限，请传入 ``partnerid``, ``partnerkey``, ``paysignkey`` 参数
+     - **其他(认证订阅号, 未认证服务号, 认证服务号)** ：传入 ``token``, ``appid``, ``appsecret``, ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数中的任意多个，如果已经开通支付权限，请传入 ``partnerid``, ``partnerkey``, ``paysignkey`` 参数
 
      **虽然认证订阅号、未认证服务号拥有 appid 及 appsecret，但不代表其能调用高级接口** ，这两种类型的账号仅能进行自定义菜单操作，进行其他权限外操作仍然会抛出异常 ``OfficialAPIError``
 
-    2. **详细说明一下 access_token 及 access_token_expires_at 参数的传入问题：**
+    2. **详细说明一下 access_token, access_token_expires_at, jsapi_ticket, jsapi_ticket_expires_at 参数的传入问题：**
 
-     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatBasic`` ，而微信的 ``access_token`` 有效期为 7200 秒，不可能每次实例化的时候去重新获取，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatBasic`` 中 ``access_token`` 及 ``access_token_expires_at`` 参数，并在下一次的实例化的过程中传入，以此来保证 ``access_token`` 的持久性。
+     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatBasic`` ，而微信的 ``access_token`` 和 ``jsapi_ticket`` 的有效期为 7200 秒，不可能每次实例化的时候去重新获取，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatBasic`` 中 ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数，并在下一次的实例化的过程中传入，以此来保证 ``access_token`` 及 ``jsapi_ticket`` 的持久性。
 
      获取 ``access_token`` 及 ``access_token_expires_at`` 的方式为调用 :func:`get_access_token` 方法
 
-     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``access_token`` 及 ``access_token_expires_at`` 保存起来，不管是文件，缓存还是数据库都可以，获取 ``access_token`` 和 ``access_token_expires_at`` 的时间可以非常自由，不管是刚刚实例化完成还是得到响应结果之后都没有问题，在调用 :func:`get_access_token` 时如果没有 ``access_token`` 会自动获取的 :)
+     获取 ``jsapi_ticket`` 及 ``jsapi_ticket_expires_at`` 的方式为调用 :func:`get_jsapi_ticket` 方法
+
+     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 保存起来，不管是文件，缓存还是数据库都可以，获取它们的时间可以非常自由，不管是刚刚实例化完成还是得到响应结果之后都没有问题，在调用对应函数时如果没有 ``access_token`` 或 ``jsapi_ticket`` 的话会自动获取的 :)
 
     .. py:method:: check_signature(signature, timestamp, nonce)
 
