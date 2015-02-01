@@ -30,6 +30,8 @@ class WechatBasic(object):
         :param paysignkey: 商户签名密钥 Key, 支付权限专用
         :param access_token: 直接导入的 access_token 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param access_token_expires_at: 直接导入的 access_token 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param jsapi_ticket: 直接导入的 jsapi_ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param jsapi_ticket_expires_at: 直接导入的 jsapi_ticket 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         """
         self.__token = token
         self.__appid = appid
@@ -68,20 +70,20 @@ class WechatBasic(object):
 
     def generate_jsapi_signature(self, timestamp, noncestr, url, jsapi_ticket=None):
         """
-        使用 jsapi_ticket 对url进行签名
+        使用 jsapi_ticket 对 url 进行签名
         :param timestamp: 时间戳
-        :param nonce: 随机数
-        :param url: 要签名的url，不包含#及其后面部分
+        :param noncestr: 随机数
+        :param url: 要签名的 url，不包含 # 及其后面部分
         :param jsapi_ticket: 可选参数
         :return: 返回sha1签名的hexdigest值
         """
         if not jsapi_ticket:
             jsapi_ticket = self.jsapi_ticket
         data = {
-                "jsapi_ticket": jsapi_ticket,
-                "noncestr": noncestr,
-                "timestamp": timestamp,
-                "url": url,
+            'jsapi_ticket': jsapi_ticket,
+            'noncestr': noncestr,
+            'timestamp': timestamp,
+            'url': url,
         }
         keys = data.keys()
         keys.sort()
