@@ -4,6 +4,7 @@ import hashlib
 import requests
 import time
 import json
+import cgi
 
 from xml.dom import minidom
 
@@ -157,14 +158,17 @@ class WechatBasic(object):
             'jsapi_ticket_expires_at': self.__jsapi_ticket_expires_at,
         }
 
-    def response_text(self, content):
+    def response_text(self, content, escape=False):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
         :param content: 回复文字
+        :param escape: 是否转义该文本内容
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
         content = self._transcoding(content)
+        if escape:
+            content = cgi.escape(content)
 
         return TextReply(message=self.__message, content=content).render()
 
