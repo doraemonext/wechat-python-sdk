@@ -80,6 +80,16 @@
 
         :return: dict 对象, key 包括 ``access_token`` 及 ``access_token_expires_at``
 
+    .. py:method:: get_jsapi_ticket()
+
+        获取 Jsapi Ticket 及 Jsapi Ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 Jsapi Ticket 请求数据请使用 :func:`grant_jsapi_ticket`
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：所有类型
+
+        :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
+
     .. py:method:: response_text(content)
 
         将文字信息 content 组装为符合微信服务器要求的响应数据
