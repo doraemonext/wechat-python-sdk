@@ -90,7 +90,7 @@
 
         :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
 
-    .. py:method:: response_text(content)
+    .. py:method:: response_text(content, escape=False)
 
         将文字信息 content 组装为符合微信服务器要求的响应数据
 
@@ -99,6 +99,7 @@
         可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
 
         :param str content: 回复文字
+        :param bool escape: 是否转义该文本内容 (默认不转义)
         :return: 符合微信服务器要求的 XML 响应数据
 
     .. py:method:: response_image(media_id)
