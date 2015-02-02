@@ -75,7 +75,7 @@ class WechatBasic(object):
         :param timestamp: 时间戳
         :param noncestr: 随机数
         :param url: 要签名的 url，不包含 # 及其后面部分
-        :param jsapi_ticket: 可选参数
+        :param jsapi_ticket: (可选参数) jsapi_ticket 值 (如不提供将自动通过 appid 和 appsecret 获取)
         :return: 返回sha1签名的hexdigest值
         """
         if not jsapi_ticket:

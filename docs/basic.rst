@@ -49,6 +49,20 @@
         :param str nonce: 随机数
         :return: 通过验证返回 ``True``, 未通过验证返回 ``False``
 
+    .. py:method:: generate_jsapi_signature(timestamp, noncestr, url, jsapi_ticket=None)
+
+        使用 jsapi_ticket 对 url 进行签名
+
+        当未提供 ``jsapi_ticket`` 参数时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证/未认证订阅号，认证/未认证服务号
+
+        :param str timestamp: 时间戳
+        :param str noncestr: 随机数
+        :param str url: 要签名的 url，不包含 # 及其后面部分
+        :param str jsapi_ticket: (可选参数) jsapi_ticket 值 (如不提供将自动通过 appid 和 appsecret 获取)
+        :return: 返回sha1签名的hexdigest值
+
     .. py:method:: parse_data(data)
 
         解析微信服务器发送过来的数据并保存类中
