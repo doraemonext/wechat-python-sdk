@@ -162,7 +162,7 @@ class WechatBasic(object):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
         :param content: 回复文字
-        :param escape: 是否转义该文本内容
+        :param escape: 是否转义该文本内容 (默认不转义)
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
