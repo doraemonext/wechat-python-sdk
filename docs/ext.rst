@@ -10,8 +10,8 @@
    :param str password: 你的微信公众平台账户密码
    :param str token: 直接导入的 ``token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
    :param str cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
-   :param str appid: 直接导入的 ``appid`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
-   :param str plugin_token: 直接导入的 ``plugin_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
+   :param str appid: 直接导入的 ``appid`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 ``stat_`` 开头的方法(统计分析类)时自动获取
+   :param str plugin_token: 直接导入的 ``plugin_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 ``stat_`` 开头的方法(统计分析类)时自动获取
    :param boolean ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
    :param boolean login: **是否在实例化过程中尝试登录 (推荐此处设置为 False, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 True 为兼容历史版本**
 
@@ -30,6 +30,10 @@
       获取 ``token`` 及 ``cookies`` 的方式为调用 :func:`get_token_cookies` 方法
 
       下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``token`` 及 ``cookies`` 保存起来，不管是文件，缓存还是数据库都可以，只要在实例化后，你可以在任何时间调用 :func:`get_token_cookies` 方法。
+
+   5. ``appid`` 及 ``plugin_token`` 参数是用于统计分析类的方法的(以 ``stat_`` 开头)，如果不需要调用这些方法，可以无需理会这两个参数。
+
+      它们和 ``token`` 及 ``cookies`` 一样，可由开发者自行缓存。唯一需要注意的是，如果传入了 ``appid`` 及 ``plugin_token`` 参数，那么也必须要传入 ``token`` 和 ``cookies`` 参数，否则无效。
 
    .. py:method:: login(verify_code='')
 
