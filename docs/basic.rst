@@ -189,6 +189,19 @@
 
         :return: 返回的 JSON 数据包
 
+    .. py:method:: grant_jsapi_ticket()
+
+        获取 Jsapi Ticket
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：所有类型
+
+        详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
+
+        :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
+
     .. py:method:: create_menu(menu_data)
 
         创建自定义菜单 ::
