@@ -67,7 +67,7 @@
 
         :return: 一个 dict 对象, key 为 ``token`` 和 ``cookies``
 
-    .. py:method:: get_plugin_token_appid()
+   .. py:method:: get_plugin_token_appid()
 
         获取当前 plugin_token 及 appid, 供手动缓存使用
 
@@ -80,7 +80,7 @@
 
         :return: 一个 dict 对象, key 为 ``plugin_token`` 和 ``appid``
 
-    .. py:method:: send_message(fakeid, content)
+   .. py:method:: send_message(fakeid, content)
 
         主动发送文本消息
 
@@ -89,7 +89,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 具体内容有 ``fake id not exist``
 
-    .. py:method:: get_user_list(page=0, pagesize=10, groupid=0)
+   .. py:method:: get_user_list(page=0, pagesize=10, groupid=0)
 
         获取用户列表
 
@@ -118,7 +118,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: stat_article_detail_list(page=1, start_date=str(date.today()+timedelta(days=-30)), end_date=str(date.today())):
+   .. py:method:: stat_article_detail_list(page=1, start_date=str(date.today()+timedelta(days=-30)), end_date=str(date.today()))
 
         获取图文分析数据
 
@@ -188,9 +188,9 @@
         :param str start_date: 开始时间，默认是今天-30天 (类型: str 格式示例: "2015-01-15")
         :param str end_date: 结束时间，默认是今天 (类型: str 格式示例: "2015-02-01")
         :return: 返回的 JSON 数据，具体的各项内容解释参见上面的 JSON 返回示例
-        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_group_list()
+   .. py:method:: get_group_list()
 
         获取分组列表
 
@@ -219,7 +219,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_news_list(page, pagesize=10)
+   .. py:method:: get_news_list(page, pagesize=10)
 
         获取图文信息列表
 
@@ -316,7 +316,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_dialog_message(fakeid [, last_msgid=0, create_time=0])
+   .. py:method:: get_dialog_message(fakeid [, last_msgid=0, create_time=0])
 
         获取与指定用户的对话内容, 获取的内容由 ``last_msgid`` (需要获取的对话中时间最早的 **公众号发送给用户** 的消息ID) 和 ``create_time`` (需要获取的对话中时间最早的消息时间戳) 进行过滤
 
@@ -405,7 +405,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: send_news(fakeid, msgid)
+   .. py:method:: send_news(fakeid, msgid)
 
         向指定用户发送图文消息 （必须从图文库里选取消息ID传入)
 
@@ -414,7 +414,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 具体内容有 ``fake id not exist`` 及 ``message id not exist``
 
-    .. py:method:: add_news(news)
+   .. py:method:: add_news(news)
 
         在素材库中创建图文消息
 
@@ -441,7 +441,7 @@
         :raises: ValueError 参数提供错误时抛出
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: upload_file(filepath)
+   .. py:method:: upload_file(filepath)
 
         上传素材 (图片/音频/视频)
 
@@ -450,7 +450,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``file not exist``: 找不到本地文件, ``audio too long``: 音频文件过长, ``file invalid type``: 文件格式不正确, 还有其他错误请自行检查)
 
-    .. py:method:: send_file(fakeid, fid, type)
+   .. py:method:: send_file(fakeid, fid, type)
 
         向特定用户发送媒体文件
 
@@ -460,7 +460,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
-    .. py:method:: get_file_list(type, page [, count=10])
+   .. py:method:: get_file_list(type, page [, count=10])
 
         获取素材库文件列表
 
@@ -475,7 +475,7 @@
                         "play_length": 0,
                         "file_id": 206471048,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     },
                     {
                         "update_time": 1408722328,
@@ -483,7 +483,7 @@
                         "play_length": 0,
                         "file_id": 206470809,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     }
                 ],
                 "file_cnt": {
@@ -503,7 +503,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: send_image(fakeid, fid)
+   .. py:method:: send_image(fakeid, fid)
 
         给指定用户 fakeid 发送图片信息
 
@@ -512,7 +512,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
-    .. py:method:: send_audio(fakeid, fid)
+   .. py:method:: send_audio(fakeid, fid)
 
         给指定用户 fakeid 发送语音信息
 
@@ -521,7 +521,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
-    .. py:method:: send_video(fakeid, fid)
+   .. py:method:: send_video(fakeid, fid)
 
         给指定用户 fakeid 发送视频消息
 
@@ -530,7 +530,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可 (常见错误内容: ``system error`` 或 ``can not send this type of msg``: 文件类型不匹配, ``user not exist``: 用户 fakeid 不存在, ``file not exist``: 文件 fid 不存在, 还有其他错误请自行检查)
 
-    .. py:method:: get_user_info(fakeid)
+   .. py:method:: get_user_info(fakeid)
 
         获取指定用户的个人信息
 
@@ -553,7 +553,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_avatar(fakeid)
+   .. py:method:: get_avatar(fakeid)
 
         获取用户头像信息
 
@@ -561,7 +561,7 @@
         :return: 二进制 JPG 数据字符串, 可直接作为 File Object 中 write 的参数
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_new_message_num(lastid=0)
+   .. py:method:: get_new_message_num(lastid=0)
 
         获取新消息的数目
 
@@ -569,7 +569,7 @@
         :return: 消息数目
         :rtype: int
 
-    .. py:method:: get_top_message()
+   .. py:method:: get_top_message()
 
         获取最新一条消息
 
@@ -601,7 +601,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
+   .. py:method:: get_message_list(lastid=0, offset=0, count=20, day=7, star=False)
 
         获取消息列表
 
@@ -658,7 +658,7 @@
         :return: 返回的 JSON 数据
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
 
-    .. py:method:: get_message_image(msgid, mode='large')
+   .. py:method:: get_message_image(msgid, mode='large')
 
         根据消息 ID 获取图片消息内容
 
@@ -668,7 +668,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``image message not exist``: msg参数无效, ``mode error``: mode参数无效
 
-    .. py:method:: get_message_voice(msgid)
+   .. py:method:: get_message_voice(msgid)
 
         根据消息 ID 获取语音消息内容
 
@@ -677,7 +677,7 @@
         :raises: NeedLoginError 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         :raises: ValueError 参数出错, 错误原因直接打印异常即可, 错误内容: ``voice message not exist``: msg参数无效
 
-    .. py:method:: get_message_video(msgid)
+   .. py:method:: get_message_video(msgid)
 
         根据消息 ID 获取视频消息内容
 

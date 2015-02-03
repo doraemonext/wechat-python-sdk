@@ -18,13 +18,9 @@
 
     **实例化说明：**
 
-    1. 当实例化 WechatBasic 时，你可以传递上述参数说明中任意多个参数进去，但是传递参数不足将会在使用部分功能时引发对应的异常，下面列举使用场景和应该传递哪些参数：
+    1. 当实例化 WechatBasic 时，你可以传递上述参数说明中任意多个参数进去，但是传递参数不足将会在使用部分功能时引发对应的异常。
 
-     - **订阅号(未认证)** ：传入 ``token``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数，其中 ``jsapi_ticket`` 和 ``jsapi_ticket_expires_at`` 可选
-
-     - **其他(认证订阅号, 未认证服务号, 认证服务号)** ：传入 ``token``, ``appid``, ``appsecret``, ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数中的任意多个，如果已经开通支付权限，请传入 ``partnerid``, ``partnerkey``, ``paysignkey`` 参数
-
-     **虽然认证订阅号、未认证服务号拥有 appid 及 appsecret，但不代表其能调用高级接口** ，这两种类型的账号仅能进行自定义菜单操作，进行其他权限外操作仍然会抛出异常 ``OfficialAPIError``
+     **虽然认证订阅号、未认证服务号拥有 appid 及 appsecret，但不代表其能调用高级接口** ，这两种类型的账号仅能进行自定义菜单及JS相关操作，进行其他权限外操作仍然会抛出异常 ``OfficialAPIError``
 
     2. **详细说明一下 access_token, access_token_expires_at, jsapi_ticket, jsapi_ticket_expires_at 参数的传入问题：**
 
@@ -61,7 +57,7 @@
         :param str noncestr: 随机数
         :param str url: 要签名的 url，不包含 # 及其后面部分
         :param str jsapi_ticket: (可选参数) jsapi_ticket 值 (如不提供将自动通过 appid 和 appsecret 获取)
-        :return: 返回sha1签名的hexdigest值
+        :return: 返回 sha1 签名的 hexdigest 值
 
     .. py:method:: parse_data(data)
 
@@ -100,7 +96,7 @@
 
         运行时检查：``appid``, ``appsecret``
 
-        可用公众号类型：所有类型
+        可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
 
         :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
 
@@ -195,12 +191,11 @@
 
         运行时检查：``appid``, ``appsecret``
 
-        可用公众号类型：所有类型
+        可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
 
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
 
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
 
     .. py:method:: create_menu(menu_data)
 
