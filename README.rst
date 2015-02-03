@@ -1,7 +1,7 @@
 微信公众平台 Python 开发包
 ===========================
 
-当前最新版本：v0.5.0
+当前最新版本：v0.5.1
 
 非官方微信公众平台 Python 开发包，包括官方接口和非官方接口。
 
@@ -62,9 +62,9 @@ ChangeLog
 v0.5.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* 官方接口增加了 JS-SDK 支持，可对 URL 进行签名 (感谢 `https://github.com/JohnnyZhao <JohnnyZhao>`_)
+* 官方接口增加了 JS-SDK 支持，可对 URL 进行签名 (感谢 `JohnnyZhao <https://github.com/JohnnyZhao>`_)
 * 官方接口的文本回复方法增加了是否对内容进行转义的控制参数
-* 非官方接口增加了图文分析信息 (感谢 `https://github.com/svcvit <svcvit>`_)
+* 非官方接口增加了图文分析信息 (感谢 `svcvit <https://github.com/svcvit>`_)
 
 v0.5.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
