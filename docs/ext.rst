@@ -67,6 +67,19 @@
 
         :return: 一个 dict 对象, key 为 ``token`` 和 ``cookies``
 
+   .. py:method:: get_plugin_token_appid()
+
+        获取当前 plugin_token 及 appid, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'plugin_token': 'll1D85fGDCTr4AAxC_RrFIsfaM1eajMksOjZN_eXodroIeT77QkrMfckyYdG0qj8CnvWGUPp7-mpBOs07dbuG-iwULOcyjoEvlTsghm1K34C0oj3AI8egAxGqixxhRs8',
+                'appid': 'wxd0c09648a48b3798'
+            }
+
+        :return: 一个 dict 对象, key 为 ``plugin_token`` 和 ``appid``
+
     .. py:method:: send_message(fakeid, content)
 
         主动发送文本消息
