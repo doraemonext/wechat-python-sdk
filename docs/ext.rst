@@ -33,7 +33,7 @@
 
    5. ``appid`` 及 ``plugin_token`` 参数是用于统计分析类的方法的(以 ``stat_`` 开头)，如果不需要调用这些方法，可以无需理会这两个参数。
 
-      它们和 ``token`` 及 ``cookies`` 一样，可由开发者自行缓存。唯一需要注意的是，如果传入了 ``appid`` 及 ``plugin_token`` 参数，那么也必须要传入 ``token`` 和 ``cookies`` 参数，否则无效。
+      它们和 ``token`` 及 ``cookies`` 一样，可由开发者自行缓存，获取它们的方式为调用 :func:`get_plugin_token_appid` 方法。唯一需要注意的是，如果传入了 ``appid`` 及 ``plugin_token`` 参数，那么也必须要传入 ``token`` 和 ``cookies`` 参数，否则无效。
 
    .. py:method:: login(verify_code='')
 
