@@ -33,7 +33,7 @@
 
    该类为 ``wechat_sdk.exceptions.UnOfficialAPIError`` 的子类
 
-.. py:class:: wechat_sdk.exceptions.LoginVerifyCodeError():
+.. py:class:: wechat_sdk.exceptions.LoginVerifyCodeError()
 
    微信非官方API请求出错异常 - 登录出错 - 验证码错误
 
