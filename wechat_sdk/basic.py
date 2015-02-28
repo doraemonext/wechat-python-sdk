@@ -65,7 +65,7 @@ class WechatBasic(object):
         tmp_list = [self.__token, timestamp, nonce]
         tmp_list.sort()
         tmp_str = ''.join(tmp_list)
-        if signature == hashlib.sha1(tmp_str).hexdigest():
+        if signature == hashlib.sha1(tmp_str.encode('utf-8')).hexdigest():
             return True
         else:
             return False
@@ -90,7 +90,7 @@ class WechatBasic(object):
         keys = data.keys()
         keys.sort()
         data_str = '&'.join(['%s=%s' % (key, data[key]) for key in keys])
-        signature = hashlib.sha1(data_str).hexdigest()
+        signature = hashlib.sha1(data_str.encode('utf-8')).hexdigest()
         return signature
 
     def parse_data(self, data):
