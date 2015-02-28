@@ -60,6 +60,7 @@ ChangeLog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v0.5.3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * 修复 hashlib.sha1 无法 decode unicode 字符串问题 (感谢 `JohnnyZhao <https://github.com/JohnnyZhao>`_)
 
