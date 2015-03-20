@@ -719,7 +719,7 @@ class WechatBasic(object):
             now = time.time()
             if self.__access_token_expires_at - now > 60:
                 return self.__access_token
-        response_json = self.grant_token(override=True)
+        self.grant_token()
         return self.__access_token
 
     @property
