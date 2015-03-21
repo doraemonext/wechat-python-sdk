@@ -253,6 +253,7 @@ class WechatBasic(object):
         """
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
+        :param override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
@@ -270,8 +271,6 @@ class WechatBasic(object):
             self.__access_token = response_json['access_token']
             self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
         return response_json
-
-
 
     def grant_jsapi_ticket(self):
         """
