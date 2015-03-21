@@ -249,16 +249,17 @@ class WechatBasic(object):
             news.add_article(article)
         return news.render()
 
-    def grant_token(self):
+    def grant_token(self, override=True):
         """
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
+        :param override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
 
-        return self._get(
+        response_json = self._get(
             url="https://api.weixin.qq.com/cgi-bin/token",
             params={
                 "grant_type": "client_credential",
@@ -266,6 +267,10 @@ class WechatBasic(object):
                 "secret": self.__appsecret,
             }
         )
+        if override:
+            self.__access_token = response_json['access_token']
+            self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
+        return response_json
 
     def grant_jsapi_ticket(self):
         """
@@ -741,9 +746,7 @@ class WechatBasic(object):
             now = time.time()
             if self.__access_token_expires_at - now > 60:
                 return self.__access_token
-        response_json = self.grant_token()
-        self.__access_token = response_json['access_token']
-        self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
+        self.grant_token()
         return self.__access_token
 
     @property

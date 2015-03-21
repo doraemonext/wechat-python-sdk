@@ -173,7 +173,7 @@
         :param list articles: list 对象, 每个元素为一个 dict 对象, key 包含 ``title``, ``description``, ``picurl``, ``url``
         :return: 符合微信服务器要求的 XML 响应数据
 
-    .. py:method:: grant_token()
+    .. py:method:: grant_token(override=True)
 
         获取 Access Token
 
@@ -183,6 +183,7 @@
 
         详情请参考 `<http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html>`_
 
+        :param bool override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
 
     .. py:method:: grant_jsapi_ticket()
