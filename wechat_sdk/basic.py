@@ -266,7 +266,7 @@ class WechatBasic(object):
 
 
 
-    def grant_jsapi_ticket(self):
+    def grant_jsapi_ticket(self, override=True):
         """
         获取 Jsapi Ticket
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
@@ -274,14 +274,20 @@ class WechatBasic(object):
         :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
+        # force to grant new access_token to avoid invalid credential issue
+        self.grant_token()
 
-        return self._get(
+        response_json = self._get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
             params={
                 "access_token": self.access_token,
                 "type": "jsapi",
             }
         )
+        if override:
+            self.__jsapi_ticket = response_json['ticket']
+            self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        return response_json
 
     def create_menu(self, menu_data):
         """
@@ -730,9 +736,7 @@ class WechatBasic(object):
             now = time.time()
             if self.__jsapi_ticket_expires_at - now > 60:
                 return self.__jsapi_ticket
-        response_json = self.grant_jsapi_ticket()
-        self.__jsapi_ticket = response_json['ticket']
-        self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        self.grant_jsapi_ticket()
         return self.__jsapi_ticket
 
     def _check_token(self):
