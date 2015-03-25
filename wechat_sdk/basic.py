@@ -12,6 +12,7 @@ from xml.dom import minidom
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
+from .lib import disable_urllib3_warning
 
 
 class WechatBasic(object):
@@ -22,7 +23,7 @@ class WechatBasic(object):
     """
     def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
                  partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None,
-                 jsapi_ticket=None, jsapi_ticket_expires_at=None):
+                 jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False):
         """
         :param token: 微信 Token
         :param appid: App ID
@@ -34,7 +35,11 @@ class WechatBasic(object):
         :param access_token_expires_at: 直接导入的 access_token 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param jsapi_ticket: 直接导入的 jsapi_ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param jsapi_ticket_expires_at: 直接导入的 jsapi_ticket 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
         """
+        if not checkssl:
+            disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
+
         self.__token = token
         self.__appid = appid
         self.__appsecret = appsecret
