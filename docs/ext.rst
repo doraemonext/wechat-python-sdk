@@ -2,7 +2,7 @@
  微信非官方接口操作 WechatExt
 ==============================
 
-.. py:class:: wechat_sdk.ext.WechatExt(username, password [, token=None, cookies=None, ifencodepwd=False, login=True])
+.. py:class:: wechat_sdk.ext.WechatExt(username, password [, token=None, cookies=None, ifencodepwd=False, login=True, checkssl=False])
 
    微信扩展功能类
 
@@ -12,6 +12,7 @@
    :param str cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
    :param boolean ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
    :param boolean login: **是否在实例化过程中尝试登录 (推荐此处设置为 False, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 True 为兼容历史版本**
+   :param boolean checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
 
    **实例化说明：**
 
