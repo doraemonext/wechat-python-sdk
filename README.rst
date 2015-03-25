@@ -1,7 +1,7 @@
 微信公众平台 Python 开发包
 ===========================
 
-当前最新版本：v0.5.4
+当前最新版本：v0.5.5
 
 非官方微信公众平台 Python 开发包，包括官方接口和非官方接口。
 
@@ -59,13 +59,18 @@
 ChangeLog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+v0.5.5
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 修复 grant_jsapi_ticket 会时不时出现 invalid credential 的问题 (感谢 `JohnnyZhao <https://github.com/JohnnyZhao>`_)
+
 v0.5.4
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * 在 grant_token 函数调用之后，顺带着覆盖本地的 access_token (感谢 `JohnnyZhao <https://github.com/JohnnyZhao>`_)
 
 v0.5.3
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * 修复 hashlib.sha1 无法 decode unicode 字符串问题 (感谢 `JohnnyZhao <https://github.com/JohnnyZhao>`_)
 

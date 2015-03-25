@@ -12,6 +12,7 @@ from xml.dom import minidom
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
+from .lib import disable_urllib3_warning
 
 
 class WechatBasic(object):
@@ -22,7 +23,7 @@ class WechatBasic(object):
     """
     def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
                  partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None,
-                 jsapi_ticket=None, jsapi_ticket_expires_at=None):
+                 jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False):
         """
         :param token: 微信 Token
         :param appid: App ID
@@ -34,7 +35,11 @@ class WechatBasic(object):
         :param access_token_expires_at: 直接导入的 access_token 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param jsapi_ticket: 直接导入的 jsapi_ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param jsapi_ticket_expires_at: 直接导入的 jsapi_ticket 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
         """
+        if not checkssl:
+            disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
+
         self.__token = token
         self.__appid = appid
         self.__appsecret = appsecret
@@ -272,22 +277,29 @@ class WechatBasic(object):
             self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
         return response_json
 
-    def grant_jsapi_ticket(self):
+    def grant_jsapi_ticket(self, override=True):
         """
         获取 Jsapi Ticket
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
+        :param override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
+        # force to grant new access_token to avoid invalid credential issue
+        self.grant_token()
 
-        return self._get(
+        response_json = self._get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
             params={
                 "access_token": self.access_token,
                 "type": "jsapi",
             }
         )
+        if override:
+            self.__jsapi_ticket = response_json['ticket']
+            self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        return response_json
 
     def create_menu(self, menu_data):
         """
@@ -757,9 +769,7 @@ class WechatBasic(object):
             now = time.time()
             if self.__jsapi_ticket_expires_at - now > 60:
                 return self.__jsapi_ticket
-        response_json = self.grant_jsapi_ticket()
-        self.__jsapi_ticket = response_json['ticket']
-        self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        self.grant_jsapi_ticket()
         return self.__jsapi_ticket
 
     def _check_token(self):

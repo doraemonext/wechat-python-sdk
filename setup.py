@@ -4,12 +4,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'wechat-sdk',
-    version = '0.5.4',
-    keywords = ('wechat', 'sdk', 'wechat sdk'),
-    description = u'微信公众平台Python开发包',
-    long_description = open("README.rst").read(),
-    license = 'BSD License',
+    name='wechat-sdk',
+    version='0.5.5',
+    keywords=('wechat', 'sdk', 'wechat sdk'),
+    description=u'微信公众平台Python开发包',
+    long_description=open("README.rst").read(),
+    license='BSD License',
 
     url='https://github.com/doraemonext/wechat-python-sdk',
     author='doraemonext',
@@ -18,5 +18,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=open("requirements.txt").readlines(),
+    install_requires=map(lambda x: x.replace('==', '>='), open("requirements.txt").readlines()),
 )

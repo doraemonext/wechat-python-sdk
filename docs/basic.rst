@@ -1,7 +1,7 @@
 微信官方接口操作 WechatBasic
 =================================
 
-.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None, jsapi_ticket=None, jsapi_ticket_expires_at=None)
+.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None, jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False)
 
     微信基本功能类
 
@@ -15,6 +15,7 @@
     :param str access_token_expires_at: 直接导入的 ``access_token`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
     :param str jsapi_ticket: 直接导入的 ``jsapi_ticket`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
     :param str jsapi_ticket_expires_at: 直接导入的 ``jsapi_ticket`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param boolean checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
 
     **实例化说明：**
 
@@ -109,7 +110,7 @@
         可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
 
         :param str content: 回复文字
-        :param bool escape: 是否转义该文本内容 (默认不转义)
+        :param boolean escape: 是否转义该文本内容 (默认不转义)
         :return: 符合微信服务器要求的 XML 响应数据
 
     .. py:method:: response_image(media_id)
@@ -183,10 +184,10 @@
 
         详情请参考 `<http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html>`_
 
-        :param bool override: 是否在获取的同时覆盖已有 access_token (默认为True)
+        :param boolean override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
 
-    .. py:method:: grant_jsapi_ticket()
+    .. py:method:: grant_jsapi_ticket(override=True)
 
         获取 Jsapi Ticket
 
@@ -196,6 +197,7 @@
 
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
 
+        :param boolean override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
         :return: 返回的 JSON 数据包
 
     .. py:method:: create_menu(menu_data)
