@@ -750,7 +750,7 @@ class WechatBasic(object):
             }
         )
 
-    def send_template_message(self, user_id, templateid, content, url=''):
+    def send_template_message(self, user_id, template_id, content, url='', topcolor='#FF0000'):
         """
         发送模版消息
         详情请参考 https://mp.weixin.qq.com/advanced/tmplmsg?action=faq&token=1486848870&lang=zh_CN
@@ -797,9 +797,9 @@ class WechatBasic(object):
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
-                "template_id": templateid,
+                "template_id": template_id,
                 "url": url,
-                "topcolor": "#FF0000",
+                "topcolor": topcolor,
                 "data": content
             }
         )
