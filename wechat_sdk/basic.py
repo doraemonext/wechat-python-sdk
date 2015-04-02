@@ -750,6 +750,60 @@ class WechatBasic(object):
             }
         )
 
+    def send_template_message(self, user_id, templateid, content, url=''):
+        """
+        发送模版消息
+        详情请参考 https://mp.weixin.qq.com/advanced/tmplmsg?action=faq&token=1486848870&lang=zh_CN
+        {
+            "touser": "OPENID",
+            "template_id": "ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
+            "url": "http://weixin.qq.com/download",
+            "topcolor": "#FF0000",
+            "data": {
+                "User": {
+                    "value": "黄先生",
+                    "color": "#173177"
+                },
+                "Date": {
+                    "value": "06月07日 19时24分",
+                    "color": "#173177"
+                },
+                "CardNumber": {
+                    "value": "0426",
+                    "color": "#173177"
+                },
+                "Type": {
+                    "value": "消费",
+                    "color": "#173177"
+                },
+                "Money": {
+                    "value": "人民币260.00元",
+                    "color": "#173177"
+                },
+                "DeadTime": {
+                    "value": "06月07日19时24分",
+                    "color": "#173177"
+                },
+                "Left": {
+                    "value": "6504.09",
+                    "color": "#173177"
+                }
+            }
+        }
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
+            data={
+                'touser': user_id,
+                "template_id": templateid,
+                "url": url,
+                "topcolor": "#FF0000",
+                "data": content
+            }
+        )
+
     @property
     def access_token(self):
         self._check_appid_appsecret()
