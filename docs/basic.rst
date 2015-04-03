@@ -520,6 +520,33 @@
         :param str ticket: 二维码 ticket 。可以通过 :func:`create_qrcode` 获取到
         :return: 返回的 Request 对象
 
+    .. py:method:: set_template_industry(industry_id1, industry_id2)
+
+        设置所属行业
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str industry_id1: 主营行业代码
+        :param str industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: get_template_id(template_id_short):
+
+        获得模板ID
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+
     .. py:method:: send_template_message(user_id, template_id, data, url='', topcolor='#FF0000')
 
         发送模版消息
