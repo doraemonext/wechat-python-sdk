@@ -940,6 +940,9 @@ class WechatBasic(object):
         result = {}
         for k, v in data.items():
             k = self._transcoding(k)
-            v = self._transcoding(v)
+            if isinstance(v, dict):
+                v = self._transcoding_dict(v)
+            else:
+                v = self._transcoding(v)
             result.update({k: v})
         return result
