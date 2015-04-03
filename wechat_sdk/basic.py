@@ -781,7 +781,7 @@ class WechatBasic(object):
         }
         :param url: 跳转地址 (默认为空)
         :param topcolor: 顶部颜色RGB值 (默认 '#FF0000' )
-        :return: 返回的 Response 对象
+        :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()
 
