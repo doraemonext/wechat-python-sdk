@@ -750,57 +750,53 @@ class WechatBasic(object):
             }
         )
 
-    def send_template_message(self, user_id, template_id, content, url='', topcolor='#FF0000'):
+    def send_template_message(self, user_id, template_id, data, url='', topcolor='#FF0000'):
         """
         发送模版消息
-        详情请参考 https://mp.weixin.qq.com/advanced/tmplmsg?action=faq&token=1486848870&lang=zh_CN
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source (OpenID)
+        :param template_id: 模板ID
+        :param data: 模板消息数据 (dict形式)，示例如下：
         {
-            "touser": "OPENID",
-            "template_id": "ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
-            "url": "http://weixin.qq.com/download",
-            "topcolor": "#FF0000",
-            "data": {
-                "User": {
-                    "value": "黄先生",
-                    "color": "#173177"
-                },
-                "Date": {
-                    "value": "06月07日 19时24分",
-                    "color": "#173177"
-                },
-                "CardNumber": {
-                    "value": "0426",
-                    "color": "#173177"
-                },
-                "Type": {
-                    "value": "消费",
-                    "color": "#173177"
-                },
-                "Money": {
-                    "value": "人民币260.00元",
-                    "color": "#173177"
-                },
-                "DeadTime": {
-                    "value": "06月07日19时24分",
-                    "color": "#173177"
-                },
-                "Left": {
-                    "value": "6504.09",
-                    "color": "#173177"
-                }
+            "first": {
+               "value": "恭喜你购买成功！",
+               "color": "#173177"
+            },
+            "keynote1":{
+               "value": "巧克力",
+               "color": "#173177"
+            },
+            "keynote2": {
+               "value": "39.8元",
+               "color": "#173177"
+            },
+            "keynote3": {
+               "value": "2014年9月16日",
+               "color": "#173177"
+            },
+            "remark":{
+               "value": "欢迎再次购买！",
+               "color": "#173177"
             }
         }
+        :param url: 跳转地址 (默认为空)
+        :param topcolor: 顶部颜色RGB值 (默认 '#FF0000' )
+        :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()
 
+        unicode_data = {}
+        if data:
+            unicode_data = self._transcoding_dict(data)
+
         return self._post(
-            url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
+            url='https://api.weixin.qq.com/cgi-bin/message/template/send',
             data={
                 'touser': user_id,
                 "template_id": template_id,
                 "url": url,
                 "topcolor": topcolor,
-                "data": content
+                "data": unicode_data
             }
         )
 
@@ -930,4 +926,23 @@ class WechatBasic(object):
             result = data.decode('utf-8')
         else:
             raise ParseError()
+        return result
+
+    def _transcoding_dict(self, data):
+        """
+        编码转换 for dict
+        :param data: 需要转换的 dict 数据
+        :return: 转换好的 dict
+        """
+        if not isinstance(data, dict):
+            raise ValueError('Parameter data must be dict object.')
+
+        result = {}
+        for k, v in data.items():
+            k = self._transcoding(k)
+            if isinstance(v, dict):
+                v = self._transcoding_dict(v)
+            else:
+                v = self._transcoding(v)
+            result.update({k: v})
         return result
