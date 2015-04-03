@@ -750,6 +750,40 @@ class WechatBasic(object):
             }
         )
 
+    def set_template_industry(self, industry_id1, industry_id2):
+        """
+        设置所属行业
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param industry_id1: 主营行业代码
+        :param industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_set_industry',
+            data={
+                'industry_id1': str(industry_id1),
+                'industry_id2': str(industry_id2),
+            }
+        )
+
+    def get_template_id(self, template_id_short):
+        """
+        获得模板ID
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_add_template',
+            data={
+                'template_id_short': str(template_id_short),
+            }
+        )
+
     def send_template_message(self, user_id, template_id, data, url='', topcolor='#FF0000'):
         """
         发送模版消息
