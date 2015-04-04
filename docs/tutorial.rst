@@ -132,7 +132,7 @@
 
     # -*- coding: utf-8 -*-
 
-    from wechat_sdk import WechatBasi
+    from wechat_sdk import WechatBasic
     from wechat_sdk.messages import (
         TextMessage, VoiceMessage, ImageMessage, VideoMessage, LinkMessage, LocationMessage, EventMessage
     )
