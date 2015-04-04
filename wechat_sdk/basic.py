@@ -750,6 +750,90 @@ class WechatBasic(object):
             }
         )
 
+    def set_template_industry(self, industry_id1, industry_id2):
+        """
+        设置所属行业
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param industry_id1: 主营行业代码
+        :param industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_set_industry',
+            data={
+                'industry_id1': str(industry_id1),
+                'industry_id2': str(industry_id2),
+            }
+        )
+
+    def get_template_id(self, template_id_short):
+        """
+        获得模板ID
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_add_template',
+            data={
+                'template_id_short': str(template_id_short),
+            }
+        )
+
+    def send_template_message(self, user_id, template_id, data, url='', topcolor='#FF0000'):
+        """
+        发送模版消息
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source (OpenID)
+        :param template_id: 模板ID
+        :param data: 模板消息数据 (dict形式)，示例如下：
+        {
+            "first": {
+               "value": "恭喜你购买成功！",
+               "color": "#173177"
+            },
+            "keynote1":{
+               "value": "巧克力",
+               "color": "#173177"
+            },
+            "keynote2": {
+               "value": "39.8元",
+               "color": "#173177"
+            },
+            "keynote3": {
+               "value": "2014年9月16日",
+               "color": "#173177"
+            },
+            "remark":{
+               "value": "欢迎再次购买！",
+               "color": "#173177"
+            }
+        }
+        :param url: 跳转地址 (默认为空)
+        :param topcolor: 顶部颜色RGB值 (默认 '#FF0000' )
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        unicode_data = {}
+        if data:
+            unicode_data = self._transcoding_dict(data)
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/message/template/send',
+            data={
+                'touser': user_id,
+                "template_id": template_id,
+                "url": url,
+                "topcolor": topcolor,
+                "data": unicode_data
+            }
+        )
+
     @property
     def access_token(self):
         self._check_appid_appsecret()
@@ -876,4 +960,23 @@ class WechatBasic(object):
             result = data.decode('utf-8')
         else:
             raise ParseError()
+        return result
+
+    def _transcoding_dict(self, data):
+        """
+        编码转换 for dict
+        :param data: 需要转换的 dict 数据
+        :return: 转换好的 dict
+        """
+        if not isinstance(data, dict):
+            raise ValueError('Parameter data must be dict object.')
+
+        result = {}
+        for k, v in data.items():
+            k = self._transcoding(k)
+            if isinstance(v, dict):
+                v = self._transcoding_dict(v)
+            else:
+                v = self._transcoding(v)
+            result.update({k: v})
         return result

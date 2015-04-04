@@ -519,3 +519,72 @@
 
         :param str ticket: 二维码 ticket 。可以通过 :func:`create_qrcode` 获取到
         :return: 返回的 Request 对象
+
+    .. py:method:: set_template_industry(industry_id1, industry_id2)
+
+        设置所属行业
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str industry_id1: 主营行业代码
+        :param str industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: get_template_id(template_id_short):
+
+        获得模板ID
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: send_template_message(user_id, template_id, data, url='', topcolor='#FF0000')
+
+        发送模版消息
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        注意参数中的 data 示例如下(请提供dict形式而不是字符串形式)：::
+
+            {
+                "first": {
+                   "value": "恭喜你购买成功！",
+                   "color": "#173177"
+                },
+                "keynote1":{
+                   "value": "巧克力",
+                   "color": "#173177"
+                },
+                "keynote2": {
+                   "value": "39.8元",
+                   "color": "#173177"
+                },
+                "keynote3": {
+                   "value": "2014年9月16日",
+                   "color": "#173177"
+                },
+                "remark":{
+                   "value": "欢迎再次购买！",
+                   "color": "#173177"
+                }
+            }
+
+        :param str user_id: 用户 ID, 就是你收到的 WechatMessage 的 source (OpenID)
+        :param str template_id: 模板ID
+        :param dict data: 模板消息数据，示例如上
+        :param str url: 跳转地址 (默认为空)
+        :param str topcolor: 顶部颜色RGB值 (默认 ``#FF0000`` )
+        :return: 返回的 JSON 数据包
