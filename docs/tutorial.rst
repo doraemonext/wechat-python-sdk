@@ -179,6 +179,8 @@
                 response = wechat.response_text(content=u'自定义菜单点击事件')
             elif message.type == 'view':
                 response = wechat.response_text(content=u'自定义菜单跳转链接事件')
+            elif message.type == 'templatesendjobfinish':
+                response = wechat.response_text(content=u'模板消息事件')
 
         # 现在直接将 response 变量内容直接作为 HTTP Response 响应微信服务器即可，此处为了演示返回内容，直接将响应进行输出
         print response
