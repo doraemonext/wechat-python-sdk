@@ -92,6 +92,8 @@ class EventMessage(WechatMessage):
                 self.latitude = float(message.pop('Latitude'))
                 self.longitude = float(message.pop('Longitude'))
                 self.precision = float(message.pop('Precision'))
+            elif self.type == 'templatesendjobfinish':
+                self.status = message.pop('Status')
         except KeyError:
             raise ParseError()
         super(EventMessage, self).__init__(message)
