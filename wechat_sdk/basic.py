@@ -719,7 +719,7 @@ class WechatBasic(object):
             }
         )
 
-    def create_qrcode(self, **data):
+    def create_qrcode(self, data):
         """
         创建二维码
         详情请参考 http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html
