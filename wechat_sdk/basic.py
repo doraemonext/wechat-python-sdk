@@ -305,36 +305,37 @@ class WechatBasic(object):
         """
         创建自定义菜单 ::
 
+            # -*- coding: utf-8 -*-
             wechat = WechatBasic(appid='appid', appsecret='appsecret')
             wechat.create_menu({
                 'button':[
                     {
-                        'type':'click',
-                        'name':u'今日歌曲',
-                        'key':'V1001_TODAY_MUSIC'
+                        'type': 'click',
+                        'name': '今日歌曲',
+                        'key': 'V1001_TODAY_MUSIC'
                     },
                     {
-                        'type':'click',
-                        'name':u'歌手简介',
-                        'key':'V1001_TODAY_SINGER'
+                        'type': 'click',
+                        'name': '歌手简介',
+                        'key': 'V1001_TODAY_SINGER'
                     },
                     {
-                        'name':u'菜单',
-                        'sub_button':[
+                        'name': '菜单',
+                        'sub_button': [
                             {
-                                'type':'view',
-                                'name':u'搜索',
-                                'url':'http://www.soso.com/'
+                                'type': 'view',
+                                'name': '搜索',
+                                'url': 'http://www.soso.com/'
                             },
                             {
-                                'type':'view',
-                                'name':u'视频',
-                                'url':'http://v.qq.com/'
+                                'type': 'view',
+                                'name': '视频',
+                                'url': 'http://v.qq.com/'
                             },
                             {
-                                'type':'click',
-                                'name':u'赞一下我们',
-                                'key':'V1001_GOOD'
+                                'type': 'click',
+                                'name': '赞一下我们',
+                                'key': 'V1001_GOOD'
                             }
                         ]
                     }
@@ -347,6 +348,7 @@ class WechatBasic(object):
         """
         self._check_appid_appsecret()
 
+        menu_data = self._transcoding_dict(menu_data)
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/menu/create',
             data=menu_data
@@ -729,6 +731,7 @@ class WechatBasic(object):
         """
         self._check_appid_appsecret()
 
+        data = self._transcoding_dict(data)
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/qrcode/create',
             data=data
@@ -954,12 +957,29 @@ class WechatBasic(object):
             return data
 
         result = None
-        if type(data) == unicode:
-            result = data
-        elif type(data) == str:
+        if isinstance(data, str):
             result = data.decode('utf-8')
         else:
-            raise ParseError()
+            result = data
+        return result
+
+    def _transcoding_list(self, data):
+        """
+        编码转换 for list
+        :param data: 需要转换的 list 数据
+        :return: 转换好的 list
+        """
+        if not isinstance(data, list):
+            raise ValueError('Parameter data must be list object.')
+
+        result = []
+        for item in data:
+            if isinstance(item, dict):
+                result.append(self._transcoding_dict(item))
+            elif isinstance(item, list):
+                result.append(self._transcoding_list(item))
+            else:
+                result.append(item)
         return result
 
     def _transcoding_dict(self, data):
@@ -976,6 +996,8 @@ class WechatBasic(object):
             k = self._transcoding(k)
             if isinstance(v, dict):
                 v = self._transcoding_dict(v)
+            elif isinstance(v, list):
+                v = self._transcoding_list(v)
             else:
                 v = self._transcoding(v)
             result.update({k: v})
