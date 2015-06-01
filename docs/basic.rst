@@ -81,6 +81,10 @@
 
         :return: 解析好的 WechatMessage 对象
 
+    .. py:attribute:: message
+
+        功能同 :func:`get_message`
+
     .. py:method:: get_access_token()
 
         获取 Access Token 及 Access Token 过期日期, 仅供缓存使用, 如果希望得到原生的 Access Token 请求数据请使用 :func:`grant_token`
