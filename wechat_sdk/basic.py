@@ -12,7 +12,7 @@ from xml.dom import minidom
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
-from .lib import disable_urllib3_warning
+from .lib import disable_urllib3_warning, XMLStore
 
 
 class WechatBasic(object):
@@ -113,23 +113,21 @@ class WechatBasic(object):
             raise ParseError()
 
         try:
-            doc = minidom.parseString(data)
+            xml = XMLStore(xmlstring=data)
         except Exception:
             raise ParseError()
 
-        params = [ele for ele in doc.childNodes[0].childNodes
-                  if isinstance(ele, minidom.Element)]
-
-        for param in params:
-            if param.childNodes:
-                text = param.childNodes[0]
-                result[param.tagName] = text.data
+        result = xml.xml2dict
         result['raw'] = data
         result['type'] = result.pop('MsgType').lower()
 
         message_type = MESSAGE_TYPES.get(result['type'], UnknownMessage)
         self.__message = message_type(result)
         self.__is_parse = True
+
+    @property
+    def message(self):
+        return self.get_message()
 
     def get_message(self):
         """
