@@ -799,7 +799,7 @@ class WechatBasic(object):
         response_json = ast.literal_eval(r.content)
         headimgurl = response_json.get('headimgurl')
         if headimgurl:
-            response_json['headimgurl'] = headimgurl.replace('//', '')
+            response_json['headimgurl'] = headimgurl.replace('\\', '')
         self._check_official_error(response_json)
         return response_json
 
