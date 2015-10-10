@@ -4,6 +4,7 @@ import hashlib
 import requests
 import time
 import json
+import ast
 
 from xml.dom import minidom
 
@@ -795,7 +796,7 @@ class WechatBasic(object):
             **kwargs
         )
         r.raise_for_status()
-        response_json = r.json()
+        response_json = ast.literal_eval(r.content)
         self._check_official_error(response_json)
         return response_json
 
