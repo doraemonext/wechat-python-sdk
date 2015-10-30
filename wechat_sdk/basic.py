@@ -105,10 +105,10 @@ class WechatBasic(object):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
-        if type(data) == unicode:
-            data = data.encode('utf-8')
-        elif type(data) == str:
+        if type(data) == str:
             pass
+        elif type(data) == unicode:
+            data = data.encode('utf-8')
         else:
             raise ParseError()
 
@@ -955,7 +955,7 @@ class WechatBasic(object):
             return data
 
         result = None
-        if isinstance(data, str):
+        if isinstance(data, str) and hasattr(data, 'decode'):
             result = data.decode('utf-8')
         else:
             result = data
