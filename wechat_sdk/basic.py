@@ -5,12 +5,15 @@ import requests
 import time
 import json
 import ast
+import cgi
+from StringIO import StringIO
 
 from xml.dom import minidom
 
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
 from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
+from .lib import disable_urllib3_warning, XMLStore
 
 
 class WechatBasic(object):
@@ -21,7 +24,7 @@ class WechatBasic(object):
     """
     def __init__(self, token=None, appid=None, appsecret=None, partnerid=None,
                  partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None,
-                 jsapi_ticket=None, jsapi_ticket_expires_at=None):
+                 jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False):
         """
         :param token: 微信 Token
         :param appid: App ID
@@ -31,7 +34,13 @@ class WechatBasic(object):
         :param paysignkey: 商户签名密钥 Key, 支付权限专用
         :param access_token: 直接导入的 access_token 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
         :param access_token_expires_at: 直接导入的 access_token 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param jsapi_ticket: 直接导入的 jsapi_ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param jsapi_ticket_expires_at: 直接导入的 jsapi_ticket 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+        :param checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
         """
+        if not checkssl:
+            disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
+
         self.__token = token
         self.__appid = appid
         self.__appsecret = appsecret
@@ -69,20 +78,20 @@ class WechatBasic(object):
 
     def generate_jsapi_signature(self, timestamp, noncestr, url, jsapi_ticket=None):
         """
-        使用 jsapi_ticket 对url进行签名
+        使用 jsapi_ticket 对 url 进行签名
         :param timestamp: 时间戳
-        :param nonce: 随机数
-        :param url: 要签名的url，不包含#及其后面部分
-        :param jsapi_ticket: 可选参数
+        :param noncestr: 随机数
+        :param url: 要签名的 url，不包含 # 及其后面部分
+        :param jsapi_ticket: (可选参数) jsapi_ticket 值 (如不提供将自动通过 appid 和 appsecret 获取)
         :return: 返回sha1签名的hexdigest值
         """
         if not jsapi_ticket:
             jsapi_ticket = self.jsapi_ticket
         data = {
-                "jsapi_ticket": jsapi_ticket,
-                "noncestr": noncestr,
-                "timestamp": timestamp,
-                "url": url,
+            'jsapi_ticket': jsapi_ticket,
+            'noncestr': noncestr,
+            'timestamp': timestamp,
+            'url': url,
         }
         keys = data.keys()
         keys.sort()
@@ -105,23 +114,21 @@ class WechatBasic(object):
             raise ParseError()
 
         try:
-            doc = minidom.parseString(data)
+            xml = XMLStore(xmlstring=data)
         except Exception:
             raise ParseError()
 
-        params = [ele for ele in doc.childNodes[0].childNodes
-                  if isinstance(ele, minidom.Element)]
-
-        for param in params:
-            if param.childNodes:
-                text = param.childNodes[0]
-                result[param.tagName] = text.data
+        result = xml.xml2dict
         result['raw'] = data
         result['type'] = result.pop('MsgType').lower()
 
         message_type = MESSAGE_TYPES.get(result['type'], UnknownMessage)
         self.__message = message_type(result)
         self.__is_parse = True
+
+    @property
+    def message(self):
+        return self.get_message()
 
     def get_message(self):
         """
@@ -156,14 +163,17 @@ class WechatBasic(object):
             'jsapi_ticket_expires_at': self.__jsapi_ticket_expires_at,
         }
 
-    def response_text(self, content):
+    def response_text(self, content, escape=False):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
         :param content: 回复文字
+        :param escape: 是否转义该文本内容 (默认不转义)
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
         content = self._transcoding(content)
+        if escape:
+            content = cgi.escape(content)
 
         return TextReply(message=self.__message, content=content).render()
 
@@ -247,6 +257,7 @@ class WechatBasic(object):
         """
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
+        :param override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
@@ -265,12 +276,11 @@ class WechatBasic(object):
             self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
         return response_json
 
-
-
     def grant_jsapi_ticket(self, override=True):
         """
         获取 Jsapi Ticket
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
+        :param override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
@@ -294,36 +304,37 @@ class WechatBasic(object):
         """
         创建自定义菜单 ::
 
+            # -*- coding: utf-8 -*-
             wechat = WechatBasic(appid='appid', appsecret='appsecret')
             wechat.create_menu({
                 'button':[
                     {
-                        'type':'click',
-                        'name':u'今日歌曲',
-                        'key':'V1001_TODAY_MUSIC'
+                        'type': 'click',
+                        'name': '今日歌曲',
+                        'key': 'V1001_TODAY_MUSIC'
                     },
                     {
-                        'type':'click',
-                        'name':u'歌手简介',
-                        'key':'V1001_TODAY_SINGER'
+                        'type': 'click',
+                        'name': '歌手简介',
+                        'key': 'V1001_TODAY_SINGER'
                     },
                     {
-                        'name':u'菜单',
-                        'sub_button':[
+                        'name': '菜单',
+                        'sub_button': [
                             {
-                                'type':'view',
-                                'name':u'搜索',
-                                'url':'http://www.soso.com/'
+                                'type': 'view',
+                                'name': '搜索',
+                                'url': 'http://www.soso.com/'
                             },
                             {
-                                'type':'view',
-                                'name':u'视频',
-                                'url':'http://v.qq.com/'
+                                'type': 'view',
+                                'name': '视频',
+                                'url': 'http://v.qq.com/'
                             },
                             {
-                                'type':'click',
-                                'name':u'赞一下我们',
-                                'key':'V1001_GOOD'
+                                'type': 'click',
+                                'name': '赞一下我们',
+                                'key': 'V1001_GOOD'
                             }
                         ]
                     }
@@ -336,6 +347,7 @@ class WechatBasic(object):
         """
         self._check_appid_appsecret()
 
+        menu_data = self._transcoding_dict(menu_data)
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/menu/create',
             data=menu_data
@@ -363,16 +375,37 @@ class WechatBasic(object):
 
         return self._get('https://api.weixin.qq.com/cgi-bin/menu/delete')
 
-    def upload_media(self, media_type, media_file):
+    def upload_media(self, media_type, media_file, extension=''):
         """
         上传多媒体文件
         详情请参考 http://mp.weixin.qq.com/wiki/10/78b15308b053286e2a66b33f0f0f5fb6.html
         :param media_type: 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
-        :param media_file:要上传的文件，一个 File-object
+        :param media_file: 要上传的文件，一个 File object 或 StringIO object
+        :param extension: 如果 media_file 传入的为 StringIO object，那么必须传入 extension 显示指明该媒体文件扩展名，如 ``mp3``, ``amr``；如果 media_file 传入的为 File object，那么该参数请留空
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
+        if not isinstance(media_file, file) and not isinstance(media_file, StringIO):
+            raise ValueError('Parameter media_file must be file object or StringIO.StringIO object.')
+        if isinstance(media_file, StringIO) and extension.lower() not in ['jpg', 'jpeg', 'amr', 'mp3', 'mp4']:
+            raise ValueError('Please provide \'extension\' parameters when the type of \'media_file\' is \'StringIO.StringIO\'.')
+        if isinstance(media_file, file):
+            extension = media_file.name.split('.')[-1]
+            if extension.lower() not in ['jpg', 'jpeg', 'amr', 'mp3', 'mp4']:
+                raise ValueError('Invalid file type.')
+
+        ext = {
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'amr': 'audio/amr',
+            'mp3': 'audio/mpeg',
+            'mp4': 'video/mp4',
+        }
+        if isinstance(media_file, StringIO):
+            filename = 'temp.' + extension
+        else:
+            filename = media_file.name
 
         return self._post(
             url='http://file.api.weixin.qq.com/cgi-bin/media/upload',
@@ -381,7 +414,7 @@ class WechatBasic(object):
                 'type': media_type,
             },
             files={
-                'media': media_file,
+                'media': (filename, media_file, ext[extension])
             }
         )
 
@@ -687,7 +720,7 @@ class WechatBasic(object):
             }
         )
 
-    def create_qrcode(self, **data):
+    def create_qrcode(self, data):
         """
         创建二维码
         详情请参考 http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html
@@ -697,6 +730,7 @@ class WechatBasic(object):
         """
         self._check_appid_appsecret()
 
+        data = self._transcoding_dict(data)
         return self._post(
             url='https://api.weixin.qq.com/cgi-bin/qrcode/create',
             data=data
@@ -715,6 +749,90 @@ class WechatBasic(object):
             url='https://mp.weixin.qq.com/cgi-bin/showqrcode',
             params={
                 'ticket': ticket
+            }
+        )
+
+    def set_template_industry(self, industry_id1, industry_id2):
+        """
+        设置所属行业
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param industry_id1: 主营行业代码
+        :param industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_set_industry',
+            data={
+                'industry_id1': str(industry_id1),
+                'industry_id2': str(industry_id2),
+            }
+        )
+
+    def get_template_id(self, template_id_short):
+        """
+        获得模板ID
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/template/api_add_template',
+            data={
+                'template_id_short': str(template_id_short),
+            }
+        )
+
+    def send_template_message(self, user_id, template_id, data, url='', topcolor='#FF0000'):
+        """
+        发送模版消息
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+        :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source (OpenID)
+        :param template_id: 模板ID
+        :param data: 模板消息数据 (dict形式)，示例如下：
+        {
+            "first": {
+               "value": "恭喜你购买成功！",
+               "color": "#173177"
+            },
+            "keynote1":{
+               "value": "巧克力",
+               "color": "#173177"
+            },
+            "keynote2": {
+               "value": "39.8元",
+               "color": "#173177"
+            },
+            "keynote3": {
+               "value": "2014年9月16日",
+               "color": "#173177"
+            },
+            "remark":{
+               "value": "欢迎再次购买！",
+               "color": "#173177"
+            }
+        }
+        :param url: 跳转地址 (默认为空)
+        :param topcolor: 顶部颜色RGB值 (默认 '#FF0000' )
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        unicode_data = {}
+        if data:
+            unicode_data = self._transcoding_dict(data)
+
+        return self._post(
+            url='https://api.weixin.qq.com/cgi-bin/message/template/send',
+            data={
+                'touser': user_id,
+                "template_id": template_id,
+                "url": url,
+                "topcolor": topcolor,
+                "data": unicode_data
             }
         )
 
@@ -841,10 +959,48 @@ class WechatBasic(object):
             return data
 
         result = None
-        if type(data) == unicode:
-            result = data
-        elif type(data) == str:
+        if isinstance(data, str):
             result = data.decode('utf-8')
         else:
-            raise ParseError()
+            result = data
+        return result
+
+    def _transcoding_list(self, data):
+        """
+        编码转换 for list
+        :param data: 需要转换的 list 数据
+        :return: 转换好的 list
+        """
+        if not isinstance(data, list):
+            raise ValueError('Parameter data must be list object.')
+
+        result = []
+        for item in data:
+            if isinstance(item, dict):
+                result.append(self._transcoding_dict(item))
+            elif isinstance(item, list):
+                result.append(self._transcoding_list(item))
+            else:
+                result.append(item)
+        return result
+
+    def _transcoding_dict(self, data):
+        """
+        编码转换 for dict
+        :param data: 需要转换的 dict 数据
+        :return: 转换好的 dict
+        """
+        if not isinstance(data, dict):
+            raise ValueError('Parameter data must be dict object.')
+
+        result = {}
+        for k, v in data.items():
+            k = self._transcoding(k)
+            if isinstance(v, dict):
+                v = self._transcoding_dict(v)
+            elif isinstance(v, list):
+                v = self._transcoding_list(v)
+            else:
+                v = self._transcoding(v)
+            result.update({k: v})
         return result

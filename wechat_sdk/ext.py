@@ -5,8 +5,11 @@ import re
 import requests
 import json
 import random
+import time
+from datetime import timedelta, date
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
+from .lib import disable_urllib3_warning
 
 
 class WechatExt(object):
@@ -15,16 +18,22 @@ class WechatExt(object):
 
     通过模拟登陆的方式实现更多的高级功能, 请注意使用本类有风险, 请自行承担
     """
-    def __init__(self, username, password, token=None, cookies=None, ifencodepwd=False, login=True):
+    def __init__(self, username, password, token=None, cookies=None, appid=None, plugin_token=None, ifencodepwd=False,
+                 login=True, checkssl=False):
         """
         :param username: 你的微信公众平台账户用户名
         :param password: 你的微信公众平台账户密码
         :param token: 直接导入的 ``token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
         :param cookies: 直接导入的 ``cookies`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在实例化的时候自动获取
+        :param appid: 直接导入的 ``appid`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
+        :param plugin_token: 直接导入的 ``plugin_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此传入, 如果不传入, 将会在调用 stat_ 开头的方法(统计分析类)时自动获取
         :param ifencodepwd: 密码是否已经经过编码, 如果密码已经经过加密, 此处为 ``True`` , 如果传入的密码为明文, 此处为 ``False``
         :param login: 是否在初始化过程中尝试登录 (推荐此处设置为 ``False``, 然后手动执行登录以方便进行识别验证码等操作, 此处默认值为 ``True`` 为兼容历史版本
-        :return:
+        :param checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
         """
+        if not checkssl:
+            disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
+
         self.__username = username
         if ifencodepwd:
             self.__password = password
@@ -38,9 +47,14 @@ class WechatExt(object):
         self.__ticket_id = None
         self.__fakeid = None
 
+        self.__appid = appid
+        self.__plugin_token = plugin_token
+
         if not self.__token or not self.__cookies:
             self.__token = ''
             self.__cookies = ''
+            self.__appid = ''
+            self.__plugin_token = ''
             if login:
                 self.login()
 
@@ -76,6 +90,8 @@ class WechatExt(object):
 
             if error_code in [-8, -27]:
                 raise LoginVerifyCodeError(r.text)
+            elif re.search(r'readtemplate', r.text):
+                raise LoginError('You need to turn off the safety protection of wechat.')
             else:
                 raise LoginError(r.text)
         self.__token = int(s.group(1))
@@ -123,6 +139,26 @@ class WechatExt(object):
         return {
             'token': self.__token,
             'cookies': self.__cookies,
+        }
+
+    def get_plugin_token_appid(self):
+        """
+        获取当前 plugin_token 及 appid, 供手动缓存使用
+
+        返回 dict 示例::
+
+            {
+                'plugin_token': 'll1D85fGDCTr4AAxC_RrFIsfaM1eajMksOjZN_eXodroIeT77QkrMfckyYdG0qj8CnvWGUPp7-mpBOs07dbuG-iwULOcyjoEvlTsghm1K34C0oj3AI8egAxGqixxhRs8',
+                'appid': 'wxd0c09648a48b3798'
+            }
+
+        :return: 一个 dict 对象, key 为 ``plugin_token`` 和 ``appid``
+        """
+        self._init_plugin_token_appid()
+
+        return {
+            'plugin_token': self.__plugin_token,
+            'appid': self.__appid,
         }
 
     def send_message(self, fakeid, content):
@@ -211,6 +247,116 @@ class WechatExt(object):
 
         try:
             message = json.loads(r.text)['contact_list']
+        except (KeyError, ValueError):
+            raise NeedLoginError(r.text)
+
+        return message
+
+    def stat_article_detail_list(self, page=1, start_date=str(date.today()+timedelta(days=-30)), end_date=str(date.today())):
+        """
+        获取图文分析数据
+
+        返回JSON示例 ::
+
+            {
+                "hasMore": true,  // 说明是否可以增加 page 页码来获取数据
+                "data": [
+                    {
+                        "index": [
+                            "20,816",  // 送达人数
+                            "1,944",  // 图文页阅读人数
+                            "2,554",  // 图文页阅读次数
+                            "9.34%",  // (图文页阅读人数 / 送达人数)
+                            "0",  // 原文页阅读人数
+                            "0",  // 原文页阅读次数
+                            "0%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "47",  // 分享转发人数
+                            "61",  // 分享转发次数
+                            "1"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-21",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205104027_1\",\"Title\":\"\\u56de\\u5bb6\\u5927\\u4f5c\\u6218 | \\u5feb\\u6765\\u5e26\\u6211\\u56de\\u5bb6\",\"RefDate\":\"20150121\",\"TargetUser\":\"20,816\",\"IntPageReadUser\":\"1,944\",\"IntPageReadCount\":\"2,554\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"47\",\"ShareCount\":\"61\",\"AddToFavUser\":\"1\",\"Conversion\":\"0%\",\"PageConversion\":\"9.34%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205104027_1",
+                        "title": "回家大作战 | 快来带我回家"
+                    },
+                    {
+                        "index": [
+                            "20,786",  // 送达人数
+                            "2,598",  // 图文页阅读人数
+                            "3,368",  // 图文页阅读次数
+                            "12.5%",  // (图文页阅读人数 / 送达人数)
+                            "0",  // 原文页阅读人数
+                            "0",  // 原文页阅读次数
+                            "0%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "73",  // 分享转发人数
+                            "98",  // 分享转发次数
+                            "1"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-20",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205066833_1\",\"Title\":\"\\u56de\\u5bb6\\u5927\\u4f5c\\u6218 | \\u5982\\u4f55\\u4f18\\u96c5\\u5730\\u53bb\\u5f80\\u8f66\\u7ad9\\u548c\\u673a\\u573a\",\"RefDate\":\"20150120\",\"TargetUser\":\"20,786\",\"IntPageReadUser\":\"2,598\",\"IntPageReadCount\":\"3,368\",\"OriPageReadUser\":\"0\",\"OriPageReadCount\":\"0\",\"ShareUser\":\"73\",\"ShareCount\":\"98\",\"AddToFavUser\":\"1\",\"Conversion\":\"0%\",\"PageConversion\":\"12.5%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205066833_1",
+                        "title": "回家大作战 | 如何优雅地去往车站和机场"
+                    },
+                    {
+                        "index": [
+                            "20,745",  // 送达人数
+                            "1,355",  // 图文页阅读人数
+                            "1,839",  // 图文页阅读次数
+                            "6.53%",  // (图文页阅读人数 / 送达人数)
+                            "145",  // 原文页阅读人数
+                            "184",  // 原文页阅读次数
+                            "10.7%",  // （原文页阅读人数 / 图文页阅读人数)
+                            "48",  // 分享转发人数
+                            "64",  // 分享转发次数
+                            "5"  // 微信收藏人数
+                        ],
+                        "time": "2015-01-19",
+                        "table_data": "{\"fields\":{\"TargetUser\":{\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"number\":false,\"colAlign\":\"center\",\"needOrder\":false,\"precision\":0},\"IntPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"IntPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"PageConversion\":{\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"OriPageReadUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"OriPageReadCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"Conversion\":{\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":\"2\"},\"ShareUser\":{\"thText\":\"\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"ShareCount\":{\"thText\":\"\\u6b21\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0},\"AddToFavUser\":{\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"number\":true,\"colAlign\":\"right\",\"needOrder\":false,\"precision\":0}},\"data\":[{\"MsgId\":\"205028693_1\",\"Title\":\"\\u5145\\u7535\\u65f6\\u95f4 | \\u542c\\u542c\\u7535\\u53f0\\uff0c\\u4f18\\u96c5\\u5730\\u63d0\\u5347\\u5b66\\u4e60\\u6548\\u7387\",\"RefDate\":\"20150119\",\"TargetUser\":\"20,745\",\"IntPageReadUser\":\"1,355\",\"IntPageReadCount\":\"1,839\",\"OriPageReadUser\":\"145\",\"OriPageReadCount\":\"184\",\"ShareUser\":\"48\",\"ShareCount\":\"64\",\"AddToFavUser\":\"5\",\"Conversion\":\"10.7%\",\"PageConversion\":\"6.53%\"}],\"fixedRow\":false,\"cssSetting\":{\"\":\"\"},\"complexHeader\":[[{\"field\":\"TargetUser\",\"thText\":\"\\u9001\\u8fbe\\u4eba\\u6570\",\"rowSpan\":2,\"colSpan\":1},{\"thText\":\"\\u56fe\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u539f\\u6587\\u9875\\u9605\\u8bfb\",\"colSpan\":3},{\"thText\":\"\\u5206\\u4eab\\u8f6c\\u53d1\",\"colSpan\":2},{\"field\":\"AddToFavUser\",\"thText\":\"\\u5fae\\u4fe1\\u6536\\u85cf\\u4eba\\u6570\",\"rowSpan\":2,\"enable\":true}],[{\"field\":\"IntPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"IntPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"PageConversion\",\"thText\":\"\\u56fe\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"OriPageReadUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"OriPageReadCount\",\"thText\":\"\\u6b21\\u6570\"},{\"field\":\"Conversion\",\"thText\":\"\\u539f\\u6587\\u8f6c\\u5316\\u7387\"},{\"field\":\"ShareUser\",\"thText\":\"\\u4eba\\u6570\"},{\"field\":\"ShareCount\",\"thText\":\"\\u6b21\\u6570\"}]]}",
+                        "id": "205028693_1",
+                        "title": "充电时间 | 听听电台，优雅地提升学习效率"
+                    }
+                ]
+            }
+
+        :param page: 页码 (由于腾讯接口限制，page 从 1 开始，3 条数据为 1 页)
+        :param start_date: 开始时间，默认是今天-30天 (类型: str 格式示例: "2015-01-15")
+        :param end_date: 结束时间，默认是今天 (类型: str 格式示例: "2015-02-01")
+        :return: 返回的 JSON 数据，具体的各项内容解释参见上面的 JSON 返回示例
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        self._init_plugin_token_appid()
+
+        url = 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
+            page=page,
+            appid=self.__appid,
+            token=self.__plugin_token,
+            rnd=int(time.time()),
+            start_date=start_date,
+            end_date=end_date,
+        )
+        headers = {
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
+                page=page,
+                appid=self.__appid,
+                token=self.__plugin_token,
+                rnd=int(time.time()),
+                start_date=start_date,
+                end_date=end_date,
+            ),
+            'cookie': self.__cookies,
+        }
+        r = requests.get(url, headers=headers)
+
+        if not re.search(r'wechat_token', self.__cookies):
+            for cookie in r.cookies:
+                self.__cookies += cookie.name + '=' + cookie.value + ';'
+
+        try:
+            data = json.loads(r.text)
+            if data.get('is_session_expire'):
+                raise NeedLoginError(r.text)
+            message = json.dumps(data, ensure_ascii=False)
         except (KeyError, ValueError):
             raise NeedLoginError(r.text)
 
@@ -735,7 +881,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206471048,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     },
                     {
                         "update_time": 1408722328,
@@ -743,7 +889,7 @@ class WechatExt(object):
                         "play_length": 0,
                         "file_id": 206470809,
                         "type": 2,
-                        "size": "53.7	K"
+                        "size": "53.7 K"
                     }
                 ],
                 "file_cnt": {
@@ -1177,3 +1323,47 @@ class WechatExt(object):
         if not fakeid:
             raise NeedLoginError(r.text)
         self.__fakeid = fakeid.group(1)
+
+    def _init_appid(self):
+        """
+        初始化公众号自身的 ``appid`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__appid:
+            self._init_plugin_token_appid()
+
+    def _init_plugin_token(self):
+        """
+        初始化公众号自身的 ``PluginToken`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__plugin_token:
+            self._init_plugin_token_appid()
+
+    def _init_plugin_token_appid(self):
+        """
+        初始化公众号的 ``PluginToken`` 值及公众号自身的 ``appid`` 值
+        :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
+        """
+        if not self.__plugin_token or not self.__appid:
+            url = 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+                token=self.__token,
+            )
+            headers = {
+                'x-requested-with': 'XMLHttpRequest',
+                'referer': 'https://mp.weixin.qq.com/misc/pluginloginpage?action=stat_article_detail&pluginid=luopan&t=statistics/index&token={token}&lang=zh_CN'.format(
+                    token=self.__token,
+                ),
+                'cookie': self.__cookies,
+            }
+            r = requests.get(url, headers=headers)
+
+            plugin_token = re.search(r"pluginToken : '(\S+)',", r.text)
+            if not plugin_token:
+                raise NeedLoginError(r.text)
+            self.__plugin_token = plugin_token.group(1)
+
+            appid = re.search(r"appid : '(\S+)',", r.text)
+            if not appid:
+                raise NeedLoginError(r.text)
+            self.__appid = appid.group(1)

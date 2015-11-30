@@ -1,7 +1,7 @@
 微信官方接口操作 WechatBasic
 =================================
 
-.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None)
+.. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None, jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False)
 
     微信基本功能类
 
@@ -13,24 +13,25 @@
     :param str paysignkey: 商户签名密钥 Key, 支付权限专用
     :param str access_token: 直接导入的 ``access_token`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
     :param str access_token_expires_at: 直接导入的 ``access_token`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param str jsapi_ticket: 直接导入的 ``jsapi_ticket`` 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param str jsapi_ticket_expires_at: 直接导入的 ``jsapi_ticket`` 的过期日期，该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取
+    :param boolean checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
 
     **实例化说明：**
 
-    1. 当实例化 WechatBasic 时，你可以传递上述参数说明中任意多个参数进去，但是传递参数不足将会在使用部分功能时引发对应的异常，下面列举使用场景和应该传递哪些参数：
+    1. 当实例化 WechatBasic 时，你可以传递上述参数说明中任意多个参数进去，但是传递参数不足将会在使用部分功能时引发对应的异常。
 
-     - **订阅号(未认证)** ：仅传入 ``token`` 参数
+     **虽然认证订阅号、未认证服务号拥有 appid 及 appsecret，但不代表其能调用高级接口** ，这两种类型的账号仅能进行自定义菜单及JS相关操作，进行其他权限外操作仍然会抛出异常 ``OfficialAPIError``
 
-     - **其他(认证订阅号, 未认证服务号, 认证服务号)** ：传入 ``token``, ``appid``, ``appsecret``, ``access_token``, ``access_token_expires_at`` 参数，如果已经开通支付权限，请传入 ``partnerid``, ``partnerkey``, ``paysignkey`` 参数
+    2. **详细说明一下 access_token, access_token_expires_at, jsapi_ticket, jsapi_ticket_expires_at 参数的传入问题：**
 
-     **虽然认证订阅号、未认证服务号拥有 appid 及 appsecret，但不代表其能调用高级接口** ，这两种类型的账号仅能进行自定义菜单操作，进行其他权限外操作仍然会抛出异常 ``OfficialAPIError``
-
-    2. **详细说明一下 access_token 及 access_token_expires_at 参数的传入问题：**
-
-     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatBasic`` ，而微信的 ``access_token`` 有效期为 7200 秒，不可能每次实例化的时候去重新获取，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatBasic`` 中 ``access_token`` 及 ``access_token_expires_at`` 参数，并在下一次的实例化的过程中传入，以此来保证 ``access_token`` 的持久性。
+     因为此开发包并不打算以服务器的方式常驻，所以，每次请求均会重新实例化 ``WechatBasic`` ，而微信的 ``access_token`` 和 ``jsapi_ticket`` 的有效期为 7200 秒，不可能每次实例化的时候去重新获取，所以需要你以你自己的方式去保存上一次请求中实例化后的 ``WechatBasic`` 中 ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 参数，并在下一次的实例化的过程中传入，以此来保证 ``access_token`` 及 ``jsapi_ticket`` 的持久性。
 
      获取 ``access_token`` 及 ``access_token_expires_at`` 的方式为调用 :func:`get_access_token` 方法
 
-     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``access_token`` 及 ``access_token_expires_at`` 保存起来，不管是文件，缓存还是数据库都可以，获取 ``access_token`` 和 ``access_token_expires_at`` 的时间可以非常自由，不管是刚刚实例化完成还是得到响应结果之后都没有问题，在调用 :func:`get_access_token` 时如果没有 ``access_token`` 会自动获取的 :)
+     获取 ``jsapi_ticket`` 及 ``jsapi_ticket_expires_at`` 的方式为调用 :func:`get_jsapi_ticket` 方法
+
+     下一版本将会考虑更为简单通用的方法，在新版本发布之前，请用你自己的方式把得到的 ``access_token``, ``access_token_expires_at``, ``jsapi_ticket``, ``jsapi_ticket_expires_at`` 保存起来，不管是文件，缓存还是数据库都可以，获取它们的时间可以非常自由，不管是刚刚实例化完成还是得到响应结果之后都没有问题，在调用对应函数时如果没有 ``access_token`` 或 ``jsapi_ticket`` 的话会自动获取的 :)
 
     .. py:method:: check_signature(signature, timestamp, nonce)
 
@@ -44,6 +45,20 @@
         :param str timestamp: 时间戳
         :param str nonce: 随机数
         :return: 通过验证返回 ``True``, 未通过验证返回 ``False``
+
+    .. py:method:: generate_jsapi_signature(timestamp, noncestr, url, jsapi_ticket=None)
+
+        使用 jsapi_ticket 对 url 进行签名
+
+        当未提供 ``jsapi_ticket`` 参数时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证/未认证订阅号，认证/未认证服务号
+
+        :param str timestamp: 时间戳
+        :param str noncestr: 随机数
+        :param str url: 要签名的 url，不包含 # 及其后面部分
+        :param str jsapi_ticket: (可选参数) jsapi_ticket 值 (如不提供将自动通过 appid 和 appsecret 获取)
+        :return: 返回 sha1 签名的 hexdigest 值
 
     .. py:method:: parse_data(data)
 
@@ -66,6 +81,10 @@
 
         :return: 解析好的 WechatMessage 对象
 
+    .. py:attribute:: message
+
+        功能同 :func:`get_message`
+
     .. py:method:: get_access_token()
 
         获取 Access Token 及 Access Token 过期日期, 仅供缓存使用, 如果希望得到原生的 Access Token 请求数据请使用 :func:`grant_token`
@@ -76,7 +95,17 @@
 
         :return: dict 对象, key 包括 ``access_token`` 及 ``access_token_expires_at``
 
-    .. py:method:: response_text(content)
+    .. py:method:: get_jsapi_ticket()
+
+        获取 Jsapi Ticket 及 Jsapi Ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 Jsapi Ticket 请求数据请使用 :func:`grant_jsapi_ticket`
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
+
+        :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
+
+    .. py:method:: response_text(content, escape=False)
 
         将文字信息 content 组装为符合微信服务器要求的响应数据
 
@@ -85,6 +114,7 @@
         可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
 
         :param str content: 回复文字
+        :param boolean escape: 是否转义该文本内容 (默认不转义)
         :return: 符合微信服务器要求的 XML 响应数据
 
     .. py:method:: response_image(media_id)
@@ -148,7 +178,7 @@
         :param list articles: list 对象, 每个元素为一个 dict 对象, key 包含 ``title``, ``description``, ``picurl``, ``url``
         :return: 符合微信服务器要求的 XML 响应数据
 
-    .. py:method:: grant_token()
+    .. py:method:: grant_token(override=True)
 
         获取 Access Token
 
@@ -158,6 +188,20 @@
 
         详情请参考 `<http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html>`_
 
+        :param boolean override: 是否在获取的同时覆盖已有 access_token (默认为True)
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: grant_jsapi_ticket(override=True)
+
+        获取 Jsapi Ticket
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证/未认证订阅号, 认证/未认证服务号
+
+        详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
+
+        :param boolean override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
         :return: 返回的 JSON 数据包
 
     .. py:method:: create_menu(menu_data)
@@ -169,32 +213,32 @@
             wechat.create_menu({
                 'button':[
                     {
-                        'type':'click',
-                        'name':u'今日歌曲',
-                        'key':'V1001_TODAY_MUSIC'
+                        'type': 'click',
+                        'name': '今日歌曲',
+                        'key': 'V1001_TODAY_MUSIC'
                     },
                     {
-                        'type':'click',
-                        'name':u'歌手简介',
-                        'key':'V1001_TODAY_SINGER'
+                        'type': 'click',
+                        'name': '歌手简介',
+                        'key': 'V1001_TODAY_SINGER'
                     },
                     {
-                        'name':u'菜单',
-                        'sub_button':[
+                        'name': '菜单',
+                        'sub_button': [
                             {
-                                'type':'view',
-                                'name':u'搜索',
-                                'url':'http://www.soso.com/'
+                                'type': 'view',
+                                'name': '搜索',
+                                'url': 'http://www.soso.com/'
                             },
                             {
-                                'type':'view',
-                                'name':u'视频',
-                                'url':'http://v.qq.com/'
+                                'type': 'view',
+                                'name': '视频',
+                                'url': 'http://v.qq.com/'
                             },
                             {
-                                'type':'click',
-                                'name':u'赞一下我们',
-                                'key':'V1001_GOOD'
+                                'type': 'click',
+                                'name': '赞一下我们',
+                                'key': 'V1001_GOOD'
                             }
                         ]
                     }
@@ -235,7 +279,7 @@
 
         :return: 返回的 JSON 数据包
 
-    .. py:method:: upload_media(media_type, media_file)
+    .. py:method:: upload_media(media_type, media_file, extension='')
 
         上传多媒体文件
 
@@ -246,7 +290,8 @@
         可用公众号类型：认证服务号
 
         :param str media_type: 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
-        :param object media_file: 要上传的文件，一个 File-object
+        :param object media_file: 要上传的文件，一个 File object 或 StringIO object
+        :param str extension: 如果 media_file 传入的为 StringIO object，那么必须传入 extension 显示指明该媒体文件扩展名，如 ``mp3``, ``amr``；如果 media_file 传入的为 File object，那么该参数请留空
         :return: 返回的 JSON 数据包
 
     .. py:method:: download_media(media_id)
@@ -478,3 +523,72 @@
 
         :param str ticket: 二维码 ticket 。可以通过 :func:`create_qrcode` 获取到
         :return: 返回的 Request 对象
+
+    .. py:method:: set_template_industry(industry_id1, industry_id2)
+
+        设置所属行业
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str industry_id1: 主营行业代码
+        :param str industry_id2: 副营行业代码
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: get_template_id(template_id_short):
+
+        获得模板ID
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        :param str template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+        :return: 返回的 JSON 数据包
+
+    .. py:method:: send_template_message(user_id, template_id, data, url='', topcolor='#FF0000')
+
+        发送模版消息
+
+        详情请参考 http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html
+
+        运行时检查：``appid``, ``appsecret``
+
+        可用公众号类型：认证服务号
+
+        注意参数中的 data 示例如下(请提供dict形式而不是字符串形式)：::
+
+            {
+                "first": {
+                   "value": "恭喜你购买成功！",
+                   "color": "#173177"
+                },
+                "keynote1":{
+                   "value": "巧克力",
+                   "color": "#173177"
+                },
+                "keynote2": {
+                   "value": "39.8元",
+                   "color": "#173177"
+                },
+                "keynote3": {
+                   "value": "2014年9月16日",
+                   "color": "#173177"
+                },
+                "remark":{
+                   "value": "欢迎再次购买！",
+                   "color": "#173177"
+                }
+            }
+
+        :param str user_id: 用户 ID, 就是你收到的 WechatMessage 的 source (OpenID)
+        :param str template_id: 模板ID
+        :param dict data: 模板消息数据，示例如上
+        :param str url: 跳转地址 (默认为空)
+        :param str topcolor: 顶部颜色RGB值 (默认 ``#FF0000`` )
+        :return: 返回的 JSON 数据包
