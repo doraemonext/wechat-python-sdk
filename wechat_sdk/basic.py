@@ -4,6 +4,7 @@ import hashlib
 import requests
 import time
 import json
+import ast
 import cgi
 from StringIO import StringIO
 
@@ -913,7 +914,10 @@ class WechatBasic(object):
             **kwargs
         )
         r.raise_for_status()
-        response_json = r.json()
+        response_json = ast.literal_eval(r.content)
+        headimgurl = response_json.get('headimgurl')
+        if headimgurl:
+            response_json['headimgurl'] = headimgurl.replace('\\', '')
         self._check_official_error(response_json)
         return response_json
 
