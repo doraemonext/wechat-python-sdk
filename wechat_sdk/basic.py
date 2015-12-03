@@ -285,8 +285,6 @@ class WechatBasic(object):
         :raise HTTPError: 微信api http 请求失败
         """
         self._check_appid_appsecret()
-        # force to grant new access_token to avoid invalid credential issue
-        self.grant_token()
 
         response_json = self._get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
