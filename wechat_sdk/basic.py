@@ -8,11 +8,12 @@ import ast
 import cgi
 from StringIO import StringIO
 
-from xml.dom import minidom
-
 from .messages import MESSAGE_TYPES, UnknownMessage
-from .exceptions import ParseError, NeedParseError, NeedParamError, OfficialAPIError
-from .reply import TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article, ArticleReply
+from .exceptions import (
+    ParseError, NeedParseError, NeedParamError, OfficialAPIError)
+from .reply import (
+    TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article,
+    ArticleReply, GroupTransferReply)
 from .lib import disable_urllib3_warning, XMLStore
 
 
@@ -252,6 +253,14 @@ class WechatBasic(object):
             article = Article(**article)
             news.add_article(article)
         return news.render()
+
+    def group_transfer_message(self):
+        """
+        将message群发到多客服系统
+        :return: 符合微信服务器要求的 XML 响应数据
+        """
+        self._check_parse()
+        return GroupTransferReply(message=self.__message).render()
 
     def grant_token(self, override=True):
         """

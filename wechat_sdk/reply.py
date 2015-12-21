@@ -235,3 +235,28 @@ class ArticleReply(WechatReply):
         self._args["items"] = ''.join(items)
         self._args["count"] = len(items)
         return ArticleReply.TEMPLATE.format(**self._args)
+
+
+class GroupTransferReply(WechatReply):
+    """
+    客服群发转发消息
+    """
+    TEMPLATE = u"""
+    <xml>
+    <ToUserName><![CDATA[{target}]]></ToUserName>
+    <FromUserName><![CDATA[{source}]]></FromUserName>
+    <CreateTime>{time}</CreateTime>
+    <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+    </xml>
+    """
+
+    def __init__(self, message):
+        """
+        :param message: WechatMessage 对象
+        """
+        super(GroupTransferReply, self).__init__(message=message)
+
+    def render(self):
+        return GroupTransferReply.TEMPLATE.format(**self._args)
+
+
