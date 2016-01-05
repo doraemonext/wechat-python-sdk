@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wechat-sdk',
-    version='0.5.8',
+    version='0.5.9',
     keywords=('wechat', 'sdk', 'wechat sdk'),
     description=u'微信公众平台Python开发包',
     long_description=open("README.rst").read(),
@@ -17,6 +17,5 @@ setup(
 
     packages=find_packages(),
     include_package_data=True,
-    platforms='any',
     install_requires=map(lambda x: x.replace('==', '>='), open("requirements.txt").readlines()),
 )

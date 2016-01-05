@@ -1,7 +1,7 @@
 微信公众平台 Python 开发包
 ===========================
 
-当前最新版本：v0.5.8
+当前最新版本：v0.5.9
 
 非官方微信公众平台 Python 开发包，包括官方接口和非官方接口。
 
@@ -58,6 +58,12 @@
 
 ChangeLog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v0.5.9
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 修复了 py3 中 只有 str 没有 unicode 的情况(感谢 `hbrls <https://github.com/hbrls>`_)
+* 避免 generate_jsapi_signature 刷新 access_token(感谢 `paicha <https://github.com/paicha>`_)
+* 增加客服消息转发功能(感谢 `torpedoallen <https://github.com/torpedoallen>`_)
 
 v0.5.8
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
