@@ -11,7 +11,7 @@ setup(
     long_description=open("README.rst").read(),
     license='BSD License',
 
-    url='https://github.com/doraemonext/wechat-python-sdk',
+    url='https://github.com/wechat-python-sdk/wechat-python-sdk',
     author='doraemonext',
     author_email='doraemonext@gmail.com',
 

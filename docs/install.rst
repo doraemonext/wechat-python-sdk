@@ -17,7 +17,7 @@
 
 在终端下输入下列命令::
 
-    wget https://github.com/doraemonext/wechat-python-sdk/archive/master.tar.gz
+    wget https://github.com/wechat-python-sdk/wechat-python-sdk/archive/master.tar.gz
     tar zvxf master.tar.gz
     cd wechat-python-sdk-master
     python setup.py build
