@@ -925,7 +925,7 @@ class WechatBasic(object):
             **kwargs
         )
         r.raise_for_status()
-        response_json = ast.literal_eval(r.content)
+        response_json = r.json()
         headimgurl = response_json.get('headimgurl')
         if headimgurl:
             response_json['headimgurl'] = headimgurl.replace('\\', '')
