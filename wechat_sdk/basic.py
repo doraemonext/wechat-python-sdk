@@ -6,7 +6,11 @@ import time
 import json
 import ast
 import cgi
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO # python 2
+except ImportError:
+    from io import StringIO # python 3
 
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import (
