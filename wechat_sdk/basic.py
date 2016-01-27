@@ -7,19 +7,20 @@ import json
 import cgi
 
 try:
-    from StringIO import StringIO  # python 2
+    from StringIO import StringIO  # Python 2
 except ImportError:
-    from io import StringIO  # python 3
+    from io import StringIO  # Python 3
 
 from .base import WechatBase
+from .core.conf import WechatConf
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import (
     ParseError, NeedParseError, NeedParamError, OfficialAPIError)
 from .reply import (
     TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article,
     ArticleReply, GroupTransferReply)
-from .utils import disable_urllib3_warning
 from .lib.parser import XMLStore
+from .lib.request import WechatRequest
 
 
 class WechatBasic(WechatBase):
@@ -44,25 +45,51 @@ class WechatBasic(WechatBase):
         :param checkssl: 是否检查 SSL, 默认为 False, 可避免 urllib3 的 InsecurePlatformWarning 警告
         :param conf: WechatConf 配置类, 提供此参数将默认忽略其他所有参数, 所有数据均从此配置类中获取
         """
-        if not checkssl:
-            disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
+        if conf is not None:
+            self.__conf = conf
+        else:  # 仅为兼容 v0.6.0 以前的初始化操作, 不再进行更新维护
+            self.__conf = WechatConf(
+                token=token,
+                appid=appid,
+                appsecret=appsecret,
 
-        self.__token = token
-        self.__appid = appid
-        self.__appsecret = appsecret
-        self.__partnerid = partnerid
-        self.__partnerkey = partnerkey
-        self.__paysignkey = paysignkey
+                access_token=access_token,
+                access_token_expires_at=access_token_expires_at,
+                jsapi_ticket=jsapi_ticket,
+                jsapi_ticket_expires_at=jsapi_ticket_expires_at,
 
-        self.__access_token = access_token
-        self.__access_token_expires_at = access_token_expires_at
-        self.__jsapi_ticket = jsapi_ticket
-        self.__jsapi_ticket_expires_at = jsapi_ticket_expires_at
+                encrypt_mode='normal',
 
-        self.__conf = conf
+                partnerid=partnerid,
+                partnerkey=partnerkey,
+                paysignkey=paysignkey,
+                checkssl=checkssl,
+            )
 
+        self.__request = WechatRequest(conf=self.__conf)
         self.__is_parse = False
         self.__message = None
+
+    @property
+    def conf(self):
+        """ 获取当前 WechatConf 配置实例 """
+        return self.__conf
+
+    @conf.setter
+    def conf(self, conf):
+        """ 设置当前 WechatConf 实例  """
+        self.__conf = conf
+        self.__request = WechatRequest(conf=self.__conf)
+
+    @property
+    def request(self):
+        """ 获取当前 WechatConf 配置实例 """
+        return self.__request
+
+    @request.setter
+    def request(self, request):
+        """ 设置当前 WechatConf 实例  """
+        self.__request = request
 
     def check_signature(self, signature, timestamp, nonce):
         """
@@ -72,12 +99,10 @@ class WechatBasic(WechatBase):
         :param nonce: 随机数
         :return: 通过验证返回 True, 未通过验证返回 False
         """
-        self._check_token()
-
         if not signature or not timestamp or not nonce:
             return False
 
-        tmp_list = [self.__token, timestamp, nonce]
+        tmp_list = [self.conf.token, timestamp, nonce]
         tmp_list.sort()
         tmp_str = ''.join(tmp_list)
         if signature == hashlib.sha1(tmp_str.encode('utf-8')).hexdigest():
@@ -95,7 +120,7 @@ class WechatBasic(WechatBase):
         :return: 返回sha1签名的hexdigest值
         """
         if not jsapi_ticket:
-            jsapi_ticket = self.jsapi_ticket
+            jsapi_ticket = self.conf.jsapi_ticket
         data = {
             'jsapi_ticket': jsapi_ticket,
             'noncestr': noncestr,
@@ -151,26 +176,18 @@ class WechatBasic(WechatBase):
     def get_access_token(self):
         """
         获取 Access Token 及 Access Token 过期日期, 仅供缓存使用, 如果希望得到原生的 Access Token 请求数据请使用 :func:`grant_token`
+        **仅为兼容 v0.6.0 以前版本使用, 自行维护 access_token 请使用 access_token_setfunc 和 access_token_getfunc 进行操作**
         :return: dict 对象, key 包括 `access_token` 及 `access_token_expires_at`
         """
-        self._check_appid_appsecret()
-
-        return {
-            'access_token': self.access_token,
-            'access_token_expires_at': self.__access_token_expires_at,
-        }
+        return self.conf.get_access_token()
 
     def get_jsapi_ticket(self):
         """
         获取 Jsapi Ticket 及 Jsapi Ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 Jsapi Ticket 请求数据请使用 :func:`grant_jsapi_ticket`
+        **仅为兼容 v0.6.0 以前版本使用, 自行维护 jsapi_ticket 请使用 jsapi_ticket_setfunc 和 jsapi_ticket_getfunc 进行操作**
         :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
         """
-        self._check_appid_appsecret()
-
-        return {
-            'jsapi_ticket': self.jsapi_ticket,
-            'jsapi_ticket_expires_at': self.__jsapi_ticket_expires_at,
-        }
+        return self.conf.get_jsapi_ticket()
 
     def response_text(self, content, escape=False):
         """
@@ -270,50 +287,23 @@ class WechatBasic(WechatBase):
         self._check_parse()
         return GroupTransferReply(message=self.__message).render()
 
-    def grant_token(self, override=True):
+    def grant_token(self, **kwargs):
         """
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
-        :param override: 是否在获取的同时覆盖已有 access_token (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
+        return self.conf.grant_token()
 
-        response_json = self._get(
-            url="https://api.weixin.qq.com/cgi-bin/token",
-            params={
-                "grant_type": "client_credential",
-                "appid": self.__appid,
-                "secret": self.__appsecret,
-            }
-        )
-        if override:
-            self.__access_token = response_json['access_token']
-            self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
-        return response_json
-
-    def grant_jsapi_ticket(self, override=True):
+    def grant_jsapi_ticket(self, **kwargs):
         """
         获取 Jsapi Ticket
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
-        :param override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        response_json = self._get(
-            url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
-            params={
-                "access_token": self.access_token,
-                "type": "jsapi",
-            }
-        )
-        if override:
-            self.__jsapi_ticket = response_json['ticket']
-            self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
-        return response_json
+        return self.conf.grant_jsapi_ticket()
 
     def create_menu(self, menu_data):
         """
@@ -360,10 +350,8 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
         menu_data = self._transcoding_dict(menu_data)
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/menu/create',
             data=menu_data
         )
@@ -375,9 +363,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._get('https://api.weixin.qq.com/cgi-bin/menu/get')
+        return self.request.get('https://api.weixin.qq.com/cgi-bin/menu/get')
 
     def delete_menu(self):
         """
@@ -386,9 +372,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._get('https://api.weixin.qq.com/cgi-bin/menu/delete')
+        return self.request.get('https://api.weixin.qq.com/cgi-bin/menu/delete')
 
     def upload_media(self, media_type, media_file, extension=''):
         """
@@ -400,7 +384,6 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
         if not isinstance(media_file, file) and not isinstance(media_file, StringIO):
             raise ValueError('Parameter media_file must be file object or StringIO.StringIO object.')
         if isinstance(media_file, StringIO) and extension.lower() not in ['jpg', 'jpeg', 'amr', 'mp3', 'mp4']:
@@ -422,7 +405,7 @@ class WechatBasic(WechatBase):
         else:
             filename = media_file.name
 
-        return self._post(
+        return self.request.post(
             url='http://file.api.weixin.qq.com/cgi-bin/media/upload',
             params={
                 'access_token': self.access_token,
@@ -440,12 +423,9 @@ class WechatBasic(WechatBase):
         :param media_id: 媒体文件 ID
         :return: requests 的 Response 实例
         """
-        self._check_appid_appsecret()
-
-        return requests.get(
+        return self.request.get(
             'http://file.api.weixin.qq.com/cgi-bin/media/get',
             params={
-                'access_token': self.access_token,
                 'media_id': media_id,
             },
             stream=True,
@@ -459,9 +439,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/create',
             data={
                 'group': {
@@ -477,9 +455,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._get('https://api.weixin.qq.com/cgi-bin/groups/get')
+        return self.request.get('https://api.weixin.qq.com/cgi-bin/groups/get')
 
     def get_group_by_id(self, openid):
         """
@@ -489,9 +465,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/getid',
             data={
                 'openid': openid,
@@ -507,9 +481,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/update',
             data={
                 'group': {
@@ -528,9 +500,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/members/update',
             data={
                 'openid': user_id,
@@ -547,9 +517,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._get(
+        return self.request.get(
             url='https://api.weixin.qq.com/cgi-bin/user/info',
             params={
                 'access_token': self.access_token,
@@ -566,14 +534,12 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
         params = {
             'access_token': self.access_token,
         }
         if first_user_id:
             params['next_openid'] = first_user_id
-        return self._get('https://api.weixin.qq.com/cgi-bin/user/get', params=params)
+        return self.request.get('https://api.weixin.qq.com/cgi-bin/user/get', params=params)
 
     def send_text_message(self, user_id, content):
         """
@@ -584,9 +550,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -606,9 +570,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -628,9 +590,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -652,8 +612,6 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
         video_data = {
             'media_id': media_id,
         }
@@ -662,7 +620,7 @@ class WechatBasic(WechatBase):
         if description:
             video_data['description'] = description
 
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -684,8 +642,6 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
         music_data = {
             'musicurl': url,
             'hqmusicurl': hq_url,
@@ -696,7 +652,7 @@ class WechatBasic(WechatBase):
         if description:
             music_data['description'] = description
 
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -713,8 +669,6 @@ class WechatBasic(WechatBase):
         :param articles: list 对象, 每个元素为一个 dict 对象, key 包含 `title`, `description`, `picurl`, `url`
         :return: 返回的 JSON 数据包
         """
-        self._check_appid_appsecret()
-
         articles_data = []
         for article in articles:
             article = Article(**article)
@@ -724,7 +678,7 @@ class WechatBasic(WechatBase):
                 'url': article.url,
                 'picurl': article.picurl,
             })
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
             data={
                 'touser': user_id,
@@ -743,10 +697,8 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        self._check_appid_appsecret()
-
         data = self._transcoding_dict(data)
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/qrcode/create',
             data=data
         )
@@ -758,8 +710,6 @@ class WechatBasic(WechatBase):
         :param ticket: 二维码 ticket 。可以通过 :func:`create_qrcode` 获取到
         :return: 返回的 Request 对象
         """
-        self._check_appid_appsecret()
-
         return requests.get(
             url='https://mp.weixin.qq.com/cgi-bin/showqrcode',
             params={
@@ -775,9 +725,7 @@ class WechatBasic(WechatBase):
         :param industry_id2: 副营行业代码
         :return: 返回的 JSON 数据包
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/template/api_set_industry',
             data={
                 'industry_id1': str(industry_id1),
@@ -792,9 +740,7 @@ class WechatBasic(WechatBase):
         :param template_id_short: 模板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
         :return: 返回的 JSON 数据包
         """
-        self._check_appid_appsecret()
-
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/template/api_add_template',
             data={
                 'template_id_short': str(template_id_short),
@@ -834,13 +780,11 @@ class WechatBasic(WechatBase):
         :param topcolor: 顶部颜色RGB值 (默认 '#FF0000' )
         :return: 返回的 JSON 数据包
         """
-        self._check_appid_appsecret()
-
         unicode_data = {}
         if data:
             unicode_data = self._transcoding_dict(data)
 
-        return self._post(
+        return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/template/send',
             data={
                 'touser': user_id,
@@ -853,41 +797,11 @@ class WechatBasic(WechatBase):
 
     @property
     def access_token(self):
-        self._check_appid_appsecret()
-
-        if self.__access_token:
-            now = time.time()
-            if self.__access_token_expires_at - now > 60:
-                return self.__access_token
-        self.grant_token()
-        return self.__access_token
+        return self.conf.access_token
 
     @property
     def jsapi_ticket(self):
-        self._check_appid_appsecret()
-
-        if self.__jsapi_ticket:
-            now = time.time()
-            if self.__jsapi_ticket_expires_at - now > 60:
-                return self.__jsapi_ticket
-        self.grant_jsapi_ticket()
-        return self.__jsapi_ticket
-
-    def _check_token(self):
-        """
-        检查 Token 是否存在
-        :raises NeedParamError: Token 参数没有在初始化的时候提供
-        """
-        if not self.__token:
-            raise NeedParamError('Please provide Token parameter in the construction of class.')
-
-    def _check_appid_appsecret(self):
-        """
-        检查 AppID 和 AppSecret 是否存在
-        :raises NeedParamError: AppID 或 AppSecret 参数没有在初始化的时候完整提供
-        """
-        if not self.__appid or not self.__appsecret:
-            raise NeedParamError('Please provide app_id and app_secret parameters in the construction of class.')
+        return self.conf.jsapi_ticket
 
     def _check_parse(self):
         """
@@ -904,62 +818,3 @@ class WechatBasic(WechatBase):
         """
         if "errcode" in json_data and json_data["errcode"] != 0:
             raise OfficialAPIError(errcode=json_data.get('errcode'), errmsg=json_data.get('errmsg', ''))
-
-    def _request(self, method, url, **kwargs):
-        """
-        向微信服务器发送请求
-        :param method: 请求方法
-        :param url: 请求地址
-        :param kwargs: 附加数据
-        :return: 微信服务器响应的 json 数据
-        :raise HTTPError: 微信api http 请求失败
-        """
-        if "params" not in kwargs:
-            kwargs["params"] = {
-                "access_token": self.access_token,
-            }
-        if isinstance(kwargs.get("data", ""), dict):
-            body = json.dumps(kwargs["data"], ensure_ascii=False)
-            body = body.encode('utf8')
-            kwargs["data"] = body
-
-        r = requests.request(
-            method=method,
-            url=url,
-            **kwargs
-        )
-        r.raise_for_status()
-        response_json = r.json()
-        headimgurl = response_json.get('headimgurl')
-        if headimgurl:
-            response_json['headimgurl'] = headimgurl.replace('\\', '')
-        self._check_official_error(response_json)
-        return response_json
-
-    def _get(self, url, **kwargs):
-        """
-        使用 GET 方法向微信服务器发出请求
-        :param url: 请求地址
-        :param kwargs: 附加数据
-        :return: 微信服务器响应的 json 数据
-        :raise HTTPError: 微信api http 请求失败
-        """
-        return self._request(
-            method="get",
-            url=url,
-            **kwargs
-        )
-
-    def _post(self, url, **kwargs):
-        """
-        使用 POST 方法向微信服务器发出请求
-        :param url: 请求地址
-        :param kwargs: 附加数据
-        :return: 微信服务器响应的 json 数据
-        :raise HTTPError: 微信api http 请求失败
-        """
-        return self._request(
-            method="post",
-            url=url,
-            **kwargs
-        )

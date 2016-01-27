@@ -85,15 +85,7 @@ class WechatBasicTestCase(unittest.TestCase):
             resp = wechat.grant_token()
             self.assertEqual(resp['access_token'], self.fixtures_access_token)
             self.assertEqual(resp['expires_in'], 7200)
-            self.assertEqual(wechat._WechatBasic__access_token, self.fixtures_access_token)
-
-        # 测试有 appid 和 appsecret 初始化（不覆盖已有 access_token）
-        wechat = WechatBasic(appid=self.appid, appsecret=self.appsecret)
-        with HTTMock(wechat_api_mock):
-            resp = wechat.grant_token(override=False)
-            self.assertEqual(resp['access_token'], self.fixtures_access_token)
-            self.assertEqual(resp['expires_in'], 7200)
-            self.assertEqual(wechat._WechatBasic__access_token, None)
+            self.assertEqual(wechat.conf.access_token, self.fixtures_access_token)
 
     def test_grant_jsapi_ticket(self):
         # 测试无 appid 和 appsecret 初始化
@@ -109,40 +101,30 @@ class WechatBasicTestCase(unittest.TestCase):
             self.assertEqual(resp['errmsg'], 'ok')
             self.assertEqual(resp['ticket'], self.fixtures_jsapi_ticket)
             self.assertEqual(resp['expires_in'], 7200)
-            self.assertEqual(wechat._WechatBasic__jsapi_ticket, self.fixtures_jsapi_ticket)
-
-        # 测试有 appid 和 appsecret 初始化（不覆盖已有 access_token）
-        wechat = WechatBasic(appid=self.appid, appsecret=self.appsecret)
-        with HTTMock(wechat_api_mock):
-            resp = wechat.grant_jsapi_ticket(override=False)
-            self.assertEqual(resp['errcode'], 0)
-            self.assertEqual(resp['errmsg'], 'ok')
-            self.assertEqual(resp['ticket'], self.fixtures_jsapi_ticket)
-            self.assertEqual(resp['expires_in'], 7200)
-            self.assertEqual(wechat._WechatBasic__jsapi_ticket, None)
+            self.assertEqual(wechat.conf.jsapi_ticket, self.fixtures_jsapi_ticket)
 
     def test_access_token(self):
         # 测试无 appid 和 appsecret 初始化
         wechat = WechatBasic()
         with self.assertRaises(NeedParamError):
-            print(wechat.access_token)
+            print(wechat.conf.access_token)
 
         # 测试有 appid 和 appsecret 初始化
         wechat = WechatBasic(appid=self.appid, appsecret=self.appsecret)
         with HTTMock(wechat_api_mock):
-            access_token = wechat.access_token
+            access_token = wechat.conf.access_token
             self.assertEqual(access_token, self.fixtures_access_token)
 
     def test_jsapi_ticket(self):
         # 测试无 appid 和 appsecret 初始化
         wechat = WechatBasic()
         with self.assertRaises(NeedParamError):
-            print(wechat.jsapi_ticket)
+            print(wechat.conf.jsapi_ticket)
 
         # 测试有 appid 和 appsecret 初始化
         wechat = WechatBasic(appid=self.appid, appsecret=self.appsecret)
         with HTTMock(wechat_api_mock):
-            jsapi_ticket = wechat.jsapi_ticket
+            jsapi_ticket = wechat.conf.jsapi_ticket
             self.assertEqual(jsapi_ticket, self.fixtures_jsapi_ticket)
 
     def test_generate_jsapi_signature(self):

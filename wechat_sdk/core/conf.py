@@ -85,6 +85,7 @@ class WechatConf(object):
     @property
     def token(self):
         """ 获取当前 Token """
+        self._check_token()
         return self.__token
 
     @token.setter
@@ -142,7 +143,7 @@ class WechatConf(object):
             now = time.time()
             if self.__access_token_expires_at - now > 60:
                 return self.__access_token
-        self._grant_token()  # 从腾讯服务器获取 access token 并更新
+        self.grant_token()  # 从腾讯服务器获取 access token 并更新
         return self.__access_token
 
     @property
@@ -157,7 +158,7 @@ class WechatConf(object):
             now = time.time()
             if self.__jsapi_ticket_expires_at - now > 60:
                 return self.__jsapi_ticket
-        self._grant_jsapi_ticket()  # 从腾讯服务器获取 jsapi ticket 并更新
+        self.grant_jsapi_ticket()  # 从腾讯服务器获取 jsapi ticket 并更新
         return self.__jsapi_ticket
 
     @property
@@ -174,6 +175,78 @@ class WechatConf(object):
     def paysignkey(self):
         """ 获取商户签名密钥 Key """
         return self.__paysignkey
+
+    def grant_token(self):
+        """
+        获取 access token 并更新当前配置
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        response_json = self.__request.get(
+            url="https://api.weixin.qq.com/cgi-bin/token",
+            params={
+                "grant_type": "client_credential",
+                "appid": self.__appid,
+                "secret": self.__appsecret,
+            },
+            access_token=self.__access_token
+        )
+        self.__access_token = response_json['access_token']
+        self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
+
+        if callable(self.__access_token_setfunc):
+            self.__access_token_setfunc(self.__access_token, self.__access_token_expires_at)
+
+        return response_json
+
+    def grant_jsapi_ticket(self):
+        """
+        获取 jsapi ticket
+        :return: 返回的 JSON 数据包
+        """
+        self._check_appid_appsecret()
+
+        response_json = self.__request.get(
+            url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
+            params={
+                "access_token": self.access_token,
+                "type": "jsapi",
+            }
+        )
+        self.__jsapi_ticket = response_json['ticket']
+        self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+
+        if callable(self.__jsapi_ticket_setfunc):
+            self.__jsapi_ticket_setfunc(self.__jsapi_ticket, self.__jsapi_ticket_expires_at)
+
+        return response_json
+
+    def get_access_token(self):
+        """
+        获取 Access Token 及 Access Token 过期日期, 仅供缓存使用, 如果希望得到原生的 Access Token 请求数据请使用 :func:`grant_token`
+        **仅为兼容 v0.6.0 以前版本使用, 自行维护 access_token 请使用 access_token_setfunc 和 access_token_getfunc 进行操作**
+        :return: dict 对象, key 包括 `access_token` 及 `access_token_expires_at`
+        """
+        self._check_appid_appsecret()
+
+        return {
+            'access_token': self.access_token,
+            'access_token_expires_at': self.__access_token_expires_at,
+        }
+
+    def get_jsapi_ticket(self):
+        """
+        获取 Jsapi Ticket 及 Jsapi Ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 Jsapi Ticket 请求数据请使用 :func:`grant_jsapi_ticket`
+        **仅为兼容 v0.6.0 以前版本使用, 自行维护 jsapi_ticket 请使用 jsapi_ticket_setfunc 和 jsapi_ticket_getfunc 进行操作**
+        :return: dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`
+        """
+        self._check_appid_appsecret()
+
+        return {
+            'jsapi_ticket': self.jsapi_ticket,
+            'jsapi_ticket_expires_at': self.__jsapi_ticket_expires_at,
+        }
 
     def _check_token(self):
         """
@@ -201,49 +274,3 @@ class WechatConf(object):
             self.__crypto = BasicCrypto(self.__token, self.__encoding_aes_key, self.__appid)
         else:
             self.__crypto = None
-
-    def _grant_token(self):
-        """
-        获取 access token 并更新当前配置
-        :return: 返回的 JSON 数据包
-        """
-        self._check_appid_appsecret()
-
-        response_json = self.__request.get(
-            url="https://api.weixin.qq.com/cgi-bin/token",
-            params={
-                "grant_type": "client_credential",
-                "appid": self.__appid,
-                "secret": self.__appsecret,
-            },
-            access_token=self.__access_token
-        )
-        self.__access_token = response_json['access_token']
-        self.__access_token_expires_at = int(time.time()) + response_json['expires_in']
-
-        if callable(self.__access_token_setfunc):
-            self.__access_token_setfunc(self.__access_token, self.__access_token_expires_at)
-
-        return response_json
-
-    def _grant_jsapi_ticket(self):
-        """
-        获取 jsapi ticket
-        :return: 返回的 JSON 数据包
-        """
-        self._check_appid_appsecret()
-
-        response_json = self.__request.get(
-            url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
-            params={
-                "access_token": self.access_token,
-                "type": "jsapi",
-            }
-        )
-        self.__jsapi_ticket = response_json['ticket']
-        self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
-
-        if callable(self.__jsapi_ticket_setfunc):
-            self.__jsapi_ticket_setfunc(self.__jsapi_ticket, self.__jsapi_ticket_expires_at)
-
-        return response_json
