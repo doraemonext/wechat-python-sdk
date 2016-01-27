@@ -127,6 +127,10 @@ class WechatConf(object):
         self._update_crypto()  # 改动 EncodingAESKey 需要重新更新 Crypto
 
     @property
+    def encrypt_mode(self):
+        return self.__encrypt_mode
+
+    @property
     def crypto(self):
         """ 获取当前 Crypto 实例 """
         return self.__crypto

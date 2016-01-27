@@ -2,8 +2,6 @@
 
 import hashlib
 import requests
-import time
-import json
 import cgi
 
 try:
@@ -133,10 +131,13 @@ class WechatBasic(WechatBase):
         signature = hashlib.sha1(data_str.encode('utf-8')).hexdigest()
         return signature
 
-    def parse_data(self, data):
+    def parse_data(self, data, msg_signature=None, timestamp=None, nonce=None):
         """
         解析微信服务器发送过来的数据并保存类中
         :param data: HTTP Request 的 Body 数据
+        :param msg_signature: EncodingAESKey 的 msg_signature
+        :param timestamp: EncodingAESKey 用时间戳
+        :param nonce: EncodingAESKey 用随机数
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
@@ -146,6 +147,17 @@ class WechatBasic(WechatBase):
             data = data.encode('utf-8')
         else:
             raise ParseError()
+
+        if self.conf.encrypt_mode == 'safe':
+            if msg_signature and timestamp and nonce:
+                data = self.conf.crypto.decrypt_message(
+                    msg=data,
+                    msg_signature=msg_signature,
+                    timestamp=timestamp,
+                    nonce=nonce,
+                )
+            else:
+                raise ParseError('must provide msg_signature/timestamp/nonce in safe encrypt mode')
 
         try:
             xml = XMLStore(xmlstring=data)
