@@ -264,7 +264,7 @@ class WechatBasic(WechatBase):
 
     def group_transfer_message(self):
         """
-        将message群发到多客服系统
+        将 message 群发到多客服系统
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()

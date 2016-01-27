@@ -647,6 +647,16 @@ class WechatBasicTestCase(unittest.TestCase):
         self.assertEqual(resp['xml']['Articles']['item'][2]['Url'], 'http://www.v2ex.com/')
         self.assertEqual(resp['xml']['Articles']['item'][2]['PicUrl'], 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg')
 
+    def test_group_transfer_message(self):
+        wechat = WechatBasic()
+        wechat.parse_data(data=self.test_message)
+        resp_xml = wechat.group_transfer_message()
+        resp = xmltodict.parse(resp_xml)
+
+        self.assertEqual(resp['xml']['ToUserName'], 'fromUser')
+        self.assertEqual(resp['xml']['FromUserName'], 'toUser')
+        self.assertEqual(resp['xml']['MsgType'], 'transfer_customer_service')
+
     def test_create_menu(self):
         menu_info = {
             'button': [
