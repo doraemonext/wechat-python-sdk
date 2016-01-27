@@ -97,11 +97,11 @@ class WechatBaseCrypto(object):
         return pc.decrypt(encrypt, self.__id)
 
 
-class WechatCrypto(WechatBaseCrypto):
+class BasicCrypto(WechatBaseCrypto):
     """微信普通公众号(订阅/服务号)加密解密类"""
 
     def __init__(self, token, encoding_aes_key, app_id):
-        super(WechatCrypto, self).__init__(token, encoding_aes_key, app_id)
+        super(BasicCrypto, self).__init__(token, encoding_aes_key, app_id)
         self.__app_id = app_id
 
     def encrypt_message(self, msg, nonce, timestamp=None):
@@ -111,11 +111,11 @@ class WechatCrypto(WechatBaseCrypto):
         return self._decrypt_message(msg, msg_signature, timestamp, nonce)
 
 
-class WechatCorpCrypto(WechatBaseCrypto):
+class CorpCrypto(WechatBaseCrypto):
     """微信企业号加密解密类"""
 
     def __init__(self, token, encoding_aes_key, corp_id):
-        super(WechatCorpCrypto, self).__init__(token, encoding_aes_key, corp_id)
+        super(CorpCrypto, self).__init__(token, encoding_aes_key, corp_id)
         self.__corp_id = corp_id
 
     def check_signature(self, msg_signature, timestamp, nonce, echostr):

@@ -9,7 +9,7 @@ import time
 from datetime import timedelta, date
 
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
-from .lib import disable_urllib3_warning
+from .utils import disable_urllib3_warning
 
 
 class WechatExt(object):

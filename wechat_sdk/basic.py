@@ -17,7 +17,8 @@ from .exceptions import (
 from .reply import (
     TextReply, ImageReply, VoiceReply, VideoReply, MusicReply, Article,
     ArticleReply, GroupTransferReply)
-from .lib import disable_urllib3_warning, XMLStore
+from .utils import disable_urllib3_warning
+from .lib.parser import XMLStore
 
 
 class WechatBasic(object):
