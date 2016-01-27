@@ -4,13 +4,12 @@ import hashlib
 import requests
 import time
 import json
-import ast
 import cgi
 
 try:
-    from StringIO import StringIO # python 2
+    from StringIO import StringIO  # python 2
 except ImportError:
-    from io import StringIO # python 3
+    from io import StringIO  # python 3
 
 from .messages import MESSAGE_TYPES, UnknownMessage
 from .exceptions import (
