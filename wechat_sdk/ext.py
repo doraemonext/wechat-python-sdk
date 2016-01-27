@@ -8,11 +8,12 @@ import random
 import time
 from datetime import timedelta, date
 
+from .base import WechatBase
 from .exceptions import UnOfficialAPIError, NeedLoginError, LoginError, LoginVerifyCodeError
 from .utils import disable_urllib3_warning
 
 
-class WechatExt(object):
+class WechatExt(WechatBase):
     """
     微信扩展功能类
 

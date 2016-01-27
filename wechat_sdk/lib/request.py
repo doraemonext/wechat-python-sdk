@@ -43,6 +43,9 @@ class WechatRequest(object):
         )
         r.raise_for_status()
         response_json = r.json()
+        headimgurl = response_json.get('headimgurl')
+        if headimgurl:
+            response_json['headimgurl'] = headimgurl.replace('\\', '')
         self._check_official_error(response_json)
         return response_json
 

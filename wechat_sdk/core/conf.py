@@ -232,7 +232,6 @@ class WechatConf(object):
         :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()
-        self._grant_token()  # force to grant new access_token to avoid invalid credential issue
 
         response_json = self.__request.get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
