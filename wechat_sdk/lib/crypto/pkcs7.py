@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class PKCS7Encoder(object):
     """提供基于PKCS7算法的加解密接口"""
     block_size = 32
