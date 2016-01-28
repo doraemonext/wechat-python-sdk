@@ -46,6 +46,8 @@ class WechatBasic(WechatBase):
         """
         if conf is not None:
             self.__conf = conf
+        elif isinstance(token, WechatConf):  # 针对将 WechatConf 实例作为第一个参数传入的容错处理
+            self.__conf = token
         else:  # 仅为兼容 v0.6.0 以前的初始化操作, 不再进行更新维护
             self.__conf = WechatConf(
                 token=token,

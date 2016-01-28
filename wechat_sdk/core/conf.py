@@ -99,21 +99,16 @@ class WechatConf(object):
         """ 获取当前 App ID """
         return self.__appid
 
-    @appid.setter
-    def appid(self, appid):
-        """ 设置当前 App ID """
-        self.__appid = appid
-        self._update_crypto()  # 改动 App ID 需要重新更新 Crypto
-
     @property
     def appsecret(self):
         """ 获取当前 App Secret """
         return self.__appsecret
 
-    @appsecret.setter
-    def appsecret(self, appsecret):
-        """ 设置当前 App Secret """
+    def set_appid_appsecret(self, appid, appsecret):
+        """ 设置当前 App ID 及 App Secret"""
+        self.__appid = appid
         self.__appsecret = appsecret
+        self._update_crypto()  # 改动 App ID 后需要重新更新 Crypto
 
     @property
     def encoding_aes_key(self):
