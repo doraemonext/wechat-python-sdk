@@ -19,7 +19,7 @@ from .reply import (
     ArticleReply, GroupTransferReply)
 from .lib.parser import XMLStore
 from .lib.request import WechatRequest
-from .utils import to_binary
+from .utils import to_binary, to_text, generate_nonce, generate_timestamp
 
 
 class WechatBasic(WechatBase):
@@ -202,13 +202,11 @@ class WechatBasic(WechatBase):
         """
         return self.conf.get_jsapi_ticket()
 
-    def response_text(self, content, escape=False, timestamp=None, nonce=None):
+    def response_text(self, content, escape=False):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
         :param content: 回复文字
         :param escape: 是否转义该文本内容 (默认不转义)
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
@@ -217,42 +215,36 @@ class WechatBasic(WechatBase):
             content = cgi.escape(content)
 
         response = TextReply(message=self.__message, content=content).render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
-    def response_image(self, media_id, timestamp=None, nonce=None):
+    def response_image(self, media_id):
         """
         将 media_id 所代表的图片组装为符合微信服务器要求的响应数据
         :param media_id: 图片的 MediaID
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
 
         response = ImageReply(message=self.__message, media_id=media_id).render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
-    def response_voice(self, media_id, timestamp=None, nonce=None):
+    def response_voice(self, media_id):
         """
         将 media_id 所代表的语音组装为符合微信服务器要求的响应数据
         :param media_id: 语音的 MediaID
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
 
         response = VoiceReply(message=self.__message, media_id=media_id).render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
-    def response_video(self, media_id, title=None, description=None, timestamp=None, nonce=None):
+    def response_video(self, media_id, title=None, description=None):
         """
         将 media_id 所代表的视频组装为符合微信服务器要求的响应数据
         :param media_id: 视频的 MediaID
         :param title: 视频消息的标题
         :param description: 视频消息的描述
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
@@ -260,9 +252,9 @@ class WechatBasic(WechatBase):
         description = self._transcoding(description)
 
         response = VideoReply(message=self.__message, media_id=media_id, title=title, description=description).render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
-    def response_music(self, music_url, title=None, description=None, hq_music_url=None, thumb_media_id=None, timestamp=None, nonce=None):
+    def response_music(self, music_url, title=None, description=None, hq_music_url=None, thumb_media_id=None):
         """
         将音乐信息组装为符合微信服务器要求的响应数据
         :param music_url: 音乐链接
@@ -270,8 +262,6 @@ class WechatBasic(WechatBase):
         :param description: 音乐描述
         :param hq_music_url: 高质量音乐链接, WIFI环境优先使用该链接播放音乐
         :param thumb_media_id: 缩略图的 MediaID
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
@@ -282,14 +272,12 @@ class WechatBasic(WechatBase):
 
         response = MusicReply(message=self.__message, title=title, description=description, music_url=music_url,
                               hq_music_url=hq_music_url, thumb_media_id=thumb_media_id).render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
-    def response_news(self, articles, timestamp=None, nonce=None):
+    def response_news(self, articles):
         """
         将新闻信息组装为符合微信服务器要求的响应数据
         :param articles: list 对象, 每个元素为一个 dict 对象, key 包含 `title`, `description`, `picurl`, `url`
-        :param timestamp: EncodingAESKey 加密用时间戳
-        :param nonce: EncodingAESKey 加密用随机数
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
@@ -308,7 +296,7 @@ class WechatBasic(WechatBase):
             article = Article(**article)
             news.add_article(article)
         response = news.render()
-        return self._encrypt_response(response=response, timestamp=timestamp, nonce=nonce)
+        return self._encrypt_response(response)
 
     def group_transfer_message(self):
         """
@@ -850,15 +838,12 @@ class WechatBasic(WechatBase):
         if "errcode" in json_data and json_data["errcode"] != 0:
             raise OfficialAPIError(errcode=json_data.get('errcode'), errmsg=json_data.get('errmsg', ''))
 
-    def _encrypt_response(self, response, timestamp=None, nonce=None):
+    def _encrypt_response(self, response):
         if self.conf.encrypt_mode == 'safe':
-            if timestamp and nonce:
-                return self.conf.crypto.encrypt_message(
-                    msg=to_binary(response),
-                    nonce=nonce,
-                    timestamp=timestamp,
-                )
-            else:
-                raise ParseError('must provide timestamp/nonce in safe encrypt mode')
+            return self.conf.crypto.encrypt_message(
+                msg=to_binary(response),
+                nonce=generate_nonce(),
+                timestamp=generate_timestamp(),
+            )
         else:
             return response

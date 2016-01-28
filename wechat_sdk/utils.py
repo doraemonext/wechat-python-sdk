@@ -2,6 +2,8 @@
 
 import requests
 import six
+import time
+import random
 
 
 def to_text(value, encoding='utf-8'):
@@ -44,3 +46,17 @@ def disable_urllib3_warning():
         requests.packages.urllib3.disable_warnings()
     except Exception:
         pass
+
+
+def generate_timestamp():
+    """生成 timestamp
+    :return: timestamp string
+    """
+    return int(time.time())
+
+
+def generate_nonce():
+    """生成 nonce
+    :return: nonce string
+    """
+    return random.randrange(1000000000, 2000000000)
