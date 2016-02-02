@@ -315,7 +315,7 @@ class WechatBasic(WechatBase):
         :return: 返回的 JSON 数据包
         :raise HTTPError: 微信api http 请求失败
         """
-        return self.conf.grant_token()
+        return self.conf.grant_access_token()
 
     def grant_jsapi_ticket(self, **kwargs):
         """

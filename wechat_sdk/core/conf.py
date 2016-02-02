@@ -142,7 +142,7 @@ class WechatConf(object):
             now = time.time()
             if self.__access_token_expires_at - now > 60:
                 return self.__access_token
-        self.grant_token()  # 从腾讯服务器获取 access token 并更新
+        self.grant_access_token()  # 从腾讯服务器获取 access token 并更新
         return self.__access_token
 
     @property
@@ -175,7 +175,7 @@ class WechatConf(object):
         """ 获取商户签名密钥 Key """
         return self.__paysignkey
 
-    def grant_token(self):
+    def grant_access_token(self):
         """
         获取 access token 并更新当前配置
         :return: 返回的 JSON 数据包

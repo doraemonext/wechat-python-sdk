@@ -41,4 +41,13 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 |`.appsecret`|当前正在使用的 App Secret 值|
 |`.encrypt_mode`|当前正在使用的消息加解密方式。返回内容为字符串，`normal`为明文模式，`compatible`为兼容模式，`safe`为安全模式|
 |`.encoding_aes_key`|当前正在使用的 EncodingAESKey|
+|`.crypto`|当前 Crypto 实例，可直接用于加密解密消息操作|
+|`.access_token`|当前的 access_token 值，该值会由 WechatConf 内部动态维护合法性|
+|`.jsapi_ticket`|当前的 jsapi_ticket 值，该值会由 WechatConf 内部动态维护合法性|
+
+### 方法
+
+|属性名称|属性解释|
+|-------|------|
+|`.grant_
 
