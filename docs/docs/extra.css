@@ -1,0 +1,43 @@
+body {
+    font-size: 13px;
+    line-height: 20px;
+    font-family: "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+pre, code {
+    font-size: 10px;
+}
+
+h1 {
+    margin: 20px 0;
+    font-size: 28px;
+}
+
+h2 {
+    margin: 20px 0;
+    font-size: 24px;
+}
+
+h3 {
+    margin: 20px 0;
+    font-size: 20px;
+}
+
+h4 {
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+.dropdown-menu {
+    max-height: 400px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.navbar-right {
+    display: none;
+}
+
+blockquote p {
+    font-size: 13px;
+}

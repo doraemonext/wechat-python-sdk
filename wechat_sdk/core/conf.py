@@ -55,7 +55,7 @@ class WechatConf(object):
 
         self.__request = WechatRequest()
 
-        if kwargs.get('checkssl') is True:
+        if kwargs.get('checkssl') is not True:
             disable_urllib3_warning()  # 可解决 InsecurePlatformWarning 警告
 
         self.__token = kwargs.get('token')

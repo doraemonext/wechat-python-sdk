@@ -1,0 +1,36 @@
+site_name: wechat-python-sdk
+theme: yeti
+
+extra:
+  'version': 'v0.6.0 (20160201)'
+
+pages:
+  - '首页': 'index.md'
+  - '快速上手':
+    - '1. SDK 快速介绍': 'quickstart/intro.md'
+    - '2. 官方接口': 'quickstart/official.md'
+    - '3. 扩展功能': 'quickstart/extension.md'
+    - '4. WechatConf 详解': 'quickstart/wechatconf.md'
+  - '官方接口':
+    - '1. 接入指南': 'official/access.md'
+    - '2. 消息管理': 'official/message.md'
+    - '3. 微信网页开发': 'official/website.md'
+    - '4. 素材管理': 'official/material.md'
+    - '5. 用户管理': 'official/user.md'
+    - '6. 账号管理': 'official/account.md'
+    - '7. 数据统计': 'official/datacube.md'
+    - '8. 微信小店 ': 'official/store.md'
+    - '9. 微信多客服功能': 'official/service.md'
+  - '扩展功能':
+    - '1. 登录': 'extension/login.md'
+  - 'API 文档':
+    - '1. 订阅号/服务号 API': 'api/subscribe_service.md'
+    - '2. 扩展功能 API': 'api/ext.md'
+    - '3. 异常类 API': 'api/exception.md'
+    - '4. WechatConf API': 'api/wechatconf.md'
+  - 'FAQ': 'faq.md'
+  - '功能完成度': 'feature.md'
+  - '贡献代码指南': 'development.md'
+  - '关于':
+    - '关于项目': 'about/project.md'
+    - '关于作者': 'about/author.md'
