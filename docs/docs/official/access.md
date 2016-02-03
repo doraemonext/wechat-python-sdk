@@ -2,9 +2,7 @@
 
 ## 验证服务器地址有效性
 
-**调用方法：**
-
-`.check_signature(signature, timestmap, nonce)`
+**调用方法：**`.check_signature(signature, timestmap, nonce)`
 
 **参数说明：**
 
@@ -12,22 +10,11 @@
 * `timestamp`: 时间戳
 * `nonce`: 随机数
 
-**调用前检查：**
+**调用前检查：**Token
 
-* `Token`
+**返回值：**成功返回 `True`，失败返回 `False`
 
-**适用范围：**
-
-所有公众号
-
-**返回值：**
-
-* 成功，返回 `True`
-* 失败，返回 `False`
-
-**对应官方文档：**
-
-[链接](http://mp.weixin.qq.com/wiki/8/f9a0b8382e0b77d87b3bcc1ce6fbc104.html#.E7.AC.AC.E4.BA.8C.E6.AD.A5.EF.BC.9A.E9.AA.8C.E8.AF.81.E6.9C.8D.E5.8A.A1.E5.99.A8.E5.9C.B0.E5.9D.80.E7.9A.84.E6.9C.89.E6.95.88.E6.80.A7)
+**对应官方文档：**[验证服务器地址的有效性](http://mp.weixin.qq.com/wiki/8/f9a0b8382e0b77d87b3bcc1ce6fbc104.html#.E7.AC.AC.E4.BA.8C.E6.AD.A5.EF.BC.9A.E9.AA.8C.E8.AF.81.E6.9C.8D.E5.8A.A1.E5.99.A8.E5.9C.B0.E5.9D.80.E7.9A.84.E6.9C.89.E6.95.88.E6.80.A7)
 
 ## 获取 access_token
 
@@ -35,22 +22,11 @@
 
 获取 access_token 及 access_token 过期日期, 仅供缓存使用。
 
-**调用方法：**
+**调用方法：**`.get_access_token()`
 
-`.get_access_token()`
+**调用前检查：**App ID / App Secret
 
-**调用前检查：**
-
-* `App ID`
-* `App Secret`
-
-**适用范围：**
-
-所有公众号
-
-**返回值：**
-
-dict 对象, key 包括 `access_token` 及 `access_token_expires_at`。
+**返回值：**dict 对象, key 包括 `access_token` 及 `access_token_expires_at`。
 
 ```json
 {
@@ -59,8 +35,6 @@ dict 对象, key 包括 `access_token` 及 `access_token_expires_at`。
 }
 ```
 
-**对应官方文档：**
-
-[链接](http://mp.weixin.qq.com/wiki/14/9f9c82c1af308e3b14ba9b973f99a8ba.html)
+**对应官方文档：**[获取access token](http://mp.weixin.qq.com/wiki/14/9f9c82c1af308e3b14ba9b973f99a8ba.html)
 
 
