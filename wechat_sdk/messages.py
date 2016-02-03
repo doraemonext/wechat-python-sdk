@@ -99,16 +99,16 @@ class EventMessage(WechatMessage):
                 self.ticket = message.pop('Ticket', None)
             elif self.type in ['click', 'scancode_push', 'scancode_waitmsg',
                                'pic_sysphoto', 'pic_photo_or_album', 'pic_weixin', 'location_select']:
-                self.key = message.pop('EventKey')
+                self.key = message.pop('EventKey', None)
             elif self.type == 'view':
-                self.key = message.pop('EventKey')
-                self.menu_id = message.pop('MenuId')
+                self.key = message.pop('EventKey', None)
+                self.menu_id = message.pop('MenuId', None)
             elif self.type == 'location':
-                self.latitude = float(message.pop('Latitude'))
-                self.longitude = float(message.pop('Longitude'))
-                self.precision = float(message.pop('Precision'))
+                self.latitude = float(message.pop('Latitude', '0'))
+                self.longitude = float(message.pop('Longitude', '0'))
+                self.precision = float(message.pop('Precision', '0'))
             elif self.type == 'templatesendjobfinish':
-                self.status = message.pop('Status')
+                self.status = message.pop('Status', None)
         except KeyError:
             raise ParseError()
         super(EventMessage, self).__init__(message)
