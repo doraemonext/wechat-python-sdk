@@ -1,7 +1,6 @@
 # 欢迎使用 wechat-python-sdk 开发包
 
 ![image](/img/logo.png)
-
 ## 概述
 
 wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不便，让你可以专注于业务逻辑本身，而不是浪费精力在与微信服务器复杂的交互中。
@@ -63,4 +62,60 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 ## 版本兼容说明
 
 wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升级到了 v0.6.0 版本，更正了部分类中的方法名称，但会保持向前兼容。请先前版本的用户放心升级使用。
+
+## 更新历史
+
+### v0.5.9
+
+* 修复了 py3 中 只有 str 没有 unicode 的情况(感谢 [hbrls](https://github.com/hbrls))
+* 避免 generate_jsapi_signature 刷新 access_token(感谢 [paicha](https://github.com/paicha))
+* 增加客服消息转发功能(感谢 [torpedoallen](https://github.com/torpedoallen))
+
+### v0.5.8
+
+* 增加了小视频消息类支持
+* 修复了多层级XML解析问题
+
+### v0.5.7
+
+* 修复创建二维码时的传参Bug (感谢 [lvxudong](https://github.com/lvxudong))
+* 创建菜单时的 menu_data 可自由使用 str 或 unicode
+
+### v0.5.6
+
+* 添加模板消息的支持
+
+### v0.5.5
+
+* 修复 grant_jsapi_ticket 会时不时出现 invalid credential 的问题 (感谢 [JohnnyZhao](https://github.com/JohnnyZhao))
+
+### v0.5.4
+
+* 在 grant_token 函数调用之后，顺带着覆盖本地的 access_token (感谢 [JohnnyZhao](https://github.com/JohnnyZhao))
+
+### v0.5.3
+
+* 修复 hashlib.sha1 无法 decode unicode 字符串问题 (感谢 [JohnnyZhao](https://github.com/JohnnyZhao))
+
+### v0.5.2
+
+* 官方接口中的 upload_media 方法增加 StringIO 支持
+
+### v0.5.1
+
+* 官方接口增加了 JS-SDK 支持，可对 URL 进行签名 (感谢 [JohnnyZhao](https://github.com/JohnnyZhao))
+* 官方接口的文本回复方法增加了是否对内容进行转义的控制参数
+* 非官方接口增加了图文分析信息 (感谢 [svcvit](https://github.com/svcvit))
+
+### v0.5.0
+
+* 新增了针对 Django 的上下文对话支持
+* 新增了非官方接口下的验证码登录及获取验证码功能
+* 新增了在素材库中创建图文消息功能
+* 新增了二维码事件的获取
+* 修正了编码转换问题
+* 修正了自定义菜单跳转事件获取
+* 更正了 WechatBasic 中的解释说明链接
+* 更新文档，增加了一个快速上手示例
+* 增加了FAQ文档
 

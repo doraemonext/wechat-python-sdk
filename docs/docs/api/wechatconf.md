@@ -23,11 +23,11 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 |`encrypt_mode`|消息加解密方式。可选项 `normal`（明文模式）、`compatible`（兼容模式）、`safe`（安全模式）|
 |`encoding_aes_key`|公众平台开发者选项中的 EncodingAESKey|
 |`access_token_getfunc`|access_token 获取函数。如果传入该参数，WechatConf 内部将会在需要使用 access_token 时直接调用该函数，该函数不应接受任何参数。|
-|`access_token_setfunc`|access_token 设置函数。如果传入该参数，WechatConf 内部将会在需要更新 access_token 时直接调用该函数，该函数应接受一个参数，为 access_token 的字符串值。|
+|`access_token_setfunc`|access_token 设置函数。如果传入该参数，WechatConf 内部将会在需要更新 access_token 时直接调用该函数，该函数应接受两个参数，为 access_token 的字符串值和 access_token 的过期时间。|
 |`access_token`|直接导入的 access token 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取 **(传入 access_token_getfunc 和 access_token_setfunc 函数后将会自动忽略此处的传入值)**|
 |`access_token_expires_at`|直接导入的 access token 的过期日期, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取 **(传入 access_token_getfunc 和 access_token_setfunc 函数后将会自动忽略此处的传入值)**|
 |`jsapi_ticket_getfunc`|jsapi_ticket 获取函数。如果传入该参数，WechatConf 内部将会在需要使用 jsapi_ticket 时直接调用该函数，该函数不应接受任何参数。|
-|`jsapi_ticket_setfunc`|jsapi_ticket 设置函数。如果传入该参数，WechatConf 内部将会在需要更新 jsapi_ticket 时直接调用该函数，该函数应接受一个参数，为 jsapi_ticket 的字符串值。|
+|`jsapi_ticket_setfunc`|jsapi_ticket 设置函数。如果传入该参数，WechatConf 内部将会在需要更新 jsapi_ticket 时直接调用该函数，该函数应接受两个参数，为 jsapi_ticket 的字符串值和 jsapi_ticket 的过期时间。|
 |`jsapi_ticket`|直接导入的 jsapi ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取 **(传入 jsapi_ticket_getfunc 和 jsapi_ticket_setfunc 函数后将会自动忽略此处的传入值)**|
 |`jsapi_ticket_expires_at`|直接导入的 jsapi ticket 的过期日期, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取 **(传入 jsapi_ticket_getfunc 和 jsapi_ticket_setfunc 函数后将会自动忽略此处的传入值)**|
 |`checkssl`|是否检查 SSL, 默认不检查 (False), 可避免 urllib3 的 InsecurePlatformWarning 警告|
@@ -105,7 +105,7 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 
 ### .get_access_token()
 
-**该方法仅为兼容 v0.6.0 以前版本使用, 自行维护 access_token 请使用 `access_token_setfunc` 和 `access_token_getfunc` 参数进行操作**
+**该方法仅为自行维护单机版 access_token 使用**
 
 获取 access_token 及 access_token 过期日期, 仅供缓存使用。 如果希望得到原生的 access_token 请求数据请使用 `grant_access_token`。
 
@@ -120,7 +120,7 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 
 ### .get_jsapi_ticket()
 
-**该方法仅为兼容 v0.6.0 以前版本使用, 自行维护 jsapi_ticket 请使用 `jsapi_ticket_setfunc` 和 `jsapi_ticket_getfunc` 参数进行操作**
+**该方法仅为自行维护单机版 jsapi_ticket 使用**
 
 获取 jsapi_ticket 及 jsapi_ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 jsapi_ticket 请求数据请使用 `grant_jsapi_ticket`。
 
@@ -134,4 +134,21 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 ```
 
 ## 异常
+
+当提供参数不足时，会抛出 `wechat_sdk.exceptions.NeedParamError` 异常。
+
+示例（仅提供了 `appid` 参数却调用了需要 `appid` 和 `appsecret` 的 `get_access_token()` 方法）：
+
+    >>> from wechat_sdk import WechatConf
+    >>> conf = WechatConf(appid='wxa81b377716e65e59')
+    >>> conf.get_access_token()
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "wechat_sdk/core/conf.py", line 236, in get_access_token
+        self._check_appid_appsecret()
+      File "wechat_sdk/core/conf.py", line 270, in _check_appid_appsecret
+        raise NeedParamError('Please provide app_id and app_secret parameters in the construction of class.')
+    wechat_sdk.exceptions.NeedParamError: Please provide app_id and app_secret parameters in the construction of class.
+    
+
 
