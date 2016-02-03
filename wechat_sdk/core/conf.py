@@ -125,6 +125,12 @@ class WechatConf(object):
     def encrypt_mode(self):
         return self.__encrypt_mode
 
+    @encrypt_mode.setter
+    def encrypt_mode(self, encrypt_mode):
+        """ 设置当前加密模式 """
+        self.__encrypt_mode = encrypt_mode
+        self._update_crypto()
+
     @property
     def crypto(self):
         """ 获取当前 Crypto 实例 """
@@ -201,7 +207,7 @@ class WechatConf(object):
 
     def grant_jsapi_ticket(self):
         """
-        获取 jsapi ticket
+        获取 jsapi ticket 并更新当前配置
         :return: 返回的 JSON 数据包
         """
         self._check_appid_appsecret()

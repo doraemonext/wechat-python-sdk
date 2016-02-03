@@ -1,6 +1,6 @@
 # WechatConf API
 
-WechatConf 是 微信配置类，你需要将在公众平台开发者选项中的 Token/AppID/AppSecret/EncodingAESKey 等信息传入其中，之后该类将会自行维护相关配置信息（access_token/jsapi_ticket）的有效性，支持分布式。
+WechatConf 是 **微信配置类**，你需要将在公众平台开发者选项中的 Token/AppID/AppSecret/EncodingAESKey 等信息传入其中，之后该类将会自行维护相关配置信息（access_token/jsapi_ticket）的有效性，支持分布式。
 
 ## WechatConf()
 
@@ -32,22 +32,106 @@ WechatConf(token=None, appid=None, appsecret=None, encrypt_mode='safe', encoding
 |`jsapi_ticket_expires_at`|直接导入的 jsapi ticket 的过期日期, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不传入, 将会在需要时自动重新获取 **(传入 jsapi_ticket_getfunc 和 jsapi_ticket_setfunc 函数后将会自动忽略此处的传入值)**|
 |`checkssl`|是否检查 SSL, 默认不检查 (False), 可避免 urllib3 的 InsecurePlatformWarning 警告|
 
-### 属性
+## 属性
 
-|属性名称|属性解释|
-|-------|------|
-|`.token`|当前正在使用的 Token 值|
-|`.appid`|当前正在使用的 App ID 值|
-|`.appsecret`|当前正在使用的 App Secret 值|
-|`.encrypt_mode`|当前正在使用的消息加解密方式。返回内容为字符串，`normal`为明文模式，`compatible`为兼容模式，`safe`为安全模式|
-|`.encoding_aes_key`|当前正在使用的 EncodingAESKey|
-|`.crypto`|当前 Crypto 实例，可直接用于加密解密消息操作|
-|`.access_token`|当前的 access_token 值，该值会由 WechatConf 内部动态维护合法性|
-|`.jsapi_ticket`|当前的 jsapi_ticket 值，该值会由 WechatConf 内部动态维护合法性|
+### .token
 
-### 方法
+（可直接赋值更改）当前正在使用的 Token 值
+### .appid
 
-|属性名称|属性解释|
-|-------|------|
-|`.grant_
+当前正在使用的 App ID 值
+
+### .appsecret
+
+当前正在使用的 App Secret 值
+
+### .encrypt_mode
+
+（可直接赋值更改）当前正在使用的消息加解密方式。
+
+返回内容为字符串，`normal`为明文模式，`compatible`为兼容模式，`safe`为安全模式
+
+### .encoding_aes_key
+
+（可直接赋值更改）当前正在使用的 EncodingAESKey
+
+### .crypto
+
+当前 Crypto 实例，可直接用于加密解密消息操作
+
+### .access_token
+
+当前的 access_token 值，该值会由 WechatConf 内部动态维护合法性
+
+### .jsapi_ticket
+
+当前的 jsapi_ticket 值，该值会由 WechatConf 内部动态维护合法性
+
+## 方法
+
+### .set_appid_appsecret(appid, appsecret)
+
+设置当前 App ID 和 App Secret
+
+**Return:** None
+
+### .grant_access_token()
+
+获取 access_token 并更新当前配置（默认情况下会自行维护，无需调用此函数，仅为强制刷新时使用）
+
+**Return:** 返回 [官方接口](http://mp.weixin.qq.com/wiki/14/9f9c82c1af308e3b14ba9b973f99a8ba.html) 返回的 JSON 数据，示例：
+
+```json
+{
+    "access_token": "HoVFaIslbrofqJgkR0Svcx2d4za0RJKa3H6A_NjzhBbm96Wtg_a3ifUYQvOfJmV76QTcCpNubcsnOLmDopu2hjWfFeQSCE4c8QrsxwE_N3w",
+    "expires_in": 7200
+}
+```
+
+### .grant_jsapi_ticket()
+
+获取 jsapi_ticket 并更新当前配置（默认情况下会自行维护，无需调用此函数，仅为强制刷新时使用）
+
+**Return:** 返回 [官方接口](http://mp.weixin.qq.com/wiki/11/74ad127cc054f6b80759c40f77ec03db.html#.E8.8E.B7.E5.8F.96api_ticket) 返回的 JSON 数据，示例：
+
+```json
+{
+    "errcode":0,
+    "errmsg":"ok",
+    "ticket":"bxLdikRXVbTPdHSM05e5u5sUoXNKd8-41ZO3MhKoyN5OfkWITDGgnr2fwJ0m9E8NYzWKVZvdVtaUgWvsdshFKA",
+    "expires_in":7200
+}
+```
+
+### .get_access_token()
+
+**该方法仅为兼容 v0.6.0 以前版本使用, 自行维护 access_token 请使用 `access_token_setfunc` 和 `access_token_getfunc` 参数进行操作**
+
+获取 access_token 及 access_token 过期日期, 仅供缓存使用。 如果希望得到原生的 access_token 请求数据请使用 `grant_access_token`。
+
+**Return:** dict 对象, key 包括 `access_token` 及 `access_token_expires_at`，示例：
+
+```json
+{
+    "access_token":"Uj6gDn1My01ElQvLXjudqdXlnTYosqWnxPT-1AX_jJEqeYhbqASZXPlnur7k6YV7Erjvd_JDXbQWeZYIMmu958WV4VWe7GKD65q_VLHecTp8nA5DwU_DOdmVBACU2wDkPGBbAHAEVQ",
+    "access_token_expires_at":1454476716
+}
+```
+
+### .get_jsapi_ticket()
+
+**该方法仅为兼容 v0.6.0 以前版本使用, 自行维护 jsapi_ticket 请使用 `jsapi_ticket_setfunc` 和 `jsapi_ticket_getfunc` 参数进行操作**
+
+获取 jsapi_ticket 及 jsapi_ticket 过期日期, 仅供缓存使用, 如果希望得到原生的 jsapi_ticket 请求数据请使用 `grant_jsapi_ticket`。
+
+**Return:** dict 对象, key 包括 `jsapi_ticket` 及 `jsapi_ticket_expires_at`，示例：
+
+```json
+{
+    "jsapi_ticket":"bxLdikRXVbTPdHSM05e5u8EoHz_JA7Re-noqE0ZAnxk3XzAntyhT4_k272aJ4LprCM68rVXv6DDydT7JW1Mwsw",
+    "jsapi_ticket_expires_at": 1454476720
+}
+```
+
+## 异常
 
