@@ -365,17 +365,125 @@ elif wechat.message.type in ['scancode_push', 'scancode_waitmsg', 'pic_sysphoto'
 
 ### 设置所属行业
 
+**调用方法：**`.set_template_industry(industry_id1, industry_id2)`
+
+**参数说明：**
+
+* `industry_id1`: 主营行业代码
+* `industry_id2`: 副营行业代码
+
+**调用前检查：**App ID / App Secret
+
+**返回值：**正常返回官方接口的 JSON 数据：`{"errcode": 0, "errmsg": "ok"}`，一般无需理会该返回值，发送失败会抛出异常，捕获异常即可。
+
+**异常：**当发生失败时抛出 [`exceptions.OfficialAPIError`](/api/exception.md#officialapierror) 异常，该异常包含了错误的代号与原因信息。
+
+**对应官方文档：**[设置所属行业](http://mp.weixin.qq.com/wiki/5/6dde9eaa909f83354e0094dc3ad99e05.html#.E8.AE.BE.E7.BD.AE.E6.89.80.E5.B1.9E.E8.A1.8C.E4.B8.9A)
+
 ### 获取设置的行业信息
+
+待开发
 
 ### 获得模板 ID
 
+**调用方法：**`.get_template_id(template_id_short)`
+
+**参数说明：**
+
+* `template_id_short`: 模板库中模板的编号，有“TM\*\*”和“OPENTMTM\*\*”等形式
+
+**调用前检查：**App ID / App Secret
+
+**返回值：**正常返回官方接口的 JSON 数据，示例：
+
+```json
+{
+    "errcode": 0,
+    "errmsg": "ok",
+    "template_id": "Doclyl5uP7Aciu-qZ7mJNPtWkbkYnWBWVja26EGbNyk"
+}
+```
+
+**异常：**当发生失败时抛出 [`exceptions.OfficialAPIError`](/api/exception.md#officialapierror) 异常，该异常包含了错误的代号与原因信息。
+
+**对应官方文档：**[获得模板ID](http://mp.weixin.qq.com/wiki/5/6dde9eaa909f83354e0094dc3ad99e05.html#.E8.8E.B7.E5.BE.97.E6.A8.A1.E6.9D.BFID)
+
 ### 获取模板列表
+
+待开发
 
 ### 删除模板
 
+待开发
+
 ### 发送模板消息
 
-### 事件推送
+**调用方法：**`.send_template_message(user_id, template_id, data, url='', topcolor='#FF0000')`
+
+**参数说明：**
+
+* `user_id`: 用户 ID（OpenID）
+* `template_id`: 模板ID
+* `data`: 模板消息数据 (dict形式)，示例如下：
+
+        {
+            "first": {
+                "value": "恭喜你购买成功！",
+                "color": "#173177"
+            },
+            "keynote1":{
+                "value": "巧克力",
+                "color": "#173177"
+            },
+            "keynote2": {
+                "value": "39.8元",
+                "color": "#173177"
+            },
+            "keynote3": {
+                "value": "2014年9月16日",
+                "color": "#173177"
+            },
+            "remark":{
+                "value": "欢迎再次购买！",
+                "color": "#173177"
+            }
+        }
+        
+* `url`: 跳转地址 (默认为空)
+* `topcolor`: 顶部颜色RGB值 (默认 '#FF0000')
+
+**调用前检查：**App ID / App Secret
+
+**返回值：**正常返回官方接口的 JSON 数据，示例：
+
+```json
+{
+    "errcode": 0,
+    "errmsg": "ok",
+    "msgid": 200228332
+}
+```
+
+**异常：**当发生失败时抛出 [`exceptions.OfficialAPIError`](/api/exception.md#officialapierror) 异常，该异常包含了错误的代号与原因信息。
+
+**对应官方文档：**[发送模板消息](http://mp.weixin.qq.com/wiki/5/6dde9eaa909f83354e0094dc3ad99e05.html#.E5.8F.91.E9.80.81.E6.A8.A1.E6.9D.BF.E6.B6.88.E6.81.AF)
+
+### 模板消息事件推送
+
+当模板消息事件推送 XML 到达并经过 [`.parse_data()`](#xml) 解析后，你可以通过下面的方式获取状态信息。
+
+首先要确定该消息是模板消息的事件推送：
+
+```python
+from wechat_sdk.messages import EventMessage
+if isinstance(wechat.message, EventMessage) and wechat.message.type == 'templatesendjobfinish':
+```
+
+然后就可以根据 `wechat.message.status` 的情况进行判断了：
+
+1. 当送达成功时，`wechat.message.status == 'success'`
+2. 当送达失败，原因为用户拒收（用户设置拒绝接收公众号消息）时，`wechat.message.status == 'failed:user block'`
+3. 当送达失败，其他原因时，`wechat.message.status == 'failed:system failed'`
 
 ## 公众号自动回复配置
 
