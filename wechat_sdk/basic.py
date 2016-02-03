@@ -682,33 +682,48 @@ class WechatBasic(WechatBase):
             }
         )
 
-    def send_article_message(self, user_id, articles):
+    def send_article_message(self, user_id, articles=None, media_id=None):
         """
         发送图文消息
         详情请参考 http://mp.weixin.qq.com/wiki/7/12a5a320ae96fecdf0e15cb06123de9f.html
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param articles: list 对象, 每个元素为一个 dict 对象, key 包含 `title`, `description`, `picurl`, `url`
+        :param media_id: 待发送的图文 Media ID
         :return: 返回的 JSON 数据包
         """
-        articles_data = []
-        for article in articles:
-            article = Article(**article)
-            articles_data.append({
-                'title': article.title,
-                'description': article.description,
-                'url': article.url,
-                'picurl': article.picurl,
-            })
-        return self.request.post(
-            url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
-            data={
-                'touser': user_id,
-                'msgtype': 'news',
-                'news': {
-                    'articles': articles_data,
-                },
-            }
-        )
+        if articles is not None:
+            articles_data = []
+            for article in articles:
+                article = Article(**article)
+                articles_data.append({
+                    'title': article.title,
+                    'description': article.description,
+                    'url': article.url,
+                    'picurl': article.picurl,
+                })
+            return self.request.post(
+                url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
+                data={
+                    'touser': user_id,
+                    'msgtype': 'news',
+                    'news': {
+                        'articles': articles_data,
+                    },
+                }
+            )
+        elif media_id is not None:
+            return self.request.post(
+                url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
+                data={
+                    'touser': user_id,
+                    'msgtype': 'mpnews',
+                    'mpnews': {
+                        'media_id': media_id,
+                    },
+                }
+            )
+        else:
+            raise TypeError('must provide one parameter in "articles" and "media_id"')
 
     def create_qrcode(self, data):
         """
