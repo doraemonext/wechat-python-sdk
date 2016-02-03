@@ -97,9 +97,12 @@ class EventMessage(WechatMessage):
             if self.type == 'subscribe' or self.type == 'scan':
                 self.key = message.pop('EventKey', None)
                 self.ticket = message.pop('Ticket', None)
-            elif self.type in ['click', 'view', 'scancode_push', 'scancode_waitmsg',
+            elif self.type in ['click', 'scancode_push', 'scancode_waitmsg',
                                'pic_sysphoto', 'pic_photo_or_album', 'pic_weixin', 'location_select']:
                 self.key = message.pop('EventKey')
+            elif self.type == 'view':
+                self.key = message.pop('EventKey')
+                self.menu_id = message.pop('MenuId')
             elif self.type == 'location':
                 self.latitude = float(message.pop('Latitude'))
                 self.longitude = float(message.pop('Longitude'))

@@ -374,7 +374,7 @@ elif wechat.message.type in ['scancode_push', 'scancode_waitmsg', 'pic_sysphoto'
 
 **调用前检查：**App ID / App Secret
 
-**返回值：**正常返回官方接口的 JSON 数据：`{"errcode": 0, "errmsg": "ok"}`，一般无需理会该返回值，发送失败会抛出异常，捕获异常即可。
+**返回值：**正常返回官方接口的 JSON 数据：`{"errcode": 0, "errmsg": "ok"}`，一般无需理会该返回值，设置失败会抛出异常，捕获异常即可。
 
 **异常：**当发生失败时抛出 [`exceptions.OfficialAPIError`](/api/exception.md#officialapierror) 异常，该异常包含了错误的代号与原因信息。
 
@@ -487,5 +487,6 @@ if isinstance(wechat.message, EventMessage) and wechat.message.type == 'template
 
 ## 公众号自动回复配置
 
+待开发
 
 
