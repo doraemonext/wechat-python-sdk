@@ -359,7 +359,23 @@ elif wechat.message.type in ['scancode_push', 'scancode_waitmsg', 'pic_sysphoto'
 
 ## 群发接口
 
+待开发
+
 ## 模板消息
+
+### 设置所属行业
+
+### 获取设置的行业信息
+
+### 获得模板 ID
+
+### 获取模板列表
+
+### 删除模板
+
+### 发送模板消息
+
+### 事件推送
 
 ## 公众号自动回复配置
 

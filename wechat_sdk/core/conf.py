@@ -27,8 +27,9 @@ class WechatConf(object):
                        'encrypt_mode': 加解密模式 ('normal': 明文模式, 'compatible': 兼容模式, 'safe': 安全模式(默认))
                        'encoding_aes_key': EncodingAESKey 值 (传入此值必须保证同时传入 token, appid, 否则抛出异常)
 
-                       'access_token_getfunc': access token 获取函数 (用于分布式环境下, 具体格式参见文档, 无特殊需要则不需传入)
-                       'access_token_setfunc': access token 写入函数 (用于分布式环境下, 具体格式参见文档, 无特殊需要则不需传入)
+                       'access_token_getfunc': access token 获取函数 (用于单机及分布式环境下, 具体格式参见文档)
+                       'access_token_setfunc': access token 写入函数 (用于单机及分布式环境下, 具体格式参见文档)
+                       'access_token_refreshfunc': access token 刷新函数 (用于单机及分布式环境下, 具体格式参见文档)
                        'access_token': 直接导入的 access token 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不
                                        传入, 将会在需要时自动重新获取 (传入 access_token_getfunc 和 access_token_setfunc 函数
                                        后将会自动忽略此处的传入值)
@@ -36,8 +37,9 @@ class WechatConf(object):
                                                   并在此处传入, 如果不传入, 将会在需要时自动重新获取 (传入 access_token_getfunc
                                                   和 access_token_setfunc 函数后将会自动忽略此处的传入值)
 
-                       'jsapi_ticket_getfunc': jsapi ticket 获取函数 (用于分布式环境下, 具体格式参见文档, 无特殊需要则不需传入)
-                       'jsapi_ticket_setfunc': jsapi ticket 写入函数 (用于分布式环境下, 具体格式参见文档, 无特殊需要则不需传入)
+                       'jsapi_ticket_getfunc': jsapi ticket 获取函数 (用于单机及分布式环境下, 具体格式参见文档)
+                       'jsapi_ticket_setfunc': jsapi ticket 写入函数 (用于单机及分布式环境下, 具体格式参见文档)
+                       'jsapi_ticket_refreshfunc': jsapi ticket 刷新函数 (用于单机及分布式环境下, 具体格式参见文档)
                        'jsapi_ticket': 直接导入的 jsapi ticket 值, 该值需要在上一次该类实例化之后手动进行缓存并在此处传入, 如果不
                                        传入, 将会在需要时自动重新获取 (传入 jsapi_ticket_getfunc 和 jsapi_ticket_setfunc 函数
                                        后将会自动忽略此处的传入值)
@@ -70,11 +72,13 @@ class WechatConf(object):
 
         self.__access_token_getfunc = kwargs.get('access_token_getfunc')
         self.__access_token_setfunc = kwargs.get('access_token_setfunc')
+        self.__access_token_refreshfunc = kwargs.get('access_token_refreshfunc')
         self.__access_token = kwargs.get('access_token')
         self.__access_token_expires_at = kwargs.get('access_token_expires_at')
 
         self.__jsapi_ticket_getfunc = kwargs.get('jsapi_ticket_getfunc')
         self.__jsapi_ticket_setfunc = kwargs.get('jsapi_ticket_setfunc')
+        self.__jsapi_ticket_refreshfunc = kwargs.get('jsapi_ticket_refreshfunc')
         self.__jsapi_ticket = kwargs.get('jsapi_ticket')
         self.__jsapi_ticket_expires_at = kwargs.get('jsapi_ticket_expires_at')
 
@@ -148,6 +152,7 @@ class WechatConf(object):
             now = time.time()
             if self.__access_token_expires_at - now > 60:
                 return self.__access_token
+
         self.grant_access_token()  # 从腾讯服务器获取 access token 并更新
         return self.__access_token
 
@@ -163,6 +168,7 @@ class WechatConf(object):
             now = time.time()
             if self.__jsapi_ticket_expires_at - now > 60:
                 return self.__jsapi_ticket
+
         self.grant_jsapi_ticket()  # 从腾讯服务器获取 jsapi ticket 并更新
         return self.__jsapi_ticket
 
@@ -184,9 +190,13 @@ class WechatConf(object):
     def grant_access_token(self):
         """
         获取 access token 并更新当前配置
-        :return: 返回的 JSON 数据包
+        :return: 返回的 JSON 数据包 (传入 access_token_refreshfunc 参数后返回 None)
         """
         self._check_appid_appsecret()
+
+        if callable(self.__access_token_refreshfunc):
+            self.__access_token, self.__access_token_expires_at = self.__access_token_refreshfunc()
+            return
 
         response_json = self.__request.get(
             url="https://api.weixin.qq.com/cgi-bin/token",
@@ -208,9 +218,13 @@ class WechatConf(object):
     def grant_jsapi_ticket(self):
         """
         获取 jsapi ticket 并更新当前配置
-        :return: 返回的 JSON 数据包
+        :return: 返回的 JSON 数据包 (传入 jsapi_ticket_refreshfunc 参数后返回 None)
         """
         self._check_appid_appsecret()
+
+        if callable(self.__jsapi_ticket_refreshfunc):
+            self.__jsapi_ticket, self.__jsapi_ticket_expires_at = self.__jsapi_ticket_refreshfunc()
+            return
 
         response_json = self.__request.get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
