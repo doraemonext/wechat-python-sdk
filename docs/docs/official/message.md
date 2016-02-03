@@ -25,6 +25,10 @@
 
 `None`
 
+**异常：**
+
+* 当解析 XML 失败时抛出 `exceptions.ParseError` 异常。
+
 **对应官方文档：**
 
 * [接收普通消息](http://mp.weixin.qq.com/wiki/17/f298879f8fb29ab98b2f2971d42552fd.html)
