@@ -1,20 +1,14 @@
 # 快速上手 - 扩展接口
 
-
-
 ## 基本用法
 
-第一个例子(examples/tutorial_unofficial_1.py)，展示了几个直接获取信息的函数的用法，至于具体的返回值所包含的内容，请查看 ``WechatExt`` 文档
-
-    # -*- coding: utf-8
+这里展示了几个直接获取信息的函数的用法，至于具体的返回值所包含的内容，请查看 [WechatExt API](/api/ext.md) 文档
 
     import json
-
     from wechat_sdk import WechatExt
-
-
+    
     wechat = WechatExt(username='username', password='password')
-
+    
     # 获取未分组中所有的用户成员
     user_list = wechat.get_user_list()
     print user_list
@@ -35,4 +29,9 @@
     user_info = json.loads(user_info_json)
     print wechat.get_dialog_message(fakeid=user_info['msg_item'][0]['fakeid'])
 
+## 下一步
+
+如果你还不了解 WechatConf 的使用方法，推荐你直接阅读下一节 [快速上手 - WechatConf 详解](/quickstart/wechatconf.md)。
+
+否则，请直接点击导航栏上方的 **扩展功能**，选择你需要的章节进行阅读。 
 
