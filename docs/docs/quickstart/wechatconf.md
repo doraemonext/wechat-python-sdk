@@ -100,9 +100,30 @@ conf = WechatConf(
 
 #### 业务逻辑服务器
 
-业务逻辑服务器的设置同样也参考 [方式 2 - 单机环境](#2-) 设置，唯一不同的一点是：
+业务逻辑服务器的代码稍有些不同，因为不能直接通过腾讯官方 URL 来刷新 access_token，所以需要将刷新的操作转接到中控服务器上。WechatConf 提供了 `access_token_refreshfunc` 参数，你仍然只需要写两个函数，分别取获取 access_token 和刷新 access_token。示例如下：
 
-获取和设置 access_token 均需要调用中控服务器的对外接口。
+```python
+def get_access_token_function():
+    """ 注意返回值为一个 Tuple，第一个元素为 access_token 的值，第二个元素为 access_token_expires_at 的值 """
+    return get_access_token_from_master()  # 此处通过你自己的方式获取 access_token
+
+def refresh_access_token_function():
+    """ 注意返回值为一个 Tuple，第一个元素为 access_token 的值，第二个元素为 access_token_expires_at 的值 """
+    return refresh_access_token_from_master()  # 此处调用你自己的中控服务器刷新 access_token 接口
+```
+
+接下来需要在 WechatConf 实例化的时候将这两个函数作为参数传入，如下：
+
+```python
+from wechat_sdk import WechatConf
+conf = WechatConf(
+    ... ,  # 基本信息传入，此处忽略
+    access_token_getfunc=get_access_token_function,
+    access_token_refreshfunc=refresh_access_token_function,
+)
+```
+
+经过以上步骤，业务逻辑服务器的 WechatConf 实例内部在维护 access_token 有效性时均会调用你自己的函数去获取和刷新。
 
 ## jsapi_ticket 维护
 
@@ -177,9 +198,30 @@ conf = WechatConf(
 
 #### 业务逻辑服务器
 
-业务逻辑服务器的设置同样也参考 [方式 2 - 单机环境](#2-_1) 设置，唯一不同的一点是：
+业务逻辑服务器的代码稍有些不同，因为不能直接通过腾讯官方 URL 来刷新 jsapi_ticket，所以需要将刷新的操作转接到中控服务器上。WechatConf 提供了 `jsapi_ticket_refreshfunc` 参数，你仍然只需要写两个函数，分别取获取 jsapi_ticket 和刷新 jsapi_ticket。示例如下：
 
-获取和设置 jsapi_ticket 均需要调用中控服务器的对外接口。
+```python
+def get_jsapi_ticket_function():
+    """ 注意返回值为一个 Tuple，第一个元素为 jsapi_ticket 的值，第二个元素为 jsapi_ticket_expires_at 的值 """
+    return get_jsapi_ticket_from_master()  # 此处通过你自己的方式获取 jsapi_ticket
+
+def refresh_jsapi_ticket_function():
+    """ 注意返回值为一个 Tuple，第一个元素为 jsapi_ticket 的值，第二个元素为 jsapi_ticket_expires_at 的值 """
+    return refresh_jsapi_ticket_from_master()  # 此处调用你自己的中控服务器刷新 jsapi_ticket 接口
+```
+
+接下来需要在 WechatConf 实例化的时候将这两个函数作为参数传入，如下：
+
+```python
+from wechat_sdk import WechatConf
+conf = WechatConf(
+    ... ,  # 基本信息传入，此处忽略
+    jsapi_ticket_getfunc=get_jsapi_ticket_function,
+    jsapi_ticket_refreshfunc=refresh_jsapi_ticket_function,
+)
+```
+
+经过以上步骤，业务逻辑服务器的 WechatConf 实例内部在维护 jsapi_ticket 有效性时均会调用你自己的函数去获取和刷新。
 
 ## 下一步   
 
