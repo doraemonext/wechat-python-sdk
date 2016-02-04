@@ -17,12 +17,15 @@
 
 ## Contributors
 
-以下排名按首字母排序。
+以下排名按贡献数排序。
 
 * JohnnyZhao ([https://github.com/JohnnyZhao](https://github.com/JohnnyZhao))
+* svcvit ([https://github.com/svcvit](https://github.com/svcvit))
+* colesmith ([https://github.com/colesmith](https://github.com/colesmith))
+* yxjsolid ([https://github.com/yxjsolid](https://github.com/yxjsolid))
 * lvxudong ([https://github.com/lvxudong](https://github.com/lvxudong))
 * mtunique ([https://github.com/mtunique](https://github.com/mtunique))
-* svcvit ([https://github.com/svcvit](https://github.com/svcvit))
-* yxjsolid ([https://github.com/yxjsolid](https://github.com/yxjsolid))
 * zxygentoo ([https://github.com/zxygentoo](https://github.com/zxygentoo))
+* paicha ([https://github.com/paicha](https://github.com/paicha))
+* torpedoallen ([https://github.com/torpedoallen](https://github.com/torpedoallen))
 
