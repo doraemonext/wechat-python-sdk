@@ -24,8 +24,7 @@ class WechatAPIException(WechatException):
     def __str__(self):
         if six.PY2:
             return to_binary('{code}: {msg}'.format(code=self.errcode, msg=self.errmsg))
-        else:
-            return to_text('{code}: {msg}'.format(code=self.errcode, msg=self.errmsg))
+        return to_text('{code}: {msg}'.format(code=self.errcode, msg=self.errmsg))
 
 
 class WechatSDKException(WechatException):
@@ -39,8 +38,7 @@ class WechatSDKException(WechatException):
     def __str__(self):
         if six.PY2:
             return to_binary(self.message)
-        else:
-            return to_text(self.message)
+        return to_text(self.message)
 
 
 class NeedParamError(WechatSDKException):

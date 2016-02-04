@@ -1154,12 +1154,8 @@ class WechatExt(WechatBase):
         :return: 返回的 JSON 数据
         :raises NeedLoginError: 操作未执行成功, 需要再次尝试登录, 异常内容为服务器返回的错误数据
         """
-        if star:
-            star_param = '&action=star'
-        else:
-            star_param = ''
-        if lastid == 0:
-            lastid = ''
+        star_param = '&action=star' if star else ''
+        lastid = '' if lastid == 0 else lastid
 
         url = 'https://mp.weixin.qq.com/cgi-bin/message?t=message/list&f=json&lang=zh_CN{star}&count={count}&day={day}&frommsgid={lastid}&offset={offset}&token={token}'.format(
             star=star_param,
