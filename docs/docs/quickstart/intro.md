@@ -8,11 +8,10 @@
 
 ## 主要组件说明
 
-wechat-python-sdk 有三个主要组件，分别是 `WechatConf`，`WechatBasic`，`WechatExt`，下面来一一介绍它们的作用。
+wechat-python-sdk 有两个主要组件，分别是 `WechatConf`，`WechatBasic`，下面来一一介绍它们的作用。
 
 * `WechatConf` 是 **微信配置类**，你需要将在公众平台开发者选项中的 Token/AppID/AppSecret/EncodingAESKey 等信息传入其中，之后该类将会自行维护相关配置信息（access_token/jsapi_ticket）的有效性，支持分布式。
 * `WechatBasic` 是 **官方接口类**，与官方公众平台开发者文档（[http://mp.weixin.qq.com/wiki](http://mp.weixin.qq.com/wiki)）对应，是对该文档所有接口的二次封装，方便调用。该类需要传入 `WechatConf` 的有效实例。
-* `WechatExt` 是 **扩展功能接口类**，将会直接登录腾讯公众平台，模拟人工进行操作，可以获得额外的官方接口没有的功能，但存在一定风险性。本类单独存在，不依赖于 `WechatConf` 和 `WechatBasic`。
 
 ## 异常说明
 
@@ -25,8 +24,6 @@ wechat-python-sdk 在操作失败时会根据错误原因抛出对应异常。�
 
 ## 下一步
 
-你现在已经快速了解了 wechat-python-sdk 的整体脉络及注意事项，下一步：
+你现在已经快速了解了 wechat-python-sdk 的整体脉络及注意事项，接下来请阅读 [快速上手 - 官方接口](/quickstart/official) 来学习如何使用官方接口进行开发， 
 
-* 如果你准备使用官方接口进行开发，请阅读 [快速上手 - 官方接口](/quickstart/official) 
-* 如果你准备使用扩展接口进行开发，请阅读 [快速上手 - 扩展接口](/quickstart/extension)
 

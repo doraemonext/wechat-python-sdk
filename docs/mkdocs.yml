@@ -16,8 +16,7 @@ pages:
   - '快速上手':
     - '1. SDK 快速介绍': 'quickstart/intro.md'
     - '2. 官方接口': 'quickstart/official.md'
-    - '3. 扩展功能': 'quickstart/extension.md'
-    - '4. WechatConf 详解': 'quickstart/wechatconf.md'
+    - '3. WechatConf 详解': 'quickstart/wechatconf.md'
   - '官方接口':
     - '0. 前置介绍': 'official/intro.md'
     - '1. 接入指南': 'official/access.md'
@@ -30,8 +29,6 @@ pages:
     - '8. 数据统计': 'official/datacube.md'
     - '9. 微信小店 ': 'official/store.md'
     - '10. 微信多客服功能': 'official/service.md'
-  - '扩展功能':
-    - '1. 登录': 'extension/login.md'
   - 'API 文档':
     - '1. WechatConf': 'api/wechatconf.md'
     - '2. WechatMessage': 'api/wechatmessage.md'

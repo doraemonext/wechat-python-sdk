@@ -244,8 +244,6 @@ xml = wechat.response_news([
 
 ## 下一步
 
-如果你有使用扩展接口的需求，请继续阅读 [**快速上手 - 扩展功能**](/quickstart/extension) 学习扩展功能的用法。
-
-否则，请跳过下一节，直接阅读 [**快速上手 - WechatConf 详解**](/quickstart/wechatconf) 了解如何使用 WechatConf 维护配置信息，可以说，它将是官方接口使用过程中最重要的一环。
+接下来请阅读 [**快速上手 - WechatConf 详解**](/quickstart/wechatconf) 来了解如何使用 WechatConf 维护配置信息，可以说，它将是官方接口使用过程中最重要的一环。
 
 
