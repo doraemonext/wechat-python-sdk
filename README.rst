@@ -1,67 +1,95 @@
 微信公众平台 Python 开发包
 ===========================
 
-当前最新版本：v0.5.9
+.. image:: docs/docs/img/logo.png
 
-非官方微信公众平台 Python 开发包，包括官方接口和非官方接口。
+当前最新版本：v0.6.0
 
-* 官方接口依据公众平台开发者文档编写，可以实现公众平台开发者文档中几乎所有内容，具体不列举，请查看 ``WechatBasic`` 文档；
-  
-  暂不支持的官方接口：
+wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不便，让你可以专注于业务逻辑本身，而不是浪费精力在与微信服务器复杂的交互中。
 
-  * 针对不同用户群体自定义菜单功能
-
-* 非官方接口采用模拟登陆的方式，可以实现更多高级功能，但也存在相应风险。
-
-  目前提供的非官方接口功能有：
-
-  * 主动对指定用户发送文本消息
-  * 主动对指定用户发送图片消息
-  * 主动对指定用户发送语音消息
-  * 主动对指定用户发送视频消息
-  * 获取指定用户的个人信息
-  * 获取用户列表
-  * 获取分组列表
-  * 获取图文信息列表
-  * 获取与指定用户的对话内容
-  * 向指定用户发送图文消息(必须从图文库里选取消息ID传入)
-  * 在素材库中创建图文消息
-  * 上传素材至素材库 (图片/语音/视频)
-  * 向特定用户发送媒体文件 (图片/语音/视频)
-  * 获取素材库文件列表
-  * 获取用户头像
-  * 获取新消息的数目
-  * 获取最新一条消息
-  * 获取消息列表
-  * 根据消息ID获取图片消息内容
-  * 根据消息ID获取语音消息内容
-  * 根据消息ID获取视频消息内容
-  * 获取图文分析信息
+本开发包目前支持订阅号、服务号的官方接口，相信这将会极大的简化你的开发过程。
 
 **请注意：本开发包并不打算提供一个独立的完整微信解决方案，我们更希望这个开发包可以非常融洽的在各个框架中进行集成并使用，对于HTTP请求及响应方面并不涉及，该开发包仅仅接受必要参数，提供各种微信操作的方法，并返回相应的可以响应微信服务器的数据(Response)或操作执行结果。**
 
-文档
+文档地址
 ----------------------------
 
-`http://wechat-python-sdk.readthedocs.org/ <http://wechat-python-sdk.readthedocs.org/>`_
+`http://wechat-python-sdk.com/ <http://wechat-python-sdk.com/>`_
 
 快速开始
 ----------------------------
 
 安装
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+请注意：本 SDK 在 pypi.python.org 上的软件包名称为 `wechat-sdk <https://pypi.python.org/pypi/wechat-sdk>`_
+
+可以通过 pip 进行安装
 
 ::
 
     pip install wechat-sdk
 
-快速上手文档
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+也可以通过 easy_install 进行安装
 
-`http://wechat-python-sdk.readthedocs.org/zh_CN/master/tutorial.html <http://wechat-python-sdk.readthedocs.org/zh_CN/master/tutorial.html>`_
+::
+
+    easy_install wechat-sdk
+
+也可以直接在终端下输入下列命令手动安装
+
+::
+
+    wget https://github.com/wechat-python-sdk/wechat-python-sdk/archive/master.tar.gz
+    tar zvxf master.tar.gz
+    cd wechat-python-sdk-master
+    python setup.py build
+    python setup.py install
+
+下一步
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+如果你是 SDK 的新用户，请阅读 `快速入门 <http://wechat-python-sdk.com/quickstart/intro/>`_ 。
+
+如果你需要更加全面详细的使用说明，请阅读 `官方接口 <http://wechat-python-sdk.com/official/intro/>`_ 。
+
+如果你需要 SDK 的所有细节，请阅读 `API 文档 <http://wechat-python-sdk.com/api/wechatconf/>`_ 。
+
+如果你对 SDK 的使用心存疑问，请阅读 `FAQ <http://wechat-python-sdk.com/faq/>`_ ，如果其中没有你想要的答案，请前往 `wechat-python-sdk Issues <https://github.com/wechat-python-sdk/wechat-python-sdk/issues>`_ 提出你的问题。
+
+如果你对本项目感兴趣，请阅读的 `关于项目 <http://wechat-python-sdk.com/about/project/>`_ 和 `关于作者 <http://wechat-python-sdk.com/about/author/>`_ 。
+
+许可协议
+----------------------------
+
+本项目采用 MIT 许可协议，可放心集成于商业产品中，但请包含本许可声明。
+
+::
+
+    Copyright (C) 2014-2016 Ace Kwok
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+版本兼容说明
+----------------------------
+
+wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升级到了 v0.6.0 版本，但会保持向前兼容。请先前版本的用户放心升级使用。
 
 ChangeLog
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
+
+v0.6.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 重新编写了文档, 添加了快速上手教程
+* 添加了 WechatConf 微信配置类
+* 增加了对消息加解密的支持
+* 对整体进行了较大规模的重构, 优化了代码结构
+
 v0.5.9
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -3,21 +3,20 @@ theme: yeti
 
 site_url: http://wechat-python-sdk.com
 repo_url: https://github.com/wechat-python-sdk
-copyright: 2014-2016 Ace Kwok
+copyright: Copyright 2014-2016 Ace Kwok
 markdown_extensions:
     - toc:
         permalink: True
 
 extra:
-  'version': 'v0.6.0 (20160201)'
+  'version': 'v0.6.0 (20160204)'
 
 pages:
   - '首页': 'index.md'
   - '快速上手':
     - '1. SDK 快速介绍': 'quickstart/intro.md'
     - '2. 官方接口': 'quickstart/official.md'
-    - '3. 扩展功能': 'quickstart/extension.md'
-    - '4. WechatConf 详解': 'quickstart/wechatconf.md'
+    - '3. WechatConf 详解': 'quickstart/wechatconf.md'
   - '官方接口':
     - '0. 前置介绍': 'official/intro.md'
     - '1. 接入指南': 'official/access.md'
@@ -30,15 +29,10 @@ pages:
     - '8. 数据统计': 'official/datacube.md'
     - '9. 微信小店 ': 'official/store.md'
     - '10. 微信多客服功能': 'official/service.md'
-  - '扩展功能':
-    - '1. 登录': 'extension/login.md'
   - 'API 文档':
     - '1. WechatConf': 'api/wechatconf.md'
     - '2. WechatMessage': 'api/wechatmessage.md'
     - '3. 异常类': 'api/exception.md'
   - 'FAQ': 'faq.md'
-  - '功能完成度': 'feature.md'
-  - '贡献代码指南': 'development.md'
-  - '关于':
-    - '关于项目': 'about/project.md'
-    - '关于作者': 'about/author.md'
+  - '关于项目': 'about/project.md'
+  - '关于作者': 'about/author.md'
