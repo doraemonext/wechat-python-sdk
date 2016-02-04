@@ -110,6 +110,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.ScanCodeInfo` 对应于 XML 信息中的 `ScanCodeInfo`，扫描信息
 
 ### scancode_waitmsg：扫码推事件且弹出“消息接收中”提示框的事件推送
 
@@ -118,6 +119,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.ScanCodeInfo` 对应于 XML 信息中的 `ScanCodeInfo`，扫描信息 
 
 ### pic_sysphoto：弹出系统拍照发图的事件推送
 
@@ -126,6 +128,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.SendPicsInfo` 对应于 XML 信息中的 `SendPicsInfo`，发送的图片信息
 
 ### pic_photo_or_album：弹出拍照或者相册发图的事件推送
 
@@ -134,6 +137,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.SendPicsInfo` 对应于 XML 信息中的 `SendPicsInfo`，发送的图片信息
 
 ### pic_weixin：弹出微信相册发图器的事件推送
 
@@ -142,6 +146,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.SendPicsInfo` 对应于 XML 信息中的 `SendPicsInfo`，发送的图片信息
 
 ### location_select：弹出地理位置选择器的事件推送
 
@@ -150,6 +155,7 @@ if isinstance(wechat.message, EventMessage):
 判断后的信息获取：
 
 * `wechat.message.key` 对应于 XML 信息中的 `EventKey`
+* `wechat.message.SendLocationInfo` 对应于 XML 信息中的 `SendLocationInfo`，发送的位置信息
 
 ## 个性化菜单接口
 
