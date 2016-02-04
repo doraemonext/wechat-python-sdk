@@ -34,6 +34,5 @@ pages:
     - '2. WechatMessage': 'api/wechatmessage.md'
     - '3. 异常类': 'api/exception.md'
   - 'FAQ': 'faq.md'
-  - '关于':
-    - '关于项目': 'about/project.md'
-    - '关于作者': 'about/author.md'
+  - '关于项目': 'about/project.md'
+  - '关于作者': 'about/author.md'

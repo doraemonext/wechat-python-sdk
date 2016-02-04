@@ -21,7 +21,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 也可以直接在终端下输入下列命令手动安装
 
-    wget https://github.com/doraemonext/wechat-python-sdk/archive/master.tar.gz
+    wget https://github.com/wechat-python-sdk/wechat-python-sdk/archive/master.tar.gz
     tar zvxf master.tar.gz
     cd wechat-python-sdk-master
     python setup.py build
@@ -37,11 +37,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 如果你对 SDK 的使用心存疑问，请点击导航栏上的 **常见问题 FAQ**，如果其中没有你想要的答案，请前往 [wechat-python-sdk Issues](https://github.com/wechat-python-sdk/wechat-python-sdk/issues) 提出你的问题。
 
-如果你对 SDK 的开发进度感兴趣，请点击导航栏上的 **功能完成度**。
-
-如果你发现 SDK 满足不了你的要求，而且你也有兴趣、有能力开发该功能，请点击导航栏上的 **贡献代码指南**。
-
-如果你对本项目感兴趣，请点击导航栏上的 **关于**。
+如果你对本项目感兴趣，请点击导航栏上的 **关于项目** 和 **关于作者**。
 
 ## 许可协议
 
@@ -61,9 +57,16 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 ## 版本兼容说明
 
-wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升级到了 v0.6.0 版本，更正了部分类中的方法名称，但会保持向前兼容。请先前版本的用户放心升级使用。
+wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升级到了 v0.6.0 版本，但会保持向前兼容。请先前版本的用户放心升级使用。
 
 ## 更新历史
+
+### v0.6.0
+
+* 重新编写了文档, 添加了快速上手教程
+* 添加了 WechatConf 微信配置类
+* 增加了对消息加解密的支持
+* 对整体进行了较大规模的重构, 优化了代码结构
 
 ### v0.5.9
 
