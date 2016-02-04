@@ -306,7 +306,8 @@ class WechatBasic(WechatBase):
         :return: 符合微信服务器要求的 XML 响应数据
         """
         self._check_parse()
-        return GroupTransferReply(message=self.__message).render()
+        response = GroupTransferReply(message=self.__message).render()
+        return self._encrypt_response(response)
 
     def grant_token(self, **kwargs):
         """
