@@ -3,13 +3,13 @@ theme: yeti
 
 site_url: http://wechat-python-sdk.com
 repo_url: https://github.com/wechat-python-sdk
-copyright: 2014-2016 Ace Kwok
+copyright: Copyright 2014-2016 Ace Kwok
 markdown_extensions:
     - toc:
         permalink: True
 
 extra:
-  'version': 'v0.6.0 (20160201)'
+  'version': 'v0.6.0 (20160204)'
 
 pages:
   - '首页': 'index.md'
