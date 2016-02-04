@@ -34,8 +34,7 @@ pages:
     - '1. 登录': 'extension/login.md'
   - 'API 文档':
     - '1. WechatConf': 'api/wechatconf.md'
-    - '2. WechatBasic': 'api/basic.md'
-    - '2. WechatExt': 'api/ext.md'
+    - '2. WechatMessage': 'api/wechatmessage.md'
     - '3. 异常类': 'api/exception.md'
   - 'FAQ': 'faq.md'
   - '功能完成度': 'feature.md'
