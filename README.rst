@@ -1,6 +1,8 @@
 微信公众平台 Python 开发包
 ===========================
 
+.. image:: docs/docs/img/logo.png
+
 当前最新版本：v0.6.0
 
 wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不便，让你可以专注于业务逻辑本身，而不是浪费精力在与微信服务器复杂的交互中。
@@ -9,7 +11,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 **请注意：本开发包并不打算提供一个独立的完整微信解决方案，我们更希望这个开发包可以非常融洽的在各个框架中进行集成并使用，对于HTTP请求及响应方面并不涉及，该开发包仅仅接受必要参数，提供各种微信操作的方法，并返回相应的可以响应微信服务器的数据(Response)或操作执行结果。**
 
-文档
+文档地址
 ----------------------------
 
 `http://wechat-python-sdk.com/ <http://wechat-python-sdk.com/>`_
@@ -20,7 +22,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 安装
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**请注意：本 SDK 在 pypi.python.org 上的软件包名称为 `wechat-sdk <https://pypi.python.org/pypi/wechat-sdk>`_ **
+请注意：本 SDK 在 pypi.python.org 上的软件包名称为 `wechat-sdk <https://pypi.python.org/pypi/wechat-sdk>`_
 
 可以通过 pip 进行安装
 
@@ -78,6 +80,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升级到了 v0.6.0 版本，但会保持向前兼容。请先前版本的用户放心升级使用。
 
 ChangeLog
+----------------------------
 
 v0.6.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
