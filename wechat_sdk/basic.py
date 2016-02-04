@@ -313,7 +313,6 @@ class WechatBasic(WechatBase):
         获取 Access Token
         详情请参考 http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.conf.grant_access_token()
 
@@ -322,7 +321,6 @@ class WechatBasic(WechatBase):
         获取 Jsapi Ticket
         详情请参考 http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html#.E9.99.84.E5.BD.951-JS-SDK.E4.BD.BF.E7.94.A8.E6.9D.83.E9.99.90.E7.AD.BE.E5.90.8D.E7.AE.97.E6.B3.95
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.conf.grant_jsapi_ticket()
 
@@ -369,7 +367,6 @@ class WechatBasic(WechatBase):
         详情请参考 http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html
         :param menu_data: Python 字典
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         menu_data = self._transcoding_dict(menu_data)
         return self.request.post(
@@ -382,7 +379,6 @@ class WechatBasic(WechatBase):
         查询自定义菜单
         详情请参考 http://mp.weixin.qq.com/wiki/16/ff9b7b85220e1396ffa16794a9d95adc.html
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.get('https://api.weixin.qq.com/cgi-bin/menu/get')
 
@@ -391,7 +387,6 @@ class WechatBasic(WechatBase):
         删除自定义菜单
         详情请参考 http://mp.weixin.qq.com/wiki/16/8ed41ba931e4845844ad6d1eeb8060c8.html
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.get('https://api.weixin.qq.com/cgi-bin/menu/delete')
 
@@ -403,7 +398,6 @@ class WechatBasic(WechatBase):
         :param media_file: 要上传的文件，一个 File object 或 StringIO object
         :param extension: 如果 media_file 传入的为 StringIO object，那么必须传入 extension 显示指明该媒体文件扩展名，如 ``mp3``, ``amr``；如果 media_file 传入的为 File object，那么该参数请留空
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         if not isinstance(media_file, file) and not isinstance(media_file, StringIO):
             raise ValueError('Parameter media_file must be file object or StringIO.StringIO object.')
@@ -427,9 +421,8 @@ class WechatBasic(WechatBase):
             filename = media_file.name
 
         return self.request.post(
-            url='http://file.api.weixin.qq.com/cgi-bin/media/upload',
+            url='https://api.weixin.qq.com/cgi-bin/media/upload',
             params={
-                'access_token': self.access_token,
                 'type': media_type,
             },
             files={
@@ -445,7 +438,7 @@ class WechatBasic(WechatBase):
         :return: requests 的 Response 实例
         """
         return self.request.get(
-            'http://file.api.weixin.qq.com/cgi-bin/media/get',
+            'https://api.weixin.qq.com/cgi-bin/media/get',
             params={
                 'media_id': media_id,
             },
@@ -474,7 +467,6 @@ class WechatBasic(WechatBase):
         查询所有分组
         详情请参考 http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.get('https://api.weixin.qq.com/cgi-bin/groups/get')
 
@@ -484,7 +476,6 @@ class WechatBasic(WechatBase):
         详情请参考 http://mp.weixin.qq.com/wiki/13/be5272dc4930300ba561d927aead2569.html
         :param openid: 用户的OpenID
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/getid',
@@ -500,7 +491,6 @@ class WechatBasic(WechatBase):
         :param group_id: 分组id，由微信分配
         :param name: 分组名字（30个字符以内）
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/update',
@@ -519,7 +509,6 @@ class WechatBasic(WechatBase):
         :param user_id: 用户 ID 。 就是你收到的 WechatMessage 的 source
         :param group_id: 分组 ID
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/groups/members/update',
@@ -536,7 +525,6 @@ class WechatBasic(WechatBase):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param lang: 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.get(
             url='https://api.weixin.qq.com/cgi-bin/user/info',
@@ -553,7 +541,6 @@ class WechatBasic(WechatBase):
         详情请参考 http://mp.weixin.qq.com/wiki/3/17e6919a39c1c53555185907acf70093.html
         :param first_user_id: 可选。第一个拉取的OPENID，不填默认从头开始拉取
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         params = {
             'access_token': self.access_token,
@@ -569,7 +556,6 @@ class WechatBasic(WechatBase):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param content: 消息正文
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
@@ -589,7 +575,6 @@ class WechatBasic(WechatBase):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 图片的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
@@ -609,7 +594,6 @@ class WechatBasic(WechatBase):
         :param user_id: 用户 ID, 就是你收到的 WechatMessage 的 source
         :param media_id: 发送的语音的媒体ID。 可以通过 :func:`upload_media` 上传。
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
@@ -631,7 +615,6 @@ class WechatBasic(WechatBase):
         :param title: 视频消息的标题
         :param description: 视频消息的描述
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         video_data = {
             'media_id': media_id,
@@ -661,7 +644,6 @@ class WechatBasic(WechatBase):
         :param title: 音乐标题
         :param description: 音乐描述
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         music_data = {
             'musicurl': url,
@@ -731,7 +713,6 @@ class WechatBasic(WechatBase):
         详情请参考 http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html
         :param data: 你要发送的参数 dict
         :return: 返回的 JSON 数据包
-        :raise HTTPError: 微信api http 请求失败
         """
         data = self._transcoding_dict(data)
         return self.request.post(

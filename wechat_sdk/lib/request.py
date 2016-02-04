@@ -27,10 +27,14 @@ class WechatRequest(object):
         :param kwargs: 附加数据
         :return: 微信服务器响应的 JSON 数据
         """
+        access_token = self.__conf.access_token if self.__conf is not None else access_token
         if "params" not in kwargs:
             kwargs["params"] = {
-                "access_token": self.__conf.access_token if self.__conf is not None else access_token,
+                "access_token": access_token
             }
+        else:
+            kwargs["params"]["access_token"] = access_token
+
         if isinstance(kwargs.get("data", ""), dict):
             body = json.dumps(kwargs["data"], ensure_ascii=False)
             body = body.encode('utf8')
@@ -42,7 +46,11 @@ class WechatRequest(object):
             **kwargs
         )
         r.raise_for_status()
-        response_json = r.json()
+        try:
+            response_json = r.json()
+        except ValueError:  # 非 JSON 数据
+            return r
+
         headimgurl = response_json.get('headimgurl')
         if headimgurl:
             response_json['headimgurl'] = headimgurl.replace('\\', '')
