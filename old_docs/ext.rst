@@ -2,6 +2,9 @@
  微信非官方接口操作 WechatExt
 ==============================
 
+文档已经转移到新地址: `http://wechat-python-sdk.com/ <http://wechat-python-sdk.com/>`_
+=======================================================================================================================
+
 .. py:class:: wechat_sdk.ext.WechatExt(username, password [, token=None, cookies=None, appid=None, plugin_token=None, ifencodepwd=False, login=True, checkssl=False])
 
    微信扩展功能类
