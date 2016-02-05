@@ -3,7 +3,7 @@
 import hashlib
 import requests
 import cgi
-
+    
 try:
     from StringIO import StringIO  # Python 2
 except ImportError:
@@ -106,10 +106,10 @@ class WechatBasic(WechatBase):
         tmp_list = [self.conf.token, timestamp, nonce]
         tmp_list.sort()
         tmp_str = ''.join(tmp_list)
-        if signature == hashlib.sha1(tmp_str.encode('utf-8')).hexdigest():
-            return True
-        else:
+        if signature != hashlib.sha1(tmp_str.encode('utf-8')).hexdigest():
             return False
+
+        return True
 
     def generate_jsapi_signature(self, timestamp, noncestr, url, jsapi_ticket=None):
         """
@@ -144,24 +144,21 @@ class WechatBasic(WechatBase):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
-        if type(data) == str:
-            pass
-        elif type(data) == unicode:
-            data = data.encode('utf-8')
-        else:
+        if type(data) not in [str, unicode]:
             raise ParseError()
 
+        data = data.encode('utf-8')
+
         if self.conf.encrypt_mode == 'safe':
-            if msg_signature and timestamp and nonce:
-                data = self.conf.crypto.decrypt_message(
-                    msg=data,
-                    msg_signature=msg_signature,
-                    timestamp=timestamp,
-                    nonce=nonce,
-                )
-            else:
+            if not (msg_signature and timestamp and nonce):
                 raise ParseError('must provide msg_signature/timestamp/nonce in safe encrypt mode')
 
+            data = self.conf.crypto.decrypt_message(
+                msg=data,
+                msg_signature=msg_signature,
+                timestamp=timestamp,
+                nonce=nonce,
+            )
         try:
             xml = XMLStore(xmlstring=data)
         except Exception:
@@ -530,7 +527,6 @@ class WechatBasic(WechatBase):
         return self.request.get(
             url='https://api.weixin.qq.com/cgi-bin/user/info',
             params={
-                'access_token': self.access_token,
                 'openid': user_id,
                 'lang': lang,
             }
@@ -543,9 +539,7 @@ class WechatBasic(WechatBase):
         :param first_user_id: 可选。第一个拉取的OPENID，不填默认从头开始拉取
         :return: 返回的 JSON 数据包
         """
-        params = {
-            'access_token': self.access_token,
-        }
+        params = dict()
         if first_user_id:
             params['next_openid'] = first_user_id
         return self.request.get('https://api.weixin.qq.com/cgi-bin/user/get', params=params)
@@ -674,7 +668,12 @@ class WechatBasic(WechatBase):
         :param media_id: 待发送的图文 Media ID
         :return: 返回的 JSON 数据包
         """
-        if articles is not None:
+        # neither 'articles' nor 'media_id' is specified
+        if articles is None and media_id is None:
+            raise TypeError('must provide one parameter in "articles" and "media_id"')
+
+        # articles specified
+        if articles:
             articles_data = []
             for article in articles:
                 article = Article(**article)
@@ -694,19 +693,18 @@ class WechatBasic(WechatBase):
                     },
                 }
             )
-        elif media_id is not None:
-            return self.request.post(
-                url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
-                data={
-                    'touser': user_id,
-                    'msgtype': 'mpnews',
-                    'mpnews': {
-                        'media_id': media_id,
-                    },
-                }
-            )
-        else:
-            raise TypeError('must provide one parameter in "articles" and "media_id"')
+
+        # media_id specified
+        return self.request.post(
+            url='https://api.weixin.qq.com/cgi-bin/message/custom/send',
+            data={
+                'touser': user_id,
+                'msgtype': 'mpnews',
+                'mpnews': {
+                    'media_id': media_id,
+                },
+            }
+        )
 
     def create_qrcode(self, data):
         """
@@ -844,5 +842,4 @@ class WechatBasic(WechatBase):
                 nonce=generate_nonce(),
                 timestamp=generate_timestamp(),
             )
-        else:
-            return response
+        return response
