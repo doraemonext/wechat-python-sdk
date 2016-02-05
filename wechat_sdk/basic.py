@@ -527,7 +527,6 @@ class WechatBasic(WechatBase):
         return self.request.get(
             url='https://api.weixin.qq.com/cgi-bin/user/info',
             params={
-                'access_token': self.access_token,
                 'openid': user_id,
                 'lang': lang,
             }
@@ -540,9 +539,7 @@ class WechatBasic(WechatBase):
         :param first_user_id: 可选。第一个拉取的OPENID，不填默认从头开始拉取
         :return: 返回的 JSON 数据包
         """
-        params = {
-            'access_token': self.access_token,
-        }
+        params = dict()
         if first_user_id:
             params['next_openid'] = first_user_id
         return self.request.get('https://api.weixin.qq.com/cgi-bin/user/get', params=params)
