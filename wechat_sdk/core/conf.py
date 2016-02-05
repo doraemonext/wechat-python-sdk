@@ -229,9 +229,9 @@ class WechatConf(object):
         response_json = self.__request.get(
             url="https://api.weixin.qq.com/cgi-bin/ticket/getticket",
             params={
-                "access_token": self.access_token,
                 "type": "jsapi",
-            }
+            },
+            access_token=self.access_token,
         )
         self.__jsapi_ticket = response_json['ticket']
         self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
