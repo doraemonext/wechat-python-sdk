@@ -34,10 +34,6 @@ h4 {
     overflow-y: auto;
 }
 
-.navbar-right {
-    display: none;
-}
-
 blockquote p {
     font-size: 13px;
 }
