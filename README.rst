@@ -26,7 +26,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 首先安装依赖::
 
-    $ sudo apt-get install python-dev  # Ubuntu
+    $ sudo apt-get install python3-crypto  # Ubuntu, or `python-crypto` if you're using python2
     $ sudo pacman -S python-crypto  # ArchLinux
 
 可以通过 pip 进行安装::
