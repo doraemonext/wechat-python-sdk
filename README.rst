@@ -24,11 +24,14 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 
 请注意：本 SDK 在 pypi.python.org 上的软件包名称为 `wechat-sdk <https://pypi.python.org/pypi/wechat-sdk>`_
 
-可以通过 pip 进行安装
+首先安装依赖::
 
-::
+    $ sudo apt-get install python-dev  # Ubuntu
+    $ sudo pacman -S python-crypto  # ArchLinux
 
-    pip install wechat-sdk
+可以通过 pip 进行安装::
+
+    pip install xmltodict wechat-sdk
 
 也可以通过 easy_install 进行安装
 
