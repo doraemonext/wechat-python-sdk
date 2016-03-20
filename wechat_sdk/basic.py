@@ -3,7 +3,7 @@
 import hashlib
 import requests
 import cgi
-    
+
 try:
     from StringIO import StringIO  # Python 2
 except ImportError:
@@ -19,7 +19,7 @@ from .reply import (
     ArticleReply, GroupTransferReply)
 from .lib.parser import XMLStore
 from .lib.request import WechatRequest
-from .utils import to_binary, to_text, generate_nonce, generate_timestamp
+from .utils import to_binary, generate_nonce, generate_timestamp, unicode_type, basestring_type
 
 
 class WechatBasic(WechatBase):
@@ -144,7 +144,8 @@ class WechatBasic(WechatBase):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
-        if type(data) not in [str, unicode]:
+        # if type(data) not in [str, unicode]:
+        if not isinstance(data, (basestring_type, unicode_type)):
             raise ParseError()
 
         data = data.encode('utf-8')

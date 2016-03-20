@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import requests
+import sys
 import six
 import time
 import random
+
+PY3 = sys.version_info >= (3, )
+unicode_type = type(u"")
+if PY3:
+    basestring_type = str
+else:
+    basestring_type = basestring_type
 
 
 def to_text(value, encoding='utf-8'):
