@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests
+import io
 import six
 import time
 import random
@@ -33,6 +33,9 @@ def to_binary(value, encoding='utf-8'):
         return value
     if isinstance(value, six.text_type):
         return value.encode(encoding)
+
+    if six.PY3:
+        return six.binary_type(str(value), encoding)  # For Python 3
     return six.binary_type(value)
 
 
@@ -60,3 +63,31 @@ def generate_nonce():
     :return: nonce string
     """
     return random.randrange(1000000000, 2000000000)
+
+
+def convert_ext_to_mime(extension):
+    """将扩展名转换为 MIME 格式
+    :return: mime string
+    """
+    table = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'amr': 'audio/amr',
+        'mp3': 'audio/mpeg',
+        'mp4': 'video/mp4',
+    }
+
+    if extension in table:
+        return table[extension]
+    raise ValueError("Invalid extension in MIME table")
+
+
+def is_allowed_extension(extension, type='upload_media'):
+    """检查扩展名是否是可以上传到服务器
+    :return: True if ok
+    """
+    table = ('jpg', 'jpeg', 'amr', 'mp3', 'mp4')
+
+    if extension in table:
+        return True
+    return False

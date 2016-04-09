@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import io
 import hashlib
 import requests
 import cgi
-    
-try:
-    from StringIO import StringIO  # Python 2
-except ImportError:
-    from io import StringIO  # Python 3
+import six
 
 from .base import WechatBase
 from .core.conf import WechatConf
@@ -19,7 +16,7 @@ from .reply import (
     ArticleReply, GroupTransferReply)
 from .lib.parser import XMLStore
 from .lib.request import WechatRequest
-from .utils import to_binary, to_text, generate_nonce, generate_timestamp
+from .utils import to_binary, to_text, generate_nonce, generate_timestamp, convert_ext_to_mime, is_allowed_extension
 
 
 class WechatBasic(WechatBase):
@@ -128,7 +125,7 @@ class WechatBasic(WechatBase):
             'timestamp': timestamp,
             'url': url,
         }
-        keys = data.keys()
+        keys = list(data.keys())
         keys.sort()
         data_str = '&'.join(['%s=%s' % (key, data[key]) for key in keys])
         signature = hashlib.sha1(data_str.encode('utf-8')).hexdigest()
@@ -144,10 +141,8 @@ class WechatBasic(WechatBase):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
-        if type(data) not in [str, unicode]:
-            raise ParseError()
-
-        data = data.encode('utf-8')
+        if isinstance(data, six.text_type):  # unicode to str(PY2), str to bytes(PY3)
+            data = data.encode('utf-8')
 
         if self.conf.encrypt_mode == 'safe':
             if not (msg_signature and timestamp and nonce):
@@ -211,7 +206,11 @@ class WechatBasic(WechatBase):
         self._check_parse()
         content = self._transcoding(content)
         if escape:
-            content = cgi.escape(content)
+            if six.PY2:
+                content = cgi.escape(content)
+            else:
+                import html
+                content = html.escape(content)
 
         response = TextReply(message=self.__message, content=content).render()
         return self._encrypt_response(response)
@@ -397,26 +396,25 @@ class WechatBasic(WechatBase):
         :param extension: 如果 media_file 传入的为 StringIO object，那么必须传入 extension 显示指明该媒体文件扩展名，如 ``mp3``, ``amr``；如果 media_file 传入的为 File object，那么该参数请留空
         :return: 返回的 JSON 数据包
         """
-        if not isinstance(media_file, file) and not isinstance(media_file, StringIO):
-            raise ValueError('Parameter media_file must be file object or StringIO.StringIO object.')
-        if isinstance(media_file, StringIO) and extension.lower() not in ['jpg', 'jpeg', 'amr', 'mp3', 'mp4']:
-            raise ValueError('Please provide \'extension\' parameters when the type of \'media_file\' is \'StringIO.StringIO\'.')
-        if isinstance(media_file, file):
-            extension = media_file.name.split('.')[-1]
-            if extension.lower() not in ['jpg', 'jpeg', 'amr', 'mp3', 'mp4']:
-                raise ValueError('Invalid file type.')
-
-        ext = {
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'amr': 'audio/amr',
-            'mp3': 'audio/mpeg',
-            'mp4': 'video/mp4',
-        }
-        if isinstance(media_file, StringIO):
-            filename = 'temp.' + extension
+        if six.PY2:
+            return self._upload_media_py2(media_type, media_file, extension)
         else:
+            return self._upload_media_py3(media_type, media_file, extension)
+
+    def _upload_media_py2(self, media_type, media_file, extension=''):
+        if not isinstance(media_file, file) and not isinstance(media_file, six.StringIO):
+            raise ValueError('Parameter media_file must be file object or StringIO.StringIO object.')
+        if isinstance(media_file, six.StringIO) and not is_allowed_extension(extension.lower()):
+            raise ValueError('Please provide \'extension\' parameters when the type of \'media_file\' is \'StringIO.StringIO\'.')
+
+        if isinstance(media_file, file):
+            extension = media_file.name.split('.')[-1].lower()
+            if not is_allowed_extension(extension):
+                raise ValueError('Invalid file type.')
             filename = media_file.name
+        else:
+            extension = extension.lower()
+            filename = 'temp.' + extension
 
         return self.request.post(
             url='https://api.weixin.qq.com/cgi-bin/media/upload',
@@ -424,7 +422,31 @@ class WechatBasic(WechatBase):
                 'type': media_type,
             },
             files={
-                'media': (filename, media_file, ext[extension])
+                'media': (filename, media_file, convert_ext_to_mime(extension))
+            }
+        )
+
+    def _upload_media_py3(self, media_type, media_file, extension=''):
+        if isinstance(media_file, io.IOBase) and hasattr(media_file, 'name'):
+            extension = media_file.name.split('.')[-1].lower()
+            if not is_allowed_extension(extension):
+                raise ValueError('Invalid file type.')
+            filename = media_file.name
+        elif isinstance(media_file, io.BytesIO):
+            extension = extension.lower()
+            if not is_allowed_extension(extension):
+                raise ValueError('Please provide \'extension\' parameters when the type of \'media_file\' is \'io.BytesIO\'.')
+            filename = 'temp.' + extension
+        else:
+            raise ValueError('Parameter media_file must be io.BufferedIOBase(open a file with \'rb\') or io.BytesIO object.')
+
+        return self.request.post(
+            url='https://api.weixin.qq.com/cgi-bin/media/upload',
+            params={
+                'type': media_type,
+            },
+            files={
+                'media': (filename, media_file, convert_ext_to_mime(extension))
             }
         )
 

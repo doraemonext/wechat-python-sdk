@@ -23,7 +23,7 @@ class WechatBaseCrypto(object):
         :param encoding_aes_key: 公众平台上，开发者设置的EncodingAESKey
         :param _id: 公众号的 appid 或企业号的 corpid
         """
-        self.__key = base64.b64decode(to_binary(encoding_aes_key) + '=')
+        self.__key = base64.b64decode(to_binary(encoding_aes_key) + to_binary('='))
         if len(self.__key) != 32:
             raise ValidateAESKeyError(encoding_aes_key)
         self.__token = to_binary(token)
@@ -64,14 +64,14 @@ class WechatBaseCrypto(object):
 </xml>"""
         nonce = to_binary(nonce)
         timestamp = to_binary(timestamp) or to_binary(int(time.time()))
-        encrypt = self.__pc.encrypt(msg, self.__id)
+        encrypt = self.__pc.encrypt(to_text(msg), self.__id)
         # 生成安全签名
         signature = get_sha1_signature(self.__token, timestamp, nonce, encrypt)
         return to_text(xml.format(
-            encrypt=encrypt,
-            signature=signature,
-            timestamp=timestamp,
-            nonce=nonce
+            encrypt=to_text(encrypt),
+            signature=to_text(signature),
+            timestamp=to_text(timestamp),
+            nonce=to_text(nonce)
         ))
 
     def _decrypt_message(self, msg, msg_signature, timestamp, nonce):

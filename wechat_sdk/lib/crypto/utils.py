@@ -3,6 +3,7 @@
 import hashlib
 
 from wechat_sdk.lib.crypto.exceptions import CryptoComputeSignatureError
+from wechat_sdk.utils import to_binary
 
 
 def get_sha1_signature(token, timestamp, nonce, encrypt):
@@ -16,10 +17,10 @@ def get_sha1_signature(token, timestamp, nonce, encrypt):
     """
 
     try:
-        sortlist = [token, timestamp, nonce, encrypt]
+        sortlist = [token, timestamp, nonce, to_binary(encrypt)]
         sortlist.sort()
         sha = hashlib.sha1()
-        sha.update("".join(sortlist))
+        sha.update(to_binary("").join(sortlist))
         return sha.hexdigest()
     except Exception as e:
         raise CryptoComputeSignatureError(e)

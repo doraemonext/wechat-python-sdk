@@ -2,7 +2,7 @@
 =================================
 
 文档已经转移到新地址: `http://wechat-python-sdk.com/ <http://wechat-python-sdk.com/>`_
-=======================================================================================================================
+---------------------------------------------------------------------------------------
 
 .. py:class:: wechat_sdk.basic.WechatBasic(token=None, appid=None, appsecret=None, partnerid=None, partnerkey=None, paysignkey=None, access_token=None, access_token_expires_at=None, jsapi_ticket=None, jsapi_ticket_expires_at=None, checkssl=False)
 

@@ -2,6 +2,7 @@
 
 import json
 import requests
+import six
 
 from wechat_sdk.exceptions import OfficialAPIError
 
@@ -37,7 +38,8 @@ class WechatRequest(object):
 
         if isinstance(kwargs.get("data", ""), dict):
             body = json.dumps(kwargs["data"], ensure_ascii=False)
-            body = body.encode('utf8')
+            if isinstance(body, six.text_type):
+                body = body.encode('utf8')
             kwargs["data"] = body
 
         r = requests.request(

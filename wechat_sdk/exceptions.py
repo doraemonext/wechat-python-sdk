@@ -60,7 +60,10 @@ class NeedParseError(WechatSDKException):
 
 class OfficialAPIError(WechatAPIException):
     """微信官方API请求出错异常"""
-    def __init__(self, errcode, errmsg):
+    def __init__(self, errcode, errmsg=None):
+        if errmsg is None:  # 对旧版本 OfficialAPIError 的兼容代码
+            super(OfficialAPIError, self).__init__(99999, errmsg=errcode)
+            return
         super(OfficialAPIError, self).__init__(errcode, errmsg)
 
 

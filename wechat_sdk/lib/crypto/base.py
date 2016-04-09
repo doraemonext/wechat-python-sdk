@@ -5,7 +5,7 @@ import string
 import random
 import struct
 import socket
-
+import six
 from Crypto.Cipher import AES
 
 from wechat_sdk.lib.crypto.pkcs7 import PKCS7Encoder
@@ -56,7 +56,10 @@ class BaseCrypto(object):
             raise DecryptAESError(e)
 
         try:
-            pad = ord(plain_text[-1])
+            if six.PY2:
+                pad = ord(plain_text[-1])
+            else:
+                pad = plain_text[-1]
             # 去掉补位字符串
             # pkcs7 = PKCS7Encoder()
             # plain_text = pkcs7.encode(plain_text)
