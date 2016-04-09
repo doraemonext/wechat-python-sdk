@@ -28,4 +28,4 @@
 * zxygentoo ([https://github.com/zxygentoo](https://github.com/zxygentoo))
 * paicha ([https://github.com/paicha](https://github.com/paicha))
 * torpedoallen ([https://github.com/torpedoallen](https://github.com/torpedoallen))
-
+* jiajunhuang ([https://github.com/jiajunhuang](https://github.com/jiajunhuang))
