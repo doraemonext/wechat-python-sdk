@@ -33,6 +33,9 @@ def to_binary(value, encoding='utf-8'):
         return value
     if isinstance(value, six.text_type):
         return value.encode(encoding)
+
+    if six.PY3:
+        return six.binary_type(str(value), encoding)  # For Python 3
     return six.binary_type(value)
 
 

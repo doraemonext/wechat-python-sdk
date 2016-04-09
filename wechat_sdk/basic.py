@@ -125,7 +125,7 @@ class WechatBasic(WechatBase):
             'timestamp': timestamp,
             'url': url,
         }
-        keys = data.keys()
+        keys = list(data.keys())
         keys.sort()
         data_str = '&'.join(['%s=%s' % (key, data[key]) for key in keys])
         signature = hashlib.sha1(data_str.encode('utf-8')).hexdigest()
@@ -141,10 +141,8 @@ class WechatBasic(WechatBase):
         :raises ParseError: 解析微信服务器数据错误, 数据不合法
         """
         result = {}
-        if type(data) not in [str, unicode]:
-            raise ParseError()
-
-        data = data.encode('utf-8')
+        if isinstance(data, six.text_type):  # unicode to str(PY2), str to bytes(PY3)
+            data = data.encode('utf-8')
 
         if self.conf.encrypt_mode == 'safe':
             if not (msg_signature and timestamp and nonce):
@@ -208,7 +206,11 @@ class WechatBasic(WechatBase):
         self._check_parse()
         content = self._transcoding(content)
         if escape:
-            content = cgi.escape(content)
+            if six.PY2:
+                content = cgi.escape(content)
+            else:
+                import html
+                content = html.escape(content)
 
         response = TextReply(message=self.__message, content=content).render()
         return self._encrypt_response(response)

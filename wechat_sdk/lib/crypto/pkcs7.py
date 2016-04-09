@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from wechat_sdk.utils import to_binary, to_text
+
 
 class PKCS7Encoder(object):
     """提供基于PKCS7算法的加解密接口"""
@@ -18,7 +20,7 @@ class PKCS7Encoder(object):
         if amount_to_pad == 0:
             amount_to_pad = cls.block_size
         # 获得补位所用的字符
-        pad = chr(amount_to_pad)
+        pad = to_binary(chr(amount_to_pad))
         return text + pad * amount_to_pad
 
     @classmethod
