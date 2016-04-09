@@ -9,8 +9,10 @@
 **参数说明：**
 
 * `media_type`: 媒体文件类型字符串，分别有图片（`image`）、语音（`voice`）、视频（`video`）和缩略图（`thumb`）
-* `media_file`: 要上传的文件，一个 File object 或 StringIO object
-* `extension`: 如果 media_file 传入的为 StringIO object，那么必须传入 extension 显示指明该媒体文件扩展名，如 `mp3`, `amr`；如果 media_file 传入的为 File object，那么该参数请留空
+* `media_file`: 要上传的文件
+    * Python 2: 一个 `file` object 或 `StringIO.StringIO` object
+    * Python 3: 一个 `io.BufferedIOBase` object（open 文件时使用 `rb` 模式） 或 `io.BytesIO` object
+* `extension`: 如果 media_file 传入的为 `StringIO.StringIO` object（PY2）或 `io.BytesIO` object（PY3)，那么必须传入 extension 显示指明该媒体文件扩展名，如 `mp3`, `amr`；如果 media_file 传入的为 `file` object（PY2）或 `io.BufferedIOBase` object，那么该参数请留空
 
 **调用前检查：**App ID / App Secret
 
