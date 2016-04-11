@@ -117,7 +117,7 @@
 
 ## 用户分组 - 移动用户分组
 
-**调用方法：**`.update_group(user_id, group_id)`
+**调用方法：**`.move_user(user_id, group_id)`
 
 **参数：**
 
