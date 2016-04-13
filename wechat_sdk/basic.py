@@ -196,6 +196,14 @@ class WechatBasic(WechatBase):
         """
         return self.conf.get_jsapi_ticket()
 
+    def response_none(self):
+        """
+        回复空消息
+        :return: 符合微信服务器要求的空消息
+        """
+        self._check_parse()
+        return self._encrypt_response('success')
+
     def response_text(self, content, escape=False):
         """
         将文字信息 content 组装为符合微信服务器要求的响应数据
