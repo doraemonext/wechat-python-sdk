@@ -13,7 +13,6 @@
 联系方式：
 
 * **Email**: [doraemonext@gmail.com](mailto:doraemonext@gmail.com)
-* **QQ**: 1422526
 
 ## Contributors
 
@@ -29,3 +28,4 @@
 * paicha ([https://github.com/paicha](https://github.com/paicha))
 * torpedoallen ([https://github.com/torpedoallen](https://github.com/torpedoallen))
 * jiajunhuang ([https://github.com/jiajunhuang](https://github.com/jiajunhuang))
+* liuwons ([https://github.com/liuwons](https://github.com/liuwons))
