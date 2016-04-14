@@ -9,7 +9,7 @@ markdown_extensions:
         permalink: True
 
 extra:
-  'version': 'v0.6.2 (20160409)'
+  'version': 'v0.6.3 (20160414)'
 
 pages:
   - '首页': 'index.md'
