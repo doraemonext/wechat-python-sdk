@@ -240,6 +240,18 @@ elif wechat.message.type in ['scancode_push', 'scancode_waitmsg', 'pic_sysphoto'
 
 **对应官方文档：**[回复图文消息](http://mp.weixin.qq.com/wiki/1/6239b44c206cab9145b1d52c67e6c551.html#.E5.9B.9E.E5.A4.8D.E5.9B.BE.E6.96.87.E6.B6.88.E6.81.AF)
 
+## 被动回复消息 - 空消息
+
+假如服务器无法保证在五秒内处理并回复，必须调用该接口，这样微信服务器才不会对此作任何处理，并且不会发起重试（这种情况下，可以使用客服消息接口进行异步回复），否则，将出现严重的错误提示。
+
+**调用方法：**`.response_none()`
+
+**调用前检查：**必须已经成功调用过 [`.parse_data()`](#xml) 方法。
+
+**返回值：**组装好的 XML 字符串，可直接回复微信服务器。
+
+**对应官方文档：**[回复空消息](http://mp.weixin.qq.com/wiki/1/6239b44c206cab9145b1d52c67e6c551.html)
+
 ## 客服消息
 
 ### 发送文本消息
