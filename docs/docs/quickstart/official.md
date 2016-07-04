@@ -109,7 +109,7 @@ format = wechat.message.format                     # 对应于 XML 中的 Format
 recognition = wechat.message.recognition           # 对应于 XML 中的 Recognition
 ```
 
-当 `isintance(wechat.message, VideoMessage)` 或 `isinstance(wechat.message, ShortVideoMessage)` 时，有：
+当 `isinstance(wechat.message, VideoMessage)` 或 `isinstance(wechat.message, ShortVideoMessage)` 时，有：
 
 ```python
 media_id = wechat.message.media_id                 # 对应于 XML 中的 MediaId
