@@ -2,8 +2,6 @@
 
 ## 个人资料
 
-![file-list](/img/author.jpeg)
-
 郭耀星，英文名 Ace Kwok，网名 Doraemonext，武汉大学软件工程专业 2013 级，将于 2017 年应届毕业。
 
 * **Blog**: [http://www.doraemonext.com](http://www.doraemonext.com)

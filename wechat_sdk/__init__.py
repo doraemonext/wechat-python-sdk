@@ -6,4 +6,4 @@ from wechat_sdk.ext import WechatExt
 
 __all__ = ['WechatConf', 'WechatBasic', 'WechatExt']
 
-__version__ = "0.6.3"
+__version__ = "0.6.3.1"
