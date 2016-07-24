@@ -6,7 +6,7 @@ from io import open
 
 setup(
     name='wechat-sdk',
-    version='0.6.3',
+    version='0.6.3.1',
     keywords=('wechat', 'sdk', 'wechat sdk'),
     description=u'微信公众平台Python开发包',
     long_description=open("README.rst", encoding="utf-8").read(),
