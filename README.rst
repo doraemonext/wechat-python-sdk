@@ -3,7 +3,7 @@
 
 .. image:: docs/docs/img/logo.png
 
-当前最新版本：v0.6.3.1
+当前最新版本：v0.6.4
 
 wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不便，让你可以专注于业务逻辑本身，而不是浪费精力在与微信服务器复杂的交互中。
 
@@ -82,7 +82,7 @@ wechat-python-sdk 于 2016 年 2 月份进行了一次较大规模升级，升�
 ChangeLog
 ----------------------------
 
-v0.6.3.1
+v0.6.4
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * 修正 Windows 下安装问题(感谢 `jiajunhuang <https://github.com/jiajunhuang>`_)
