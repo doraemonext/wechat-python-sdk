@@ -79,5 +79,5 @@ class BaseCrypto(object):
 
         @return: 16位字符串
         """
-        rule = string.letters + string.digits
+        rule = string.ascii_letters + string.digits
         return "".join(random.sample(rule, 16))
