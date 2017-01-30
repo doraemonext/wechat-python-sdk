@@ -1,4 +1,4 @@
-微信公众平台 Python 开发包
+微信公众平台 Python 开发包 [DEPRECATED]
 ===========================
 
 **本项目已经停止开发，推荐使用 https://github.com/jxtech/wechatpy/ 作为替代品。**
