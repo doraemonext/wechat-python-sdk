@@ -1,6 +1,8 @@
 微信公众平台 Python 开发包
 ===========================
 
+**本项目已经停止开发，推荐使用 `https://github.com/jxtech/wechatpy/ <https://github.com/jxtech/wechatpy>`_ 作为替代品。**
+
 .. image:: docs/docs/img/logo.png
 
 当前最新版本：v0.6.4
