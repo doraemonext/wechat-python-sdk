@@ -16,7 +16,7 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 文档地址
 ----------------------------
 
-`http://wechat-python-sdk.com/ <http://wechat-python-sdk.com/>`_
+`http://wechat-sdk.doraemonext.com/ <http://wechat-sdk.doraemonext.com/>`_
 
 快速开始
 ----------------------------
@@ -51,15 +51,15 @@ wechat-python-sdk 希望能帮你解决微信公众平台开发中的种种不�
 下一步
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-如果你是 SDK 的新用户，请阅读 `快速入门 <http://wechat-python-sdk.com/quickstart/intro/>`_ 。
+如果你是 SDK 的新用户，请阅读 `快速入门 <http://wechat-sdk.doraemonext.com/quickstart/intro/>`_ 。
 
-如果你需要更加全面详细的使用说明，请阅读 `官方接口 <http://wechat-python-sdk.com/official/intro/>`_ 。
+如果你需要更加全面详细的使用说明，请阅读 `官方接口 <http://wechat-sdk.doraemonext.com/official/intro/>`_ 。
 
-如果你需要 SDK 的所有细节，请阅读 `API 文档 <http://wechat-python-sdk.com/api/wechatconf/>`_ 。
+如果你需要 SDK 的所有细节，请阅读 `API 文档 <http://wechat-sdk.doraemonext.com/api/wechatconf/>`_ 。
 
-如果你对 SDK 的使用心存疑问，请阅读 `FAQ <http://wechat-python-sdk.com/faq/>`_ ，如果其中没有你想要的答案，请前往 `wechat-python-sdk Issues <https://github.com/wechat-python-sdk/wechat-python-sdk/issues>`_ 提出你的问题。
+如果你对 SDK 的使用心存疑问，请阅读 `FAQ <http://wechat-sdk.doraemonext.com/faq/>`_ ，如果其中没有你想要的答案，请前往 `wechat-python-sdk Issues <https://github.com/wechat-python-sdk/wechat-python-sdk/issues>`_ 提出你的问题。
 
-如果你对本项目感兴趣，请阅读的 `关于项目 <http://wechat-python-sdk.com/about/project/>`_ 和 `关于作者 <http://wechat-python-sdk.com/about/author/>`_ 。
+如果你对本项目感兴趣，请阅读的 `关于项目 <http://wechat-sdk.doraemonext.com/about/project/>`_ 和 `关于作者 <http://wechat-sdk.doraemonext.com/about/author/>`_ 。
 
 许可协议
 ----------------------------
